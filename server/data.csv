@@ -1,0 +1,1001 @@
+patient_id,gender,pregnancy_status,known_allergy,rechallenge,dechallenge,severity,is_serious,criteria_for_seriousness,action_taken,outcome,class
+4e32a65d-2dce-452c-a5b6-a2d2ebb0ca0d,female,not pregnant,no,na,na,moderate,no,disability,dose reduced,recovered,unclassified
+828ec9bb-f97d-43aa-b392-a4a52ad789e8,female,1st trimester,yes,unknown,unknown,mild,no,disability,drug withdrawn,recovered,unclassified
+440b093c-40d5-4873-90c9-f5d5dd441e45,male,not applicable,yes,na,na,mild,no,hospitalisation,dose not changed,recovered,unclassifiable
+874ceaa4-d6fc-4138-a784-e2fcd17c8ca1,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose not changed,recovered,possible
+fec084e6-4783-47da-8fda-dd0aa859984f,male,not applicable,no,unknown,unknown,moderate,no,disability,dose not changed,recovered with sequelae,unclassified
+d896fd96-7cdd-46d0-9bdb-d5d8ac1d4108,female,not pregnant,no,no,yes,mild,no,disability,dose increased,recovered,likely
+8b720653-248e-40c2-bb6b-63c2b4b1c1ba,female,not pregnant,no,unknown,unknown,mild,no,disability,dose reduced,recovered with sequelae,unclassified
+4bc6f27b-308c-4e7e-b06a-1cce8c6391f1,female,2nd trimester,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+e548bcee-1400-4381-ad4c-88839ab899f9,female,3rd trimester,no,na,no,moderate,yes,hospitalisation,dose not changed,recovering,possible
+9ce17002-3626-4403-b318-04071699b9cd,male,not applicable,no,na,na,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+789ff65a-3f17-4f65-918f-7d3423211669,male,not applicable,no,unknown,unknown,severe,no,disability,drug withdrawn,recovering,unclassified
+d1231926-6e03-4069-b632-6a8c7202d026,male,not applicable,yes,no,no,moderate,no,congenital anomaly,drug withdrawn,recovering,possible
+80af6868-1bcc-4d3a-b21f-8171191b9db2,male,not applicable,yes,unknown,no,moderate,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+84164fa4-d731-4d81-a7b7-7c0de233cec1,female,3rd trimester,no,na,no,moderate,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+2819240f-76c4-4c7d-aadf-f7f520f24a7e,male,not applicable,no,na,na,moderate,yes,disability,dose reduced,recovered with sequelae,unclassified
+af417cfa-04c5-47cd-a968-039ca74c0dba,male,not applicable,no,na,unknown,severe,no,disability,not applicable,recovered,unclassified
+f118fcc3-4026-4530-b751-dea1325db8ff,female,2nd trimester,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+bd2de407-c44c-4017-8f83-1a7527e84f14,female,not pregnant,no,na,na,moderate,yes,life-threatening,drug withdrawn,recovered with sequelae,likely
+3fc5905a-c3b4-4fc7-bb0e-4b5423a4c77c,male,not applicable,no,na,no,mild,yes,hospitalisation,dose reduced,not recovered,unlikely
+85e06277-91ed-4867-b9a9-2fe4da5a0831,male,not applicable,no,no,no,severe,no,disability,drug withdrawn,recovering,possible
+b11f33f9-adc5-412a-bc4d-883466a3d74f,male,not applicable,yes,unknown,yes,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,certain
+54a1b994-ce4b-402c-ab20-93d861275034,female,3rd trimester,no,na,unknown,fatal,no,hospitalisation,dose not changed,recovered,unclassifiable
+9cb0a439-ee2e-4475-ab77-d08924d0837f,female,1st trimester,no,no,unknown,severe,yes,disability,drug withdrawn,recovered,possible
+0031a3ac-277d-4247-92f9-a3a672f7be87,male,not applicable,no,yes,yes,severe,no,life-threatening,drug withdrawn,death,certain
+9112c279-cfe0-49d9-86d1-c28e36c0fc4c,male,not applicable,no,no,na,mild,no,disability,dose increased,recovered,unlikely
+e51810de-539a-4119-a602-4e4ca3bd8b55,female,not pregnant,yes,na,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+37504ea1-2fe8-48e2-824b-8d1a3ede622c,male,not applicable,no,unknown,na,moderate,no,congenital anomaly,dose reduced,recovered,possible
+135e2ee6-c90d-4417-aca8-56edfda63647,female,2nd trimester,no,no,no,mild,yes,hospitalisation,dose reduced,not recovered,unlikely
+215dbc53-f124-4bdc-b4c7-9ae9cf84726a,male,not applicable,no,na,no,mild,no,disability,dose not changed,recovered,unlikely
+5b5f0e50-ebda-4aa7-a4d7-da5435b10e4d,female,1st trimester,no,no,no,mild,yes,disability,dose reduced,recovered,unlikely
+1049409d-9034-4584-95d1-dda303bc7e4a,female,2nd trimester,no,no,no,moderate,yes,hospitalisation,dose reduced,recovered,unlikely
+80ba690f-fb37-4bd8-9bab-12a5be77be11,male,not applicable,no,na,na,severe,no,hospitalisation,dose reduced,recovering,unclassified
+df31cc71-0589-48ce-98fe-56cdc2968434,male,not applicable,no,unknown,unknown,moderate,yes,hospitalisation,drug withdrawn,recovered,unclassified
+73572399-ce8c-4429-93b9-a38035065bfe,male,not applicable,no,no,no,moderate,no,disability,dose reduced,not recovered,possible
+219a5c93-2cb0-4334-b9fa-c72dcab5453b,female,not pregnant,no,no,yes,severe,no,death,drug withdrawn,recovered,likely
+bca9f9bb-8e6e-4d81-bde1-45bb5e99fbfa,female,1st trimester,no,no,yes,moderate,no,hospitalisation,dose reduced,recovered with sequelae,likely
+d2bedb9e-d841-4eb3-ba0e-6f28930e5880,male,not applicable,no,no,unknown,mild,yes,disability,dose not changed,recovering,unlikely
+e2f124fc-61cb-4fff-af3d-83bb134eb5f6,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+98e3cefa-8f45-4727-bbb5-b5ab5c8ed6ad,male,not applicable,no,no,yes,severe,no,life-threatening,dose reduced,recovered,likely
+e6419890-7204-426f-b880-521e399654c9,female,2nd trimester,no,no,yes,severe,no,life-threatening,drug withdrawn,recovered,likely
+b60259a7-ad2a-4766-8278-0cabf3f1b0b0,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered with sequelae,possible
+135b0deb-7838-4b41-a8ad-253e524caa9d,male,not applicable,yes,no,na,mild,no,disability,drug withdrawn,recovered,likely
+46bc08af-a689-4341-96ed-eeec8c4c97e2,female,not pregnant,no,unknown,unknown,mild,no,death,dose reduced,recovered,unclassified
+2353c745-7911-4a0c-af90-02a0c9b53d54,male,not applicable,no,no,no,severe,no,hospitalisation,dose reduced,recovering,possible
+f482bffb-fe2c-4f1a-876a-7671eac7f995,female,not pregnant,no,unknown,yes,severe,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+b7a74bc8-2ccb-4aaf-962b-9448daef1f3a,female,1st trimester,no,no,no,severe,yes,congenital anomaly,dose not changed,recovered,unlikely
+82bb4ecd-79c8-4f0f-b28e-8580c051a94e,male,not applicable,no,no,na,moderate,no,disability,dose not changed,recovered,possible
+23417dcb-a4d5-455d-a51e-64b896514395,male,not applicable,no,na,unknown,mild,no,hospitalisation,drug withdrawn,not recovered,unclassifiable
+cfed41f6-8f75-4a81-8bd7-b3f1086bd220,female,not pregnant,no,yes,yes,fatal,no,death,drug withdrawn,recovered,certain
+8203912c-1a6b-4266-9a9d-2ac9111b8c5a,male,not applicable,no,na,yes,severe,no,life-threatening,drug withdrawn,death,likely
+0b1289e7-3fd2-45e3-bec5-398eedd1d0f3,female,not pregnant,no,no,yes,unknown,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+31e59adb-3218-4c59-8d54-d4f891ae09e1,female,3rd trimester,no,na,unknown,fatal,no,hospitalisation,drug withdrawn,not recovered,unclassifiable
+156d3c12-87c5-44b0-894a-d3c592b3e7f6,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+4c875c36-5d81-4562-a8af-6160d34d90aa,male,not applicable,no,yes,yes,fatal,no,death,drug withdrawn,recovered,certain
+5c26eb06-ea6e-4156-8786-095fe53877a7,male,not applicable,yes,unknown,no,moderate,yes,hospitalisation,dose reduced,unknown,possible
+93bc4f51-4deb-4410-bf06-2b70246a2c10,male,not applicable,no,no,no,severe,yes,life-threatening,dose not changed,recovered,possible
+42813f80-67fa-4341-8623-4fcfaba65b5d,male,not applicable,no,no,yes,moderate,yes,life-threatening,drug withdrawn,death,likely
+3d931d0c-1e07-4552-96b7-20eaed08cbc4,female,not pregnant,no,na,no,mild,yes,hospitalisation,dose not changed,death,possible
+233036bb-bb77-468f-87e3-7e50184be4fc,male,not applicable,yes,unknown,no,moderate,no,life-threatening,not applicable,recovered,unlikely
+c6905831-e07b-45d3-860d-9edd0b5c5bd0,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+fe5e9221-f4bb-43ad-8b69-3b793f957751,female,3rd trimester,no,na,unknown,mild,yes,hospitalisation,dose increased,not recovered,unclassified
+3eff6c1a-2f86-4c17-85ed-6a71a81a883a,female,3rd trimester,no,no,na,moderate,no,hospitalisation,dose reduced,recovered,possible
+c8c9723b-7c95-4a1c-bf20-4f3476a5e10b,female,3rd trimester,yes,na,yes,moderate,no,disability,drug withdrawn,recovered,likely
+b63d356f-9984-4106-93f9-561d1829c39c,female,3rd trimester,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+bf427efe-3c00-4b41-9ccb-bfe0119ee04b,female,3rd trimester,no,na,unknown,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unclassifiable
+2189f82f-8363-4c6c-815e-bbd04a92196d,male,not applicable,no,na,yes,severe,yes,life-threatening,drug withdrawn,recovered,likely
+63c90864-e1b6-4c14-b61e-2a392dd1989e,female,not pregnant,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,possible
+aa23aece-ebe6-40c2-8782-df16278a0d81,female,2nd trimester,no,unknown,unknown,moderate,no,hospitalisation,dose not changed,not recovered,unclassifiable
+c388969c-3bd7-4568-947d-c51368a972fd,male,not applicable,no,no,yes,moderate,no,life-threatening,drug withdrawn,death,likely
+b02856cd-4fc9-41a5-8b23-a05177c6299a,female,1st trimester,no,no,no,severe,yes,hospitalisation,dose reduced,recovered,possible
+5d850045-5dd2-4ffa-94b9-755610396451,female,not pregnant,no,no,yes,fatal,no,congenital anomaly,drug withdrawn,recovering,likely
+bde42f9b-9788-4f09-940b-8ef0b76d7a7a,male,not applicable,yes,no,na,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+ad87562f-9bec-4467-aa18-a744baef85ab,male,not applicable,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered,possible
+e2aeeb42-7d45-4c6c-8523-e280f636b3dd,male,not applicable,no,na,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+97888730-9065-423c-a6d7-42902753158f,male,not applicable,no,na,unknown,moderate,yes,disability,drug withdrawn,recovered with sequelae,unclassifiable
+fe63cb30-1ddc-49b1-91bd-dac936932431,female,2nd trimester,no,unknown,na,mild,no,disability,dose reduced,recovered,unclassified
+3d6597bc-3647-461e-8712-91ae9f06ba60,female,1st trimester,no,unknown,na,mild,no,hospitalisation,dose not changed,recovered,unclassifiable
+e77e2993-7ab4-4bfa-a0db-cb7fa993c63c,female,3rd trimester,no,unknown,no,moderate,yes,hospitalisation,dose reduced,recovered with sequelae,unlikely
+c4647d9f-bb60-4585-8d07-abc8bdb55635,male,not applicable,no,no,yes,severe,no,hospitalisation,dose not changed,recovered,likely
+681390ca-2814-45f5-bb78-6efa07f52244,male,not applicable,no,na,no,severe,no,hospitalisation,drug withdrawn,recovering,possible
+de670df3-cc17-45b9-9130-9b20159f5d1e,female,not pregnant,no,no,yes,severe,yes,hospitalisation,dose not changed,recovered with sequelae,likely
+5583c563-6195-44bf-92de-61ddabb9429d,male,not applicable,no,no,yes,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+96f94964-cbd2-4168-90c3-c99e373b8f17,male,not applicable,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovering,unclassifiable
+6763e105-0971-4a4e-b06c-cbc5d671f120,female,not pregnant,no,no,yes,fatal,yes,hospitalisation,dose increased,recovered,likely
+253e8a8a-1243-49e1-9cdd-1735b92eef37,female,1st trimester,no,no,no,unknown,no,hospitalisation,dose reduced,recovered with sequelae,unlikely
+5270c52e-72cf-4c03-97d7-93d3fce87500,female,not pregnant,no,no,yes,fatal,no,life-threatening,drug withdrawn,recovered,likely
+c04ae2a6-1d4c-42af-97bb-aa0279070300,male,not applicable,no,unknown,yes,severe,no,hospitalisation,dose increased,recovered,likely
+8a88f7d8-d1c3-41b6-849c-c9bee174c745,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+ae0eef92-1db4-4079-b92b-81cf8cd112fd,female,1st trimester,yes,unknown,unknown,moderate,no,disability,drug withdrawn,recovered,unclassified
+1e0eb9f6-7ee0-4ac3-8fb1-e3e0ac4be51a,male,not applicable,no,na,no,mild,no,disability,dose reduced,recovered,unlikely
+eeff845d-2df1-47d3-9f48-73e21c8f68a5,male,not applicable,no,na,na,severe,no,life-threatening,dose reduced,not recovered,unclassified
+9c2820a0-4b8c-4586-bb1e-352840bcc893,female,1st trimester,no,unknown,na,moderate,no,disability,dose reduced,recovered,unclassified
+9f36e483-bf0e-432e-86e8-c288e314ec39,male,not applicable,no,no,no,mild,yes,congenital anomaly,dose reduced,recovered with sequelae,possible
+7a6f05af-4b43-4489-a8e1-c2c5759424da,female,not pregnant,no,no,no,fatal,no,congenital anomaly,dose not changed,recovered,possible
+ef172ffb-48f7-4974-ae13-c4f3238e466d,male,not applicable,no,no,no,mild,yes,congenital anomaly,dose reduced,recovered,possible
+16a27a27-d646-4398-be3f-638aa39cde33,female,not pregnant,no,no,yes,unknown,yes,hospitalisation,drug withdrawn,recovered,likely
+91ad576b-56d8-4cf0-8242-f0eec2986e33,female,1st trimester,no,na,unknown,moderate,yes,hospitalisation,dose reduced,recovered,unclassifiable
+4f69665e-3772-4a0f-b8dd-ef0a4a47897c,female,3rd trimester,no,no,no,fatal,no,hospitalisation,dose reduced,recovered,possible
+a171ae1e-2c8d-4de8-b485-acbe70b8aff4,female,2nd trimester,no,unknown,na,moderate,no,hospitalisation,dose reduced,recovered,unclassified
+7c6fd622-af44-462a-acd0-20f3df7e176d,male,not applicable,no,no,no,mild,no,life-threatening,dose reduced,recovered with sequelae,possible
+3b4f263c-6a2c-4b46-9a09-00325501b970,female,3rd trimester,no,na,unknown,fatal,yes,hospitalisation,drug withdrawn,recovered,likely
+fa3ebd71-0b16-4fdc-b481-9466a3a3d2b6,male,not applicable,no,no,na,mild,no,disability,dose reduced,recovered with sequelae,possible
+42dada4e-b3c9-4908-926a-6a84f2c3b605,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+88bf7b09-9190-4722-926b-875a3370a220,male,not applicable,no,no,yes,severe,no,life-threatening,drug withdrawn,recovered,likely
+b0982d73-c512-45a3-a7bf-10da057d0170,male,not applicable,no,na,na,mild,no,hospitalisation,dose reduced,recovered,unclassified
+704ce6e7-cff6-4c19-8e93-7a100cd260c3,male,not applicable,yes,na,yes,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+dd07a0ab-afe8-42a3-ad5e-4fa7581393c9,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,not recovered,possible
+c803280b-a4d3-4b9c-8375-0fa84e42df1b,female,not pregnant,no,unknown,na,severe,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+5e3fa507-0b39-4990-bef3-966fe4649df2,female,1st trimester,no,no,no,moderate,no,disability,drug withdrawn,recovered,possible
+433a8213-2b8b-47da-8268-f6758a4dff4d,female,not pregnant,no,no,no,severe,no,disability,drug withdrawn,unknown,possible
+3edf02ff-da6e-43cd-9fec-5d70a64c845f,male,not applicable,no,no,na,moderate,no,disability,dose increased,recovered,likely
+f65c7255-f3c9-491f-8225-337786a0d995,male,not applicable,no,na,unknown,mild,yes,hospitalisation,dose not changed,recovered,unclassified
+201c421d-193c-49b2-8a16-d6885f0825cb,male,not applicable,no,no,yes,fatal,yes,death,dose reduced,recovered,likely
+976867f5-3d0e-4983-81c3-2644e9ea386c,male,not applicable,no,unknown,no,fatal,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+f1f74fdd-e153-435c-9806-ebe4a0244c85,female,not pregnant,no,no,yes,fatal,no,life-threatening,drug withdrawn,recovered,likely
+a775c4b1-e2fd-4f5f-93ae-8f27f7e4ea4c,female,2nd trimester,no,no,no,moderate,yes,life-threatening,dose reduced,not recovered,unlikely
+9b16f75d-e606-486c-95b8-545d2761811a,male,not applicable,no,na,unknown,moderate,no,hospitalisation,dose reduced,recovering,unclassified
+523b6c8a-448d-4796-8a6e-d9014e4f6162,male,not applicable,no,no,yes,fatal,yes,congenital anomaly,drug withdrawn,recovering,likely
+5b551790-d550-4830-bcaf-56d97d7ddaf2,female,1st trimester,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered,unlikely
+d692c557-d8cb-490a-8ea8-a24f658039e6,male,not applicable,no,na,no,mild,no,disability,drug withdrawn,recovered,possible
+71784364-b788-4017-9223-95b58a2fd9db,female,not pregnant,no,unknown,yes,severe,no,life-threatening,drug withdrawn,recovered,certain
+25366b97-927f-4ba3-a590-6eff5c54d0db,female,not pregnant,no,no,yes,moderate,yes,disability,drug withdrawn,recovered with sequelae,likely
+14ab6f5e-168f-4a09-8fb0-d22103407104,female,1st trimester,no,unknown,na,moderate,no,disability,drug withdrawn,recovered with sequelae,unclassifiable
+f69d17e6-616a-44fb-9e22-8cbab7e0f18d,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,not recovered,certain
+5adc58a9-0255-4935-9206-2e77c8b7b42b,female,3rd trimester,yes,no,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+c720717a-e1df-475a-8891-feedcb9bbe20,male,not applicable,no,na,na,moderate,yes,hospitalisation,dose reduced,recovered,unclassified
+daa7d995-4008-4df3-8943-08f0c7e996d8,male,not applicable,no,no,no,moderate,no,disability,drug withdrawn,recovered with sequelae,possible
+d1a9cd20-3cff-4e9c-a67f-17bb76e7e5a5,male,not applicable,no,no,yes,moderate,no,hospitalisation,dose reduced,recovered,likely
+00a48d19-9da7-478f-b98d-33d4f8a8ef74,female,not pregnant,yes,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+0925e067-707c-432d-8288-c9a7f3b3f263,male,not applicable,no,na,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+ae8428c8-4c1c-45da-bd32-9892cab7d0a4,male,not applicable,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+f73878fe-94e6-456f-901e-a65cc2388264,male,not applicable,no,no,no,moderate,no,disability,dose reduced,recovered,possible
+8e477018-3c55-4e98-8fe1-ed5090d11bdc,female,3rd trimester,yes,no,na,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+a1d5e231-4f52-487f-9a8f-cd99226272a3,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+fb2fc92f-a885-4ebb-bfc2-bf35b50fc7a6,male,not applicable,no,unknown,yes,mild,no,death,drug withdrawn,not recovered,certain
+2154e07f-307f-4fdf-ad95-9748975c87b9,male,not applicable,no,unknown,unknown,mild,no,disability,dose not changed,recovered with sequelae,unclassified
+f1d0b1f4-28a3-413d-a799-e36abf1d9201,male,not applicable,no,no,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+516a596b-9659-4f8d-a4bd-bd3e63a1209b,female,3rd trimester,no,unknown,na,fatal,no,disability,drug withdrawn,recovering,unclassifiable
+11935bb1-63af-4c7a-a8f4-c0e64e6966e9,female,2nd trimester,no,no,no,moderate,no,life-threatening,drug withdrawn,recovered with sequelae,unlikely
+d3280f70-8fc4-4759-950a-c8687648a692,female,2nd trimester,no,no,no,mild,yes,congenital anomaly,dose not changed,recovered with sequelae,possible
+ace5c9b0-fc7c-4006-99a4-4781cef20746,female,not pregnant,no,no,yes,fatal,no,death,drug withdrawn,recovered,likely
+e274a14b-28e7-4534-99a4-0dd376cbe698,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose reduced,recovering,possible
+72dafed3-0267-4f6f-9ceb-b2520c838be7,female,1st trimester,yes,unknown,unknown,mild,no,life-threatening,dose not changed,recovered,unclassifiable
+8ca15ab5-9448-4994-af89-3c84585c75fd,female,1st trimester,no,unknown,na,moderate,yes,hospitalisation,not applicable,recovered,unlikely
+06444f78-646c-467b-aeeb-6894daa5f0fd,male,not applicable,no,unknown,no,moderate,no,disability,drug withdrawn,recovered,possible
+93654a09-d9a6-4f83-bb43-b3f6d7b4e0a4,female,1st trimester,no,no,no,moderate,yes,hospitalisation,dose reduced,unknown,unlikely
+51aebc6b-3f44-491a-aee2-05d951d56860,female,1st trimester,no,no,no,unknown,no,hospitalisation,dose reduced,recovered with sequelae,possible
+4cc33ee6-a0b0-4bb6-9291-3d98af61ddcf,male,not applicable,no,no,yes,fatal,no,hospitalisation,dose reduced,recovered with sequelae,likely
+09ca181c-44c7-45a8-a101-d588be7656f8,female,not pregnant,no,no,no,severe,yes,disability,drug withdrawn,recovered,possible
+c4898968-e2ee-4d01-b1ff-3025d0792b99,male,not applicable,no,no,yes,fatal,no,disability,drug withdrawn,death,likely
+5daa5ea6-2189-41fc-83ea-76b34a8b56d3,male,not applicable,no,no,no,unknown,no,hospitalisation,drug withdrawn,recovered,possible
+30a9a3ac-05d9-4623-a5d4-23165a65d321,female,not pregnant,no,na,no,mild,no,congenital anomaly,dose reduced,recovering,possible
+e5e92453-a131-4d8e-9bec-a8a3780455f5,male,not applicable,no,na,unknown,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassifiable
+ed65c231-d447-44e0-bf06-3287558444b9,female,1st trimester,no,unknown,na,mild,yes,hospitalisation,dose reduced,recovering,unclassified
+00eb187b-78f6-422a-a68a-e9ee35fd31e9,male,not applicable,no,unknown,yes,moderate,yes,disability,drug withdrawn,recovered with sequelae,likely
+1cae37b6-d2a6-4687-b36e-712412bd53e3,male,not applicable,no,no,unknown,moderate,yes,hospitalisation,dose reduced,recovered,possible
+1621d648-874e-471d-9eaf-eb70e860137f,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+a3e683a1-444d-4c64-8503-d3c06c5d24fa,male,not applicable,no,no,yes,fatal,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+61640695-9f8d-4672-9324-a67b735e28f7,male,not applicable,no,na,unknown,moderate,no,hospitalisation,dose increased,recovered,unlikely
+4a2ae565-4819-4d78-b095-ada9d171ad03,male,not applicable,no,no,yes,mild,no,hospitalisation,drug withdrawn,recovered,likely
+b073024b-7502-47b7-af79-54df2e291228,female,not pregnant,yes,yes,yes,fatal,yes,death,drug withdrawn,recovered,certain
+574f1b4a-fe2c-4f1f-9216-957ea2cc206a,male,not applicable,no,no,yes,moderate,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+9fe02ba6-db77-4592-be7e-fe658efea5b1,female,not pregnant,no,yes,yes,moderate,yes,hospitalisation,drug withdrawn,recovered,certain
+c8ed5c5c-8e89-4209-a825-f763e580313e,male,not applicable,no,yes,yes,fatal,no,hospitalisation,drug withdrawn,recovered,certain
+5f362036-8b1a-49e0-ae35-b771e1096b01,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+af9b3c3b-5300-4276-9ccf-c9680f8c54dc,female,not pregnant,no,na,yes,moderate,yes,disability,drug withdrawn,recovered,likely
+63697eab-4a89-48e8-a2fa-c10b6acf82f0,female,not pregnant,no,no,yes,severe,no,life-threatening,drug withdrawn,recovered,likely
+c93746f4-e9aa-47eb-804f-d6cf167c4e81,male,not applicable,no,na,no,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+fba03ff7-c7a0-436f-96df-d80eebdad525,female,not pregnant,no,na,na,severe,no,disability,dose reduced,recovered,unclassifiable
+7f4fb8a5-5a84-4af3-a6da-ebbabdc619ee,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+b01c8c8c-f0a3-453c-81e9-600a8de9325c,male,not applicable,no,na,unknown,mild,no,congenital anomaly,drug withdrawn,death,unclassifiable
+aedfbf26-8e9c-42bd-a4d9-52c4133941d7,male,not applicable,yes,na,no,moderate,no,disability,drug withdrawn,recovered with sequelae,possible
+26a4035a-96a7-4105-ae64-6733cab9fb87,female,1st trimester,no,no,no,mild,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+799485d0-8121-47d1-bd2d-c20ffe54586b,male,not applicable,no,na,na,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassifiable
+e8191b4e-4c1c-4d95-9c8e-c9e942f70913,male,not applicable,yes,no,unknown,moderate,yes,congenital anomaly,dose not changed,recovered,possible
+44e99a14-d2f4-40bb-a183-08d3fcf975c7,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+078b3638-7d20-450a-bf04-dde4adb889c9,female,1st trimester,no,no,yes,moderate,no,disability,drug withdrawn,recovering,likely
+f39e4784-8569-4011-ab22-8a70be6533d5,male,not applicable,no,na,unknown,moderate,no,life-threatening,dose not changed,recovered,unclassified
+5dd06bbe-ff42-4eb5-bd11-a981da342f58,female,2nd trimester,no,unknown,na,moderate,no,disability,not applicable,recovered with sequelae,unclassified
+092374d5-a8f5-4f98-bc1d-63152c4c5b46,male,not applicable,no,no,yes,fatal,yes,hospitalisation,drug withdrawn,recovered,likely
+c96ca925-cda0-4392-ad76-50f7fd86ac7d,female,not pregnant,no,no,no,mild,no,death,drug withdrawn,recovered,possible
+c404342e-a63a-4e48-b043-b58e07b0809b,male,not applicable,yes,no,yes,moderate,no,disability,drug withdrawn,recovered,likely
+6e95bf7a-004a-418a-b209-5d0bc375ae0a,female,not pregnant,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+73af7452-0185-40e4-8275-ca114d3702a8,female,not pregnant,no,unknown,yes,moderate,yes,hospitalisation,dose reduced,recovered,likely
+adf97cc5-959d-4463-8433-c58d53059b84,female,not pregnant,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+6a694c77-1132-4023-9c1c-d11f5baa86e3,male,not applicable,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+5d78be1e-43e2-4b40-baf2-58c470a223c8,male,not applicable,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,certain
+1a5302fa-f881-4fd4-bc01-7126a689e801,male,not applicable,no,na,yes,fatal,no,disability,dose reduced,recovered,likely
+c3c0c83b-b975-42fc-8c40-42f965416b14,male,not applicable,no,unknown,unknown,moderate,yes,hospitalisation,dose not changed,recovered with sequelae,unclassified
+e6aedacd-6a32-4afa-818a-d105af4d60c3,male,not applicable,no,no,na,severe,no,hospitalisation,drug withdrawn,recovered,likely
+d2e51d52-c029-498c-8231-806bf4e8601e,male,not applicable,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+29ca2a11-221b-40e4-897a-a69a7f48e4fa,male,not applicable,no,unknown,no,mild,no,disability,dose not changed,recovered,unlikely
+41c37a85-f624-4f78-9d4b-e830059032e4,female,1st trimester,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+f80b03e6-97a5-4613-b104-4e8e9f86ec2c,female,not pregnant,no,no,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+c3e3e0aa-8277-41a7-adb4-aeea63968a6b,male,not applicable,no,unknown,unknown,mild,no,life-threatening,dose not changed,recovered,unclassified
+8653c2fe-e5d6-47bf-850f-b03b2cd91578,female,not pregnant,no,no,no,unknown,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+c91e3a01-d25b-421a-b20d-a5f86394e013,female,1st trimester,no,no,no,moderate,no,disability,dose not changed,recovering,possible
+1d0ad7d2-9f4a-4209-91e4-85d3a0b52916,male,not applicable,no,no,no,severe,no,hospitalisation,dose not changed,recovered with sequelae,possible
+6ce4017f-8f77-4c72-a1e4-476823724512,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+c87c8e98-6104-4fac-a4f9-a4b2f12d70d6,female,2nd trimester,no,na,na,moderate,no,congenital anomaly,drug withdrawn,recovered,unclassified
+c114e94d-d9cb-48b2-9bc3-cecfc2a232ea,female,not pregnant,no,no,no,moderate,no,disability,dose not changed,recovered,possible
+f9200997-9419-4cc0-ab32-a4f49d6ee9a8,female,3rd trimester,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+be4eb2aa-ecd8-400e-9b41-53f97cfcf41f,male,not applicable,no,na,no,moderate,no,hospitalisation,dose reduced,recovered with sequelae,possible
+042c6a3f-dae0-4da3-920d-11f7ffabfb93,male,not applicable,yes,unknown,unknown,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+7b2a02ae-d877-4158-9f13-f8448eecf2d8,male,not applicable,no,no,na,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+1e0b868a-e357-4ebc-9605-54d2a083e67b,male,not applicable,no,na,unknown,severe,no,disability,dose increased,recovered,unclassified
+7a0b0bbc-0c67-46bc-a7a7-b691987559f5,male,not applicable,yes,unknown,unknown,moderate,yes,hospitalisation,drug withdrawn,not recovered,unclassifiable
+f391576b-aca4-46f1-bb5e-1f6a4c1d9541,female,3rd trimester,no,na,unknown,mild,no,hospitalisation,dose increased,not recovered,unclassifiable
+331b72d2-0a78-4583-a0a9-e0fbf8ddf908,male,not applicable,no,no,yes,mild,no,hospitalisation,drug withdrawn,recovered,likely
+3ddc1453-af12-43d7-93ea-66bea17b4379,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+db36571c-dc03-4b13-a00a-b6cbdfdf660d,female,2nd trimester,no,na,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+d880cec5-fac7-49fd-944d-83e96fca6123,female,3rd trimester,no,no,no,severe,no,life-threatening,drug withdrawn,recovered,possible
+d2d32556-673f-40bb-9343-a498ed78966f,male,not applicable,no,no,yes,severe,no,death,drug withdrawn,recovered,likely
+e3042f08-86bf-46b3-843f-5930690e3e6f,female,not pregnant,no,unknown,na,mild,no,hospitalisation,dose increased,not recovered,unclassified
+099b8df4-d2d7-41e3-a7c7-da462fb2c0bf,female,1st trimester,no,no,no,moderate,no,life-threatening,drug withdrawn,recovered with sequelae,possible
+546ab8ff-231b-4a00-8953-1032b76c3fc7,female,not pregnant,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovering,possible
+e2974ded-9772-4ea9-aede-a5ab0dfc8be3,male,not applicable,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+e9a02756-f16b-44c5-99f6-ee67bcea8de3,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+86fe32be-6b3d-4636-9d38-abcacfc9d0d8,male,not applicable,no,no,no,mild,yes,hospitalisation,dose not changed,recovered,possible
+e54c3c93-1781-499b-b7a6-ce1b7bcb3c8b,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,recovered with sequelae,possible
+270bed73-5fc5-448e-9160-3cfd34dde027,male,not applicable,no,unknown,na,mild,no,life-threatening,dose reduced,recovered with sequelae,unclassified
+9bc7b55f-ae51-4961-9a4e-eeff2b0ef68b,female,2nd trimester,no,unknown,na,severe,no,life-threatening,dose not changed,recovered,unclassified
+86e51504-965e-41b3-aa79-aedb4b7a5407,male,not applicable,no,no,na,severe,no,hospitalisation,dose reduced,recovered,possible
+2e7c785a-7c10-4092-a33c-d50ab90c72e7,male,not applicable,no,na,unknown,mild,yes,hospitalisation,drug withdrawn,recovered,unclassified
+e617a8a2-47d4-4a8b-8b13-5bfc70a03655,female,3rd trimester,no,no,no,severe,no,disability,drug withdrawn,recovered,possible
+8a31b674-cd77-4cbb-9d86-f15bcbadccd6,female,3rd trimester,no,na,unknown,mild,no,life-threatening,dose not changed,recovered with sequelae,unclassifiable
+8bbbb2a9-2114-4352-9fe2-3b4cd0a98495,female,2nd trimester,no,na,unknown,moderate,no,hospitalisation,dose not changed,recovered,unclassifiable
+33e01c5d-efce-40d4-b73a-ba824acb635e,male,not applicable,no,no,no,moderate,no,disability,drug withdrawn,not recovered,possible
+ef928557-d978-48f0-a929-4bf557b115b0,male,not applicable,no,no,no,severe,no,congenital anomaly,dose reduced,recovered with sequelae,unlikely
+a2364ffc-74ae-4611-a9d9-d37535a1e68f,female,not pregnant,no,unknown,unknown,moderate,no,disability,dose not changed,recovered,unclassified
+47ca8826-aadf-4ca7-95f3-102eca3e518e,female,3rd trimester,no,no,na,mild,yes,hospitalisation,dose not changed,not recovered,unlikely
+2b1149e6-ce37-47e5-b13b-12960dfd2eb9,female,1st trimester,no,na,na,mild,yes,hospitalisation,drug withdrawn,recovered,unclassified
+807debe9-4a2e-4d30-8dfe-dbf8c255d9bd,female,3rd trimester,no,unknown,unknown,moderate,yes,hospitalisation,drug withdrawn,death,unclassified
+34612a2c-a914-4a03-b0cb-becf83764088,female,not pregnant,no,na,na,mild,no,disability,dose reduced,recovered with sequelae,unclassified
+ba4c1192-233d-4e3a-8c38-b9439049e020,male,not applicable,no,unknown,na,moderate,yes,congenital anomaly,dose not changed,recovered,unclassified
+ac9c9ff4-b8c1-4e28-871e-c9aeaf7e59bf,male,not applicable,no,unknown,na,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+2ae4387b-ca42-438b-8335-e64b1dce4eb4,female,3rd trimester,no,unknown,na,fatal,no,congenital anomaly,drug withdrawn,death,unclassifiable
+bc0429ae-abce-4840-8be2-8e36daeee14d,female,not pregnant,no,unknown,unknown,mild,no,disability,drug withdrawn,recovered,unclassified
+4832129e-d61d-49be-a8ac-b024aced0a1d,male,not applicable,no,no,na,mild,yes,hospitalisation,dose not changed,recovered,unlikely
+036e5734-a5d3-4ec2-b545-4a049fba1e5f,male,not applicable,yes,unknown,no,severe,no,disability,dose reduced,recovered,possible
+b3bb583a-2fdc-4086-9540-2598c9bb0b3a,female,1st trimester,no,no,no,unknown,no,hospitalisation,dose reduced,recovered,unlikely
+d9878a0c-b0b9-44b2-9385-f9cca9a2a105,male,not applicable,no,no,no,severe,yes,disability,dose not changed,recovered with sequelae,possible
+c79433f9-35de-4947-85fe-de6e08dc1339,female,2nd trimester,no,na,unknown,severe,no,disability,drug withdrawn,recovered with sequelae,unclassified
+3f5a8fca-6f54-4ba5-b760-996ea2360932,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,unlikely
+267568d6-561d-4773-9f47-5ed8db78dab9,female,not pregnant,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+cda91cfa-42d1-4e58-82f7-a440d1ceb1cc,male,not applicable,yes,na,unknown,moderate,no,hospitalisation,dose not changed,recovered with sequelae,unclassifiable
+12c08fa3-9f3a-4f90-b5d3-1aa04e803bd1,female,not pregnant,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+07ba8a84-be18-4c86-9f0c-5a97089ca183,male,not applicable,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+82011acd-8798-415a-b3b0-21e8bf51d59c,male,not applicable,no,unknown,no,moderate,no,hospitalisation,dose not changed,recovered,unlikely
+beaa66e7-9412-45ee-a5c0-475ccf820895,female,2nd trimester,no,unknown,unknown,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+373876e1-8fde-45e4-9c6c-39c1f31fb682,female,1st trimester,no,unknown,unknown,fatal,yes,disability,dose reduced,recovered,unclassifiable
+c4dea674-8cca-43b0-9598-42e2a5d2e279,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovering,unlikely
+c318a078-c906-469f-967d-db67da62560b,male,not applicable,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+b4ff557e-28a5-4ac3-8859-93e9b3a52ef2,male,not applicable,no,no,yes,mild,no,hospitalisation,drug withdrawn,recovered,likely
+9c91d14a-b664-4db7-9a9a-be4b4b2d904c,female,3rd trimester,no,unknown,na,severe,yes,hospitalisation,dose not changed,recovered,unclassifiable
+848acf91-750b-4f30-befd-05a1ce612428,male,not applicable,no,unknown,no,moderate,no,congenital anomaly,not applicable,not recovered,unlikely
+10d917a7-3ffa-4dcb-ad99-0ea2946fbd4f,male,not applicable,no,unknown,na,unknown,no,disability,dose reduced,recovered,unclassifiable
+30f043d4-f7f4-4f36-9221-2856b3b2b64d,female,not pregnant,no,no,no,mild,no,disability,dose reduced,recovered with sequelae,possible
+65618a7d-cd0a-4551-8f50-0389ed71fb9c,female,1st trimester,no,na,no,moderate,no,hospitalisation,dose not changed,recovered,unlikely
+2c902571-cf71-485f-a7e9-265347335464,male,not applicable,no,unknown,na,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unclassifiable
+6466ae0a-35fd-4f8d-983e-54ea79346fc3,female,1st trimester,no,unknown,na,moderate,yes,congenital anomaly,dose reduced,recovered,unclassifiable
+d98583ef-1c42-4517-9615-da42e6a7456c,female,1st trimester,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+bc04be3e-b732-41c6-b725-6e04c24988ca,female,2nd trimester,no,no,yes,severe,no,hospitalisation,drug withdrawn,not recovered,likely
+0fceb4dc-db86-41c0-aa70-9e28d196e2f1,male,not applicable,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered,possible
+4c9a6baf-0c94-4db6-aace-ac28bb7d9cf2,female,2nd trimester,no,unknown,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+0e5aa58c-b6ad-42dd-999a-a1fee3bd454a,male,not applicable,yes,no,no,mild,no,life-threatening,drug withdrawn,recovered with sequelae,possible
+a624bad8-074e-49c0-ad18-b656b19fc63f,male,not applicable,no,yes,yes,fatal,no,hospitalisation,drug withdrawn,recovered,certain
+ffe29eb2-cfa0-4521-a5ce-0caf85a784c8,female,not pregnant,no,yes,yes,fatal,no,death,drug withdrawn,recovered,certain
+4b275a86-3538-4925-825d-f77c8c7db127,male,not applicable,no,no,yes,moderate,no,death,drug withdrawn,recovered,likely
+60210ae5-09c5-40c3-8b8e-4f8bbc5dc503,male,not applicable,yes,no,no,mild,no,disability,not applicable,recovered,unlikely
+4115b9b7-3522-4c07-a3a2-2667c4fc4111,male,not applicable,no,no,na,severe,no,disability,dose reduced,recovered with sequelae,possible
+cd4b850f-1289-47b5-a744-1c622a189b6d,male,not applicable,no,unknown,unknown,moderate,no,hospitalisation,dose increased,not recovered,unclassifiable
+7620d316-ef7d-4508-9db3-cf93823f106a,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,recovered with sequelae,possible
+fbaff8f4-f38c-4aa8-b222-5181bf0d83de,male,not applicable,no,no,unknown,mild,no,disability,drug withdrawn,recovered,unlikely
+7dd1a985-b3d1-469d-acee-f904d7857475,male,not applicable,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+619e35db-a1f5-4eda-9135-ed863fb6e348,male,not applicable,no,unknown,unknown,moderate,yes,hospitalisation,not applicable,recovered,unclassified
+10570a6f-75f4-46b3-aebe-18065dfa6373,female,not pregnant,yes,no,unknown,severe,no,life-threatening,dose reduced,recovered with sequelae,likely
+2bcf945c-c01d-43f6-a035-9c2c7d539e99,female,1st trimester,no,na,na,moderate,no,life-threatening,dose not changed,recovered,unclassified
+91aad06c-c577-415b-8b5f-cda18d6c2801,female,not pregnant,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,possible
+bdd9273a-efa5-48ed-8575-ced70babec15,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+1c770254-6e25-445f-bd1b-8ef7565effe0,male,not applicable,yes,unknown,no,moderate,no,congenital anomaly,dose increased,recovered,possible
+1c8a9b08-449d-4ab8-b925-3e8bc67af4e9,male,not applicable,no,na,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+a6e68991-568d-4a98-92fa-e938f3331027,female,2nd trimester,no,no,no,severe,no,disability,drug withdrawn,recovered,possible
+6e823077-fd53-47e7-bca6-fa755498c750,female,1st trimester,no,no,yes,unknown,no,disability,dose reduced,recovering,likely
+3844e113-d391-4291-808a-a81af18f02e6,male,not applicable,no,unknown,na,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+197a0ca5-65f6-4132-b190-4adace048db9,male,not applicable,no,no,no,severe,no,disability,drug withdrawn,recovered with sequelae,possible
+6201519f-ead5-42ba-8b86-df9c5b7c03e7,male,not applicable,no,no,no,moderate,yes,congenital anomaly,dose reduced,recovered with sequelae,possible
+4c5fa948-9313-42e6-a408-dbe564b87dbb,male,not applicable,no,unknown,unknown,mild,no,life-threatening,dose not changed,not recovered,unclassifiable
+f9186319-957d-4435-8600-6b05e80b5655,female,3rd trimester,no,unknown,unknown,mild,no,hospitalisation,drug withdrawn,unknown,unclassifiable
+72f3d220-916e-4f77-a9b5-5c64962721d1,male,not applicable,no,unknown,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+df750652-49c8-4f2d-ae7c-1f4bd0c66fb2,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+7701e591-dbb8-45f0-9cac-b818c88af946,male,not applicable,no,unknown,unknown,mild,no,disability,dose not changed,recovered with sequelae,unlikely
+8fdd6840-63d8-44db-98f4-a10e1a843972,male,not applicable,no,unknown,na,moderate,no,congenital anomaly,dose not changed,recovered with sequelae,unclassifiable
+81d08dc9-7330-4cde-828b-4f68ddfe215a,female,3rd trimester,no,unknown,unknown,mild,no,hospitalisation,dose reduced,not recovered,unclassified
+ad1f46c3-2fc8-49ae-a1a9-05c646afcd6e,female,not pregnant,no,na,unknown,moderate,no,disability,not applicable,recovered,unclassified
+5b31c8aa-b6bd-4a81-93f8-cf058c5807d7,female,2nd trimester,no,unknown,yes,severe,no,life-threatening,drug withdrawn,recovered,likely
+7c9e7987-9998-47a1-ba16-d95731b18838,female,1st trimester,no,na,na,mild,yes,congenital anomaly,dose increased,recovered with sequelae,unclassified
+902a0e19-adea-4c0b-9998-de91622a6e8f,male,not applicable,yes,na,no,mild,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+6c94df21-cb4a-4348-85d1-23bde76ae10d,female,1st trimester,yes,no,na,moderate,yes,hospitalisation,drug withdrawn,death,likely
+59163246-6675-415e-aab4-df2f3dd07900,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,not recovered,possible
+5b09758c-a5b5-41d4-9b27-f2c1affd479e,female,2nd trimester,no,unknown,unknown,mild,no,hospitalisation,dose reduced,recovered,unclassified
+1af7b028-a6da-44d0-84ea-17a84e3db0a7,female,3rd trimester,no,na,unknown,moderate,no,hospitalisation,dose not changed,recovered with sequelae,unclassified
+bd545ce3-3756-4d39-94cf-f2932dd0c8e7,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+d7fb0aa8-af07-4b04-90a0-ae1e50d2d502,male,not applicable,yes,no,no,moderate,no,hospitalisation,dose reduced,recovered,possible
+ca5f65b0-654e-4aed-b060-f2f0190a8053,male,not applicable,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+b01d2ae2-0697-4636-aaa6-9fb4690f4c8a,male,not applicable,no,no,no,fatal,no,disability,dose not changed,recovered,possible
+6a36bca3-be96-4827-b1ce-93af3d343aad,female,2nd trimester,no,unknown,na,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+4ec3a594-8203-4ecf-ad71-9137324ae450,female,2nd trimester,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+1268c05d-91f8-4bff-bce1-5896ae4d84d4,male,not applicable,no,na,na,moderate,no,hospitalisation,dose not changed,recovering,unclassifiable
+a19eb668-a3ec-4498-aa2b-c4aa35bc9482,male,not applicable,no,no,na,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+c50b8326-0995-4484-b345-90cf734cdfb4,male,not applicable,no,na,no,mild,no,congenital anomaly,dose reduced,recovered,possible
+11b2b7cf-7080-4721-a794-16c5994c6909,male,not applicable,no,unknown,unknown,mild,yes,disability,dose reduced,recovered,unclassified
+c76eb445-2e33-4145-ae46-5a30e507ab10,male,not applicable,no,na,yes,fatal,yes,hospitalisation,drug withdrawn,not recovered,likely
+3db98f2a-56b5-46d6-b094-7fb82382a167,female,3rd trimester,no,unknown,unknown,unknown,yes,death,dose reduced,not recovered,unclassifiable
+f26bf72e-cb73-4ee7-8551-969f964619cf,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,dose not changed,recovered with sequelae,unclassified
+d289ef1a-c6f3-4116-b14d-0cebdc3d286a,female,not pregnant,no,no,unknown,severe,no,hospitalisation,drug withdrawn,recovered,likely
+4a04eaef-3277-4c68-a15b-12f13b74503e,female,2nd trimester,no,na,na,moderate,no,life-threatening,dose not changed,recovered,unclassified
+92a56c9b-4049-48a8-993f-599020128adf,female,not pregnant,yes,no,no,moderate,yes,hospitalisation,dose increased,recovered,possible
+555f3495-149b-47fb-9efd-b9d85aa453a1,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,death,likely
+289ae669-29ad-4f3b-9564-d60062e205ea,female,not pregnant,no,no,no,severe,yes,disability,dose reduced,recovering,possible
+16c8eaf5-fb9c-439b-8274-5213c7302cd7,female,not pregnant,no,no,yes,fatal,no,hospitalisation,dose reduced,death,likely
+e6b4f579-21a8-44f5-9717-cc4d810961eb,female,2nd trimester,no,no,no,moderate,yes,congenital anomaly,drug withdrawn,not recovered,possible
+3bf21cfc-9b2e-453f-aa85-368f9e7cdea1,male,not applicable,no,unknown,na,mild,no,disability,dose reduced,recovered,unclassified
+682e571b-ece4-49a7-b613-4a8c5803c0b3,female,not pregnant,no,na,unknown,moderate,no,hospitalisation,drug withdrawn,recovering,unclassified
+66820e58-ad6e-4fdc-86bb-02001b9a22b5,female,2nd trimester,no,no,no,mild,yes,disability,drug withdrawn,recovered with sequelae,possible
+b0585aa6-43b7-46f5-ae1d-d93c3aaed29e,male,not applicable,no,no,na,severe,no,hospitalisation,dose reduced,recovered,possible
+cb7a4476-276b-4762-b105-1c22edbe22f6,female,1st trimester,no,unknown,yes,mild,no,hospitalisation,dose not changed,recovered,likely
+4a98950c-c15f-41ac-93cf-5da01967d6fa,male,not applicable,no,no,na,fatal,no,disability,drug withdrawn,recovered,likely
+d3f766b1-3348-4757-8633-b905954e0e3d,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+b915cf55-a688-4c25-a6b1-a7249767c376,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+77d34b49-70c1-44b0-bc2c-554dbf3e4720,male,not applicable,no,na,na,mild,no,hospitalisation,dose not changed,recovered,unclassifiable
+d9622233-5893-4b84-ab6c-ea183928bbef,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovered with sequelae,possible
+bffb5115-a5a2-4894-89dd-53c2e8f94281,male,not applicable,no,no,no,severe,no,hospitalisation,dose not changed,recovered with sequelae,possible
+57f3612a-6078-43fd-bcf2-6b5c017c56ac,male,not applicable,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+7e278e95-d245-4796-92e1-13c57a3206ec,female,not pregnant,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+a8141f39-f3e7-44ef-b586-0e3f174dbd22,female,3rd trimester,yes,unknown,unknown,moderate,yes,life-threatening,drug withdrawn,death,unclassifiable
+a8e1f27c-77da-4080-8c3e-9c0369536af5,female,not pregnant,yes,no,no,moderate,no,death,dose reduced,recovered with sequelae,possible
+6d10db4b-9643-465e-8fd3-e38d1ac59ffc,female,not pregnant,no,yes,yes,severe,yes,hospitalisation,drug withdrawn,recovered,certain
+f9e39dcf-c7bd-49aa-8f02-97ca7b8ca453,male,not applicable,no,unknown,no,mild,no,disability,dose not changed,recovered,unlikely
+b6741109-40ee-4002-82ec-fc873b728f24,male,not applicable,no,no,na,severe,no,hospitalisation,drug withdrawn,recovering,likely
+285bb00b-4b94-4dd7-9cd5-e0fd30189647,female,2nd trimester,no,unknown,no,moderate,yes,hospitalisation,drug withdrawn,recovered,possible
+c2aa1d16-3d02-4ce8-87d4-b9dca12a4352,female,not pregnant,no,no,yes,severe,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+f8423cad-1c13-4bf8-93f0-454a0586f250,female,not pregnant,no,no,yes,mild,no,disability,drug withdrawn,recovered,likely
+071d1148-c1c9-4b75-b755-6d9eadfd62ae,female,3rd trimester,no,no,no,severe,yes,hospitalisation,dose reduced,recovered with sequelae,possible
+a4bd5162-d368-4fc2-a7f1-c8e052c1ec6e,male,not applicable,no,no,no,mild,no,congenital anomaly,dose reduced,recovered,possible
+ae045966-a31e-417d-a267-cf7a8e3b9316,male,not applicable,no,no,no,mild,no,disability,dose not changed,recovered,unlikely
+5fe2c1e0-db67-4bc2-8273-969a783023ae,male,not applicable,no,no,no,severe,no,hospitalisation,dose not changed,recovered,possible
+30e52b2d-48e2-413e-9373-54a19e4accad,female,2nd trimester,no,no,unknown,fatal,no,life-threatening,drug withdrawn,recovered,likely
+f0a9cf82-0abb-4533-ab26-b0d8c3df61d2,male,not applicable,no,na,unknown,mild,no,disability,dose reduced,recovered,unclassified
+e47d1139-6a5b-445b-b678-66704637f28f,male,not applicable,no,no,yes,severe,no,death,drug withdrawn,recovered,likely
+136752f1-85c5-4fe1-a160-a7a26f905409,female,2nd trimester,no,na,unknown,mild,no,hospitalisation,dose not changed,recovered,unclassified
+302f0abc-e271-43de-badf-42f918e6158b,male,not applicable,no,no,na,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+8cd64c05-9377-49c1-93bc-a938c1feada5,female,2nd trimester,no,no,no,moderate,no,disability,dose not changed,recovered with sequelae,unlikely
+9e50734e-fca0-4ea9-b8c6-d9f98227160b,female,not pregnant,no,no,no,fatal,no,disability,drug withdrawn,recovered with sequelae,possible
+db9f75fd-3e55-4dbd-9e59-1ca7f4fc87bb,male,not applicable,no,no,yes,severe,no,life-threatening,drug withdrawn,recovered,likely
+cb022333-71fd-45ec-8fb8-2a9621ffc311,male,not applicable,no,no,na,moderate,yes,hospitalisation,dose reduced,recovered with sequelae,likely
+a0dc58f2-b1c9-4eef-b4f8-6057620dcff4,male,not applicable,no,no,unknown,moderate,no,disability,dose not changed,recovering,possible
+f8ac8709-3a23-470f-b005-6a3a2f9093ad,male,not applicable,no,na,no,moderate,no,congenital anomaly,drug withdrawn,recovered,possible
+1fc090be-ab9e-41d6-92c5-0e2f19e66455,female,2nd trimester,no,no,no,moderate,no,hospitalisation,drug withdrawn,not recovered,possible
+2ae21a14-c60d-4841-be0e-b1db96246260,male,not applicable,no,no,no,fatal,no,disability,dose reduced,not recovered,possible
+546f05ed-0a56-457f-a84e-01c65c4fc412,male,not applicable,no,no,yes,severe,yes,death,drug withdrawn,recovered,likely
+03e26d7b-4861-4a6e-aa1b-545e42db5fe5,female,1st trimester,no,unknown,no,mild,yes,disability,dose not changed,recovering,possible
+8901263a-c2b0-42af-b783-e319a50c77f5,male,not applicable,no,unknown,na,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+7b5a25d8-53e3-4d0b-9867-e56ee5663e15,male,not applicable,no,no,no,moderate,yes,disability,dose reduced,recovering,possible
+302dd3ea-6d77-44ce-9bcb-dece3ae3d6ac,female,3rd trimester,no,no,no,mild,no,hospitalisation,dose not changed,recovered,possible
+ac0be8d5-eb16-47db-b352-c62e2796faf6,female,not pregnant,no,na,na,moderate,yes,hospitalisation,dose reduced,recovered,unclassified
+5b6885fd-2633-4325-b2c4-a63f33154d32,male,not applicable,no,no,yes,moderate,no,life-threatening,drug withdrawn,recovered,likely
+d7941f09-76f1-45ff-b214-e84516708abf,male,not applicable,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered,possible
+0ce912ea-7486-436e-be4f-59bec6a363a2,male,not applicable,no,no,yes,unknown,yes,hospitalisation,drug withdrawn,recovered,likely
+3b0014d9-5fd9-4ed0-9a76-2229c2ad7ee9,male,not applicable,no,no,no,moderate,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+3a8b7c58-6666-4552-9161-388911147e05,male,not applicable,no,unknown,na,severe,no,disability,dose reduced,unknown,unclassifiable
+ba9187f2-7d3d-498f-8203-fa2c3bbffc50,male,not applicable,no,no,no,mild,yes,hospitalisation,dose reduced,recovering,possible
+1457612a-6037-4e59-a336-21e94bcffae9,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered with sequelae,possible
+bb3ee63f-1428-4aa6-8ce2-11ffe7979a08,female,3rd trimester,no,no,no,moderate,yes,hospitalisation,dose reduced,recovering,unlikely
+53d54785-9841-4e87-a34b-72d7bbd1ca2b,male,not applicable,no,no,na,severe,no,hospitalisation,dose reduced,recovered with sequelae,likely
+54ae2314-5672-4204-a72a-a3194cce065d,male,not applicable,no,na,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+d2b1ee6e-3bfa-4d1f-a483-78f74cfa0d93,male,not applicable,no,unknown,unknown,moderate,no,disability,drug withdrawn,recovered,unclassified
+1256b4bb-ec1f-44ef-8532-9520518290a9,female,2nd trimester,no,no,no,mild,yes,congenital anomaly,dose reduced,not recovered,unlikely
+8422046b-1be9-4b16-b451-092440f60ad9,male,not applicable,yes,na,unknown,fatal,yes,death,dose not changed,recovered with sequelae,unclassifiable
+93aeb456-8649-4fcb-97a0-dc22ddda81be,female,not pregnant,no,unknown,no,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+32784224-6709-42e7-b345-48b2196b0908,female,not pregnant,no,na,yes,severe,no,hospitalisation,drug withdrawn,death,certain
+33f04071-87c3-4461-8fc7-ab41e6595946,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovering,likely
+ebd20932-29c6-4311-b16d-b7d1a4eea7ac,male,not applicable,no,no,no,mild,yes,hospitalisation,dose reduced,recovered,possible
+5d73f7a9-4086-4c43-9575-31e8df1e3709,female,not pregnant,no,unknown,unknown,moderate,no,hospitalisation,dose not changed,unknown,unclassifiable
+87e10ee8-26e4-4d87-be94-02365e47cccb,female,3rd trimester,no,no,yes,moderate,yes,hospitalisation,dose reduced,recovered,likely
+10e65642-8310-45f7-a5d3-e24d25919b4d,male,not applicable,no,no,no,fatal,yes,congenital anomaly,dose reduced,recovered,possible
+020ca663-2aff-4795-8cf8-380124580945,male,not applicable,no,na,na,moderate,no,life-threatening,drug withdrawn,recovered,unclassified
+714d57c8-7c33-46af-bee6-f1f6f6b2b0ab,male,not applicable,no,unknown,no,severe,no,congenital anomaly,dose not changed,recovered,unlikely
+a97e16c5-e20e-483e-b790-90187d16d1e5,male,not applicable,no,na,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+017ab480-6bf1-4fa9-8d2e-dff05d3f9657,male,not applicable,no,na,unknown,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+785378f0-9e07-4424-bfbd-21359d0705f2,male,not applicable,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+6a6acfa5-bc16-4640-8c0b-a93fbe4a1b67,male,not applicable,no,yes,yes,fatal,yes,hospitalisation,drug withdrawn,recovered,certain
+5dcc5478-e071-4fa4-9e89-05586bd84b4d,male,not applicable,no,no,no,mild,no,congenital anomaly,dose increased,recovered with sequelae,unlikely
+273225a8-1cbf-4347-949a-6b21d09e9bb5,male,not applicable,yes,unknown,na,fatal,yes,disability,dose not changed,recovered with sequelae,unclassifiable
+2e0b5cce-9540-48b4-8dd4-7e29ef5c4141,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+7a935009-1e98-48a2-ac0f-6bc37237b447,male,not applicable,yes,yes,yes,severe,no,death,drug withdrawn,recovered,certain
+b173353d-05ea-46b4-8c5d-0ae2e1e77ddf,female,1st trimester,no,no,no,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+93a9fb9a-949f-4dec-96ec-0af54ee9847b,male,not applicable,no,na,yes,fatal,yes,life-threatening,drug withdrawn,recovered,certain
+5168791d-c36f-4c6b-a90c-92d1f1f263a5,male,not applicable,no,unknown,na,severe,yes,congenital anomaly,drug withdrawn,recovered,likely
+abd8c0a6-7081-4c33-81cf-b43a8701249f,male,not applicable,no,yes,na,severe,yes,death,drug withdrawn,death,certain
+599ed3cc-609e-43d5-aa4c-0d242cb90948,male,not applicable,yes,no,na,fatal,no,disability,drug withdrawn,recovered,possible
+2000df4c-9db5-4556-a634-8a95b3938cc4,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+8fdfa994-6121-476a-b9b2-2dfdb87545a6,female,1st trimester,no,na,unknown,unknown,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+29ef0c83-b014-4e1e-a48c-5a7b07f2932d,male,not applicable,no,no,unknown,moderate,no,congenital anomaly,dose reduced,recovered,unlikely
+81b85281-8596-417b-bb7e-d8fb07ad227f,female,not pregnant,no,na,no,mild,yes,disability,drug withdrawn,recovered,unlikely
+f501cd42-173d-4c37-b829-a4f9e9a3999a,male,not applicable,yes,na,na,mild,no,disability,dose increased,recovered,unclassified
+81a46825-6c94-461d-a21c-dff3a12128ff,female,2nd trimester,no,no,no,moderate,no,disability,dose not changed,recovering,unlikely
+ce3abf42-98ef-4ae4-9f3c-293d091fed81,female,3rd trimester,no,no,no,mild,no,hospitalisation,dose not changed,recovered with sequelae,possible
+5cd609c9-c16b-4f05-b193-999023d12b14,male,not applicable,no,no,yes,severe,no,congenital anomaly,dose increased,recovered,likely
+e114ae86-0e02-4dfc-9267-41d4dd718338,male,not applicable,yes,na,unknown,moderate,yes,hospitalisation,drug withdrawn,recovered,unclassifiable
+50773409-7f42-402e-8949-4618b044bb6d,female,2nd trimester,no,na,no,moderate,no,hospitalisation,drug withdrawn,recovering,possible
+8e5291c1-e7ba-4978-bd2b-4acb7b7d48aa,female,1st trimester,no,no,unknown,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unlikely
+12c37147-1b49-4471-9822-459063015ceb,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,recovered,possible
+8f5dfb8d-b776-4ad1-b57d-f8b50f2c2999,female,1st trimester,no,unknown,na,mild,no,hospitalisation,dose not changed,recovering,unlikely
+73a4f44f-2fdf-4b00-8ae6-af374de83285,female,not pregnant,no,unknown,unknown,severe,no,disability,unknown,recovering,unclassified
+85cc9e96-2ed4-4059-956b-f48da12c1899,male,not applicable,no,no,no,mild,no,disability,dose reduced,not recovered,unlikely
+a900f93a-7f49-4a12-9508-0f49fd4430e0,male,not applicable,no,no,yes,severe,no,life-threatening,drug withdrawn,death,likely
+6ca388bf-9990-4008-8bd5-7870bf8da783,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose reduced,recovered,possible
+1492b2da-98ba-43d6-846e-2fcdd86889f0,male,not applicable,no,no,yes,severe,no,hospitalisation,dose increased,recovered,likely
+fe987be1-a733-442a-8b29-29af0790bb0e,male,not applicable,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+9633dcbc-eef1-4604-b7a2-ebf2ddbdfd7e,male,not applicable,no,unknown,no,mild,yes,hospitalisation,dose reduced,recovered,possible
+529571a8-d07c-479a-a4fe-2af2eb08798e,male,not applicable,no,na,na,mild,yes,disability,dose not changed,recovering,unclassified
+bdc4d213-d88a-4558-a49a-e1451526850f,male,not applicable,no,no,na,mild,no,disability,drug withdrawn,recovered,possible
+ee5483f3-cf4a-4b9a-b3cb-046dc93753dd,female,2nd trimester,no,unknown,na,mild,no,hospitalisation,dose reduced,recovered,unclassified
+63812bdd-d0e0-4c5c-91a2-335eb1f55e2d,female,1st trimester,no,na,unknown,severe,no,hospitalisation,drug withdrawn,recovered,unclassifiable
+8245822a-603a-4be4-ac30-84170c666ddb,female,1st trimester,no,unknown,na,unknown,no,life-threatening,unknown,recovered,unclassified
+d42c39fe-6c99-4f40-b03a-675b90d42118,female,1st trimester,yes,unknown,unknown,severe,yes,life-threatening,dose not changed,recovered,unclassifiable
+1df36636-aaa6-48e2-8a1a-1f5da82d4987,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovered,possible
+e3e3dd8c-c5cc-4294-9993-7ecd8ccf74e3,male,not applicable,no,na,na,severe,no,hospitalisation,dose reduced,recovered,unclassified
+b5be0654-7f7b-4b2f-818b-09fc6a2cc9b5,male,not applicable,yes,na,unknown,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+f3d76e96-4626-41ec-bbb7-b609f8c7929f,male,not applicable,no,no,no,moderate,yes,congenital anomaly,drug withdrawn,recovered,possible
+738e84d4-4ba0-4a36-a150-b7d659fcdd9b,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+4a2e7aae-f9de-4935-a038-35e7ca7a4488,female,not pregnant,no,no,yes,fatal,no,hospitalisation,drug withdrawn,death,likely
+12537cf3-c49f-46d1-9834-52c0c6bdd31a,female,not pregnant,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+eb230f11-0a1c-437b-bdab-8f6fadab54ff,male,not applicable,no,no,yes,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+5cc0195a-98f3-446c-b52c-d1940052f0da,male,not applicable,no,no,no,moderate,no,congenital anomaly,drug withdrawn,recovered,possible
+99830eaf-30d9-4b55-8c1d-8fa0d03e7577,male,not applicable,no,unknown,na,moderate,no,death,dose not changed,recovered,unclassified
+7cc92448-37cc-4474-adf6-1a7c74a360d9,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered,possible
+6b131928-df1d-41b9-ac7a-27bb8a21087f,female,2nd trimester,no,unknown,unknown,moderate,yes,congenital anomaly,drug withdrawn,recovered,unlikely
+b0b80c77-7b88-4774-bac7-4dedde098ee2,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovering,likely
+b2e64dd8-c41b-43a9-ab8d-9c6e42c46501,male,not applicable,no,unknown,no,mild,no,hospitalisation,drug withdrawn,recovered,possible
+e7ba4054-6623-4452-8789-518360701749,male,not applicable,no,unknown,yes,unknown,no,hospitalisation,drug withdrawn,recovered,likely
+3240e4e2-5a90-49bc-ada3-ac0bfc8ecf98,male,not applicable,no,no,unknown,moderate,yes,disability,drug withdrawn,recovering,possible
+a62b5bfc-a574-493c-8e6c-2ba11747e762,female,2nd trimester,yes,na,na,mild,no,hospitalisation,dose not changed,recovered,unclassified
+26b706de-617b-432d-a447-8b461735caac,male,not applicable,no,no,yes,unknown,no,death,dose not changed,recovered,likely
+8b7f5c3d-a333-40b9-a7b9-179f5c77f8bf,male,not applicable,no,yes,yes,fatal,no,hospitalisation,drug withdrawn,recovered with sequelae,certain
+67d83ed7-dcd9-4a18-9def-19a225207a21,female,not pregnant,no,no,yes,severe,no,disability,drug withdrawn,recovered,likely
+776fb559-f06a-47c2-8f2f-e3dcbf8a1957,male,not applicable,no,no,unknown,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+bc19b61b-7eb0-4ae5-90d7-191a013d4314,female,2nd trimester,no,no,no,fatal,no,hospitalisation,dose reduced,recovered,possible
+d87ba592-ea56-42ae-a245-108b00b589f1,male,not applicable,no,no,no,unknown,no,life-threatening,dose reduced,recovered,possible
+7003b179-a624-49d1-80f2-fb799b3679dc,female,not pregnant,no,na,unknown,mild,no,hospitalisation,dose reduced,recovered,unclassified
+8ac0a062-ce2a-49e2-ae89-b2a5ab9d5627,male,not applicable,no,unknown,na,severe,no,hospitalisation,dose increased,recovered with sequelae,unclassifiable
+19a1f4f0-794b-46c7-a4d1-1e4447773fad,male,not applicable,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,possible
+287c789f-6fda-43ca-9486-8d98046426bd,female,1st trimester,no,na,na,severe,no,hospitalisation,dose not changed,recovered with sequelae,unclassified
+8159bb61-4f61-41cd-a596-0864461c89a5,male,not applicable,yes,no,unknown,moderate,no,disability,dose not changed,recovered,unlikely
+147b1832-4651-43cf-834c-ea290b2b8809,male,not applicable,yes,unknown,no,moderate,yes,hospitalisation,drug withdrawn,recovering,possible
+741803b7-6f84-46f7-aaa7-3ac2afd5c6cc,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,drug withdrawn,recovering,unclassified
+75194560-4565-49c1-9d50-d1fb63fe259f,female,not pregnant,no,no,yes,moderate,no,disability,dose reduced,recovered,likely
+e99bd705-5659-4421-ba34-08b1f81c693b,male,not applicable,no,no,yes,fatal,no,hospitalisation,dose reduced,recovering,likely
+09ce586d-82c0-4b35-97b3-d4fa526ab515,male,not applicable,no,no,na,moderate,no,congenital anomaly,dose reduced,not recovered,unlikely
+fd7c1a23-9a26-4a7b-b504-98d701306dea,male,not applicable,yes,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+ba73c30a-5567-4359-baee-3c708f989ce8,male,not applicable,no,no,no,severe,no,disability,dose reduced,recovered,possible
+8d01be05-1447-49a1-b783-208524da5107,male,not applicable,no,no,no,severe,no,hospitalisation,dose not changed,recovered with sequelae,possible
+dac3076f-099b-4c75-9b4f-927c6966f8e3,female,2nd trimester,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+85268c3a-e45a-4d98-b8c6-f06dfe207e42,female,not pregnant,no,no,no,moderate,no,hospitalisation,dose reduced,recovering,possible
+ac06b5a1-495c-44dc-8f49-1fb3ac71ffa8,male,not applicable,no,no,no,severe,yes,congenital anomaly,dose reduced,recovered,possible
+665ddf9e-5be5-49a9-980c-d1dab0a03c61,female,3rd trimester,no,no,no,mild,yes,hospitalisation,dose not changed,recovered,unlikely
+357395e6-93fe-4f7d-bf46-75825a9558b1,female,2nd trimester,no,no,no,moderate,yes,disability,dose reduced,recovered,unlikely
+817f0f72-c32a-44b2-9296-c804627d6ab1,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+e5b2713e-b8d3-4fba-a46a-389db68b6189,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose increased,recovered,possible
+88f6be2d-d5ea-480c-8377-f94dfd29b525,male,not applicable,no,no,no,severe,yes,congenital anomaly,dose not changed,recovered,possible
+9e9410f2-7d39-4595-bdbb-cff74451d703,male,not applicable,no,no,unknown,mild,yes,life-threatening,dose reduced,recovered with sequelae,possible
+ba1ecba4-35d5-4215-89ff-96a5708cb40b,female,not pregnant,yes,unknown,unknown,mild,no,hospitalisation,dose not changed,recovered with sequelae,unclassified
+f7c174a4-2dcb-4c55-8ee2-a34ec9fa0809,male,not applicable,no,na,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+460f1173-241a-46e8-a2d0-c5ce5c457b84,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovered,possible
+c7bf1491-f2f9-43d1-ae5d-9776dd017ff4,female,not pregnant,no,no,yes,severe,yes,life-threatening,dose not changed,recovered with sequelae,likely
+9f1343cb-03ba-4d06-8d68-669f1acc541f,female,not pregnant,no,no,no,mild,no,hospitalisation,dose not changed,recovered with sequelae,possible
+96c19e6f-0003-4d21-a208-f0cf3379a99f,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+a1102d37-66d2-45ae-910b-b5dc038a2ec8,male,not applicable,no,no,yes,moderate,no,life-threatening,dose reduced,recovered,likely
+3be4e86b-b7e6-492a-ba0c-aac404bea879,male,not applicable,no,na,na,severe,no,hospitalisation,drug withdrawn,recovered,unclassified
+4a7b43a6-e534-4aae-989e-dd39ade97ffa,female,not pregnant,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered,possible
+d3aa7a1f-a40c-44e1-a20e-be7b57474db3,male,not applicable,no,na,unknown,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+d32c38e2-58a8-4db8-b525-8ac943c4b100,male,not applicable,yes,no,no,severe,no,congenital anomaly,dose reduced,recovered,possible
+1008a7d4-62df-47f6-9555-0cc3e47e0687,female,3rd trimester,no,no,no,mild,no,disability,drug withdrawn,recovered,possible
+4423f600-e04d-4e73-b724-9c79f3667ba4,female,2nd trimester,no,no,no,mild,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+a481dc7d-a923-488d-aa4f-9ddecb39656e,female,1st trimester,no,unknown,unknown,mild,yes,disability,dose increased,death,unclassifiable
+a5094cae-525c-499b-91c3-a9b7e5faa9d7,male,not applicable,no,no,no,mild,yes,hospitalisation,dose not changed,recovered,unlikely
+2b0c7423-3bce-42af-8620-9838cfdc8ee6,male,not applicable,no,unknown,no,moderate,no,disability,dose not changed,recovered,possible
+e604b60a-98d7-4e03-b36f-caddd5e9ce07,female,not pregnant,no,yes,unknown,fatal,yes,hospitalisation,drug withdrawn,recovered,certain
+3dc41e64-f94a-4b26-8fa7-0b8816d2f35b,female,not pregnant,no,yes,yes,severe,no,life-threatening,drug withdrawn,recovered with sequelae,certain
+fe98854a-2fdd-481e-9d2e-64aff3127159,male,not applicable,no,na,unknown,mild,no,life-threatening,drug withdrawn,recovered,unclassified
+a7a898c3-3955-406a-b36b-784039f14340,female,1st trimester,no,na,yes,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+668404df-ad51-4d30-b472-0ecad94a24bc,male,not applicable,no,no,no,mild,yes,hospitalisation,dose reduced,recovered,possible
+e2fca383-f715-4133-a166-e1402a0183d7,male,not applicable,no,unknown,unknown,severe,no,congenital anomaly,dose not changed,recovered,unclassified
+3aa8ef36-9268-422a-b852-7c587765b3c0,male,not applicable,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+186bda5f-cf11-44e0-b3f2-b1e86c0a0fdf,male,not applicable,yes,unknown,na,moderate,yes,hospitalisation,drug withdrawn,recovered,unclassified
+8e8d9a75-0d2a-4cfc-9fa7-513f37e931a6,male,not applicable,no,no,no,mild,no,disability,dose increased,recovered,possible
+bff5a5cf-0539-48d4-8143-858b83236287,female,1st trimester,no,no,no,moderate,no,life-threatening,dose reduced,recovered,unlikely
+68e5fb97-658a-4f2f-8270-ef9964e12a43,male,not applicable,no,no,yes,moderate,no,disability,drug withdrawn,recovered with sequelae,likely
+ad3aab35-4646-48aa-bb01-60674b825518,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovering,likely
+25bf2285-81f7-4cb9-bbcb-e9ee2e45a047,male,not applicable,no,no,no,severe,no,disability,dose not changed,recovered with sequelae,possible
+ab37965d-7be9-496e-ba1d-d067cb5a2b00,male,not applicable,no,unknown,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+cfafcf01-b477-4b97-9976-b74f06d0a622,female,3rd trimester,yes,na,unknown,severe,yes,hospitalisation,dose not changed,unknown,unclassifiable
+cccb25e4-0cc2-4332-8a68-7d3fba77afee,male,not applicable,no,na,no,mild,no,hospitalisation,dose not changed,recovered with sequelae,possible
+93dd121e-f740-4d9c-99a1-1679424a015b,female,2nd trimester,no,unknown,na,moderate,yes,hospitalisation,dose reduced,recovering,unclassified
+74aa8dd4-a60e-4d4f-82ff-4cfda48d77cb,male,not applicable,yes,na,unknown,moderate,no,hospitalisation,dose not changed,recovered,unclassified
+4dfde5c1-d9a9-4cb2-b843-7653cbcff102,male,not applicable,no,na,na,moderate,yes,hospitalisation,drug withdrawn,recovering,likely
+6cb595ae-f822-4e59-9aac-d35f5f0c8085,female,not pregnant,no,no,no,moderate,yes,disability,not applicable,recovered,unlikely
+4975322c-960a-4131-b24a-6e752c0dfd03,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+c1df9482-129a-4a90-952e-bcace30773b1,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+a070538a-c90c-4cce-9689-3162a8c11fc5,female,not pregnant,no,unknown,na,severe,yes,disability,drug withdrawn,recovering,unclassified
+13b3c135-9d10-4a32-a726-ef09a69a0f1c,male,not applicable,yes,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+4340e13f-52de-43f4-8352-545330aa5af7,male,not applicable,no,unknown,unknown,moderate,no,congenital anomaly,drug withdrawn,recovering,unclassified
+30b324af-500c-44e8-ab80-163415f86967,male,not applicable,no,na,na,mild,no,hospitalisation,dose reduced,recovered with sequelae,unclassifiable
+8edfd5c0-34b4-487b-826c-31e5fbceb7cd,female,3rd trimester,no,unknown,na,moderate,yes,death,dose increased,recovered,unclassifiable
+5eec9a5a-d204-4406-b9c3-b311cc0b33eb,female,1st trimester,no,unknown,unknown,mild,no,disability,dose reduced,recovered,unclassified
+72df24ec-ac9c-4172-a37d-e3a933b06c3b,female,not pregnant,no,no,yes,unknown,yes,hospitalisation,dose reduced,recovered with sequelae,likely
+0aa2f640-c74c-472b-a960-45e6d9f037df,male,not applicable,yes,unknown,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+d06f7819-8746-4dff-ad2c-afe5b5d939ce,female,1st trimester,no,no,yes,fatal,no,disability,drug withdrawn,recovered with sequelae,likely
+17bc1e91-4cfd-4c3b-875b-f79cd6e5c687,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+863b8eec-c394-473f-abe0-81bf6996d0bd,female,not pregnant,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+d425460d-20a8-4a93-9731-a0b5aea13bd8,male,not applicable,no,no,no,mild,yes,disability,dose increased,recovered with sequelae,possible
+e638511b-4acb-41e1-9d16-a68889eb70a2,female,1st trimester,no,unknown,na,severe,yes,hospitalisation,dose reduced,recovered with sequelae,unclassified
+a056654e-bd94-48b8-84eb-e5ebb039e3ee,female,not pregnant,no,na,na,fatal,yes,disability,drug withdrawn,recovered,unclassified
+f7c9ff0c-a4b1-4516-ab9f-31defafc8299,male,not applicable,no,unknown,unknown,severe,no,hospitalisation,dose not changed,not recovered,unclassified
+fdb54b78-7c11-4eea-b301-1e5604b00aa2,male,not applicable,no,unknown,na,mild,no,hospitalisation,drug withdrawn,not recovered,unclassified
+c19f134a-402f-4191-a2be-5617eecd3380,female,not pregnant,no,unknown,unknown,unknown,yes,hospitalisation,drug withdrawn,recovered,unclassified
+bc4beb21-8eb2-4d40-b810-672463ca6055,female,not pregnant,no,unknown,unknown,mild,yes,hospitalisation,dose reduced,recovered,possible
+48d79dbf-150a-430a-a214-897c1c907c03,female,2nd trimester,no,no,unknown,mild,no,disability,not applicable,recovered with sequelae,unlikely
+b60fd5d8-e1e2-497a-aed7-b1b7c04029ad,female,3rd trimester,no,na,na,mild,no,death,drug withdrawn,recovered,unclassifiable
+f7e9487c-40d3-4e45-a511-ed091854e136,male,not applicable,no,na,na,mild,no,disability,dose not changed,recovered with sequelae,unclassified
+81e1cf6b-7ab0-42ca-949e-926b32b9f32b,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+2f75f228-de23-4efa-b9f7-d780d25cb663,female,2nd trimester,yes,no,no,mild,no,disability,drug withdrawn,recovered,possible
+53fa7eb6-4940-48c3-8128-a538c206b936,female,not pregnant,no,no,na,fatal,no,life-threatening,drug withdrawn,recovered,likely
+f7d13259-bb38-4f42-be38-1af342d29186,male,not applicable,no,no,no,severe,no,disability,dose not changed,recovered,possible
+8fd404f1-0467-44c9-bef8-0e7bc45702f2,female,1st trimester,no,no,yes,severe,no,disability,dose not changed,death,likely
+cebf8ee5-3252-4372-b0ff-98fda54a96c4,male,not applicable,yes,na,na,fatal,yes,hospitalisation,dose reduced,recovered,unclassifiable
+ddfe77d8-4138-4826-92d3-9856fb7cd245,male,not applicable,no,no,unknown,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+9a3eec3e-1eda-4898-84e5-264364c67f34,male,not applicable,no,na,no,mild,no,disability,drug withdrawn,recovered,possible
+804ac145-e90f-494d-ba87-5f495abdf1d3,male,not applicable,no,no,na,severe,no,disability,drug withdrawn,recovered,likely
+3384d9b7-9759-4b95-8fe2-76ad316f9d9b,male,not applicable,no,no,yes,moderate,yes,life-threatening,drug withdrawn,recovered with sequelae,likely
+3f9968a9-1ba1-4737-9755-9e649680144f,male,not applicable,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+e4d9142b-d851-4d97-9d35-5f254fd64d16,female,3rd trimester,no,no,no,mild,yes,hospitalisation,dose reduced,recovered with sequelae,possible
+3316d8df-cf2e-4ddd-800e-cc8fce6503cb,female,1st trimester,no,no,no,mild,no,disability,dose reduced,recovered,unlikely
+fea05d82-d48a-4ac4-b95e-c944da789c2e,male,not applicable,no,no,yes,mild,yes,life-threatening,drug withdrawn,recovered with sequelae,likely
+2e0bcc88-8bd5-4606-8e01-8eee0ba67847,female,not pregnant,no,no,yes,severe,no,hospitalisation,drug withdrawn,death,likely
+b3e13327-1aa3-4082-9e02-23a39f8c0f37,male,not applicable,no,na,na,moderate,yes,hospitalisation,dose reduced,recovered,possible
+38d4d97c-b2fe-4371-b029-ee7aeaa89ff1,male,not applicable,no,no,yes,severe,yes,hospitalisation,drug withdrawn,recovered,likely
+f9b17f65-1489-45e1-b53e-8e21ed1de66a,female,not pregnant,no,unknown,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+ae4590be-c9bf-486a-8efe-db6bd70b6b2b,female,3rd trimester,no,na,unknown,moderate,yes,life-threatening,drug withdrawn,recovered with sequelae,unclassifiable
+2b09f18b-f38b-4aef-8803-2f75e12be247,female,1st trimester,no,na,na,moderate,no,death,dose reduced,recovering,unclassifiable
+92532adf-48f5-40eb-aac9-4c67102799aa,female,2nd trimester,no,na,unknown,fatal,no,disability,dose not changed,not recovered,unlikely
+965d5315-27a3-408a-8e6c-5c305542a53d,male,not applicable,no,unknown,no,mild,yes,disability,drug withdrawn,recovered with sequelae,possible
+aa715bb2-9aff-49e9-83fc-a592682e1e67,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovered,likely
+b0403482-1e34-4a8e-94e9-b994775f8bbf,female,3rd trimester,no,unknown,unknown,moderate,yes,hospitalisation,dose reduced,recovered,likely
+12bd0235-d945-44f4-892b-58871429618f,female,2nd trimester,no,no,yes,moderate,yes,life-threatening,dose reduced,recovered,likely
+8c0d3226-61a0-449e-81be-c1e599e3b9e5,female,not pregnant,no,no,no,moderate,no,hospitalisation,drug withdrawn,not recovered,possible
+af5b903b-cc2a-4fce-a8e1-4802d9ba836c,female,2nd trimester,no,no,no,mild,no,hospitalisation,dose not changed,recovered,unlikely
+b189c2db-dd6d-4760-b80a-434e00b76d84,male,not applicable,no,unknown,na,moderate,no,hospitalisation,dose reduced,recovered,unclassified
+33a66ebb-3a73-455c-b728-ef0970f801a3,male,not applicable,no,no,na,fatal,no,hospitalisation,dose reduced,recovered with sequelae,likely
+d5532bc3-3a15-4d12-84c5-09fae5409d98,female,3rd trimester,no,na,unknown,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+c37735e6-9ef4-4dc6-add1-107285af71c3,female,3rd trimester,no,unknown,unknown,severe,no,disability,dose reduced,recovered with sequelae,unclassifiable
+e94dc68b-17a9-4919-844d-ea50df9c03ca,male,not applicable,no,no,no,moderate,no,disability,dose reduced,recovered with sequelae,possible
+e8498245-41ab-481c-a3f6-bfc751a32601,female,1st trimester,yes,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+963ad447-5811-4066-b703-59d0130da5f5,male,not applicable,no,no,no,severe,yes,disability,drug withdrawn,recovered,possible
+256a08d3-9437-41fc-b5a1-9ead8ca7f5c5,male,not applicable,no,no,yes,mild,yes,hospitalisation,drug withdrawn,recovered,likely
+82aca1d1-e879-407d-ae4e-14016249afb9,female,2nd trimester,no,no,no,moderate,yes,life-threatening,dose reduced,not recovered,possible
+ddda14a5-59b4-4952-b88b-8582c5e52933,female,2nd trimester,no,no,no,mild,no,disability,dose reduced,recovered,possible
+414b0e0f-d934-47e7-9306-658c488794d1,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+4d364257-8f82-48bf-8c18-acae25149b13,male,not applicable,no,unknown,na,mild,no,disability,dose not changed,recovering,unclassified
+d509e0ec-fae4-4b5c-a87a-a8e745f6613e,male,not applicable,no,yes,yes,severe,no,disability,drug withdrawn,recovering,certain
+dad27612-168e-4c0f-8af6-b82d44eec95d,female,2nd trimester,no,no,no,moderate,yes,congenital anomaly,dose reduced,recovered,possible
+989035a4-c123-4942-b9ef-54b07f06a5f7,female,3rd trimester,no,no,no,severe,yes,hospitalisation,dose not changed,recovered,possible
+f9037984-84e7-4efd-b64a-b7832a67b9b6,female,2nd trimester,no,na,na,moderate,yes,life-threatening,dose reduced,unknown,unclassified
+daa7e424-0415-4bfd-809a-c98d0eb07df4,female,1st trimester,no,unknown,na,fatal,no,disability,dose not changed,recovered with sequelae,unclassifiable
+1c458bf1-0ff7-4e2d-87fb-dad6d2a4b6e7,male,not applicable,no,na,no,mild,yes,life-threatening,drug withdrawn,recovered with sequelae,possible
+89ec7994-490e-428b-a364-798c7a4994f0,male,not applicable,no,na,unknown,moderate,yes,hospitalisation,dose not changed,recovered,unclassified
+75d17905-7b2c-45ef-bd10-bbd1a149c614,female,1st trimester,no,no,unknown,mild,yes,hospitalisation,not applicable,recovered,unlikely
+7556c8ee-8450-48d3-88bb-9a4fe01b6758,female,not pregnant,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+f8b4f5a2-aa7f-478e-8af7-5a4965f7ba50,female,3rd trimester,yes,unknown,na,mild,no,hospitalisation,drug withdrawn,not recovered,unclassifiable
+8fd0d18b-8743-4573-a5cb-1eb35bc0437b,female,3rd trimester,no,unknown,unknown,moderate,yes,disability,dose reduced,recovered,unclassified
+5a7e578e-a6dd-4afc-8b54-e0d8ebf839c9,male,not applicable,no,no,no,moderate,no,congenital anomaly,dose reduced,recovered,possible
+78d1b2e7-6525-4515-a7b4-f53b07cc4c32,male,not applicable,no,no,no,mild,yes,disability,drug withdrawn,recovered,possible
+2bf2cad9-217c-4247-9598-808f74b79967,female,1st trimester,no,unknown,unknown,severe,no,congenital anomaly,drug withdrawn,recovering,unclassifiable
+684f0b71-e09b-481f-9517-ef654e3c116e,female,2nd trimester,yes,na,na,moderate,no,congenital anomaly,dose not changed,not recovered,unclassified
+f4bb3f05-cd3c-42df-b2bd-aa01857d83a9,female,not pregnant,no,no,yes,moderate,no,hospitalisation,drug withdrawn,death,likely
+0051a884-9a21-491f-abcd-111b1a1568be,male,not applicable,no,unknown,unknown,moderate,no,disability,drug withdrawn,recovered with sequelae,unclassifiable
+839fa75c-fd8c-48b4-bc15-3476f46b523c,male,not applicable,no,no,unknown,mild,no,life-threatening,dose reduced,recovered,possible
+cd8fa086-dff9-452b-a77b-966eccae989a,female,3rd trimester,no,na,na,moderate,no,congenital anomaly,drug withdrawn,recovered,unclassifiable
+85308ca5-b779-4485-bfd2-80ee4cee8354,female,3rd trimester,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+d48c83ad-91b7-4158-ac77-ab6f11fae810,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+c029add5-00cb-4619-9507-769bf814a9bc,male,not applicable,no,no,no,moderate,no,congenital anomaly,dose not changed,recovered,possible
+6cfd2ddd-fa60-4a50-b902-35ca564d3fd0,female,not pregnant,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+38137f8d-d044-463e-b7cd-017afc3a7d73,male,not applicable,yes,unknown,no,mild,no,congenital anomaly,dose not changed,recovered,unlikely
+112dc35b-f72c-4420-92a2-0b7b00c84364,male,not applicable,yes,no,no,moderate,no,hospitalisation,dose not changed,recovered,possible
+c430609e-1a44-4271-93ae-ced98a00c97a,female,2nd trimester,no,no,no,mild,no,hospitalisation,dose increased,recovered,unlikely
+d1737ce0-9ef2-4175-95a5-b6f4af226c93,male,not applicable,no,unknown,na,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+098dc523-239c-4b9b-a830-c320338880e6,male,not applicable,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered,possible
+445e00b2-5349-4402-94e0-277e9bb9ec98,male,not applicable,no,no,no,severe,no,disability,drug withdrawn,recovered,possible
+04d0618b-9e67-4076-ab10-4d5c69359feb,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+6bf781c1-3e06-4e10-b15e-6d1475b4d203,female,1st trimester,no,na,na,moderate,no,congenital anomaly,dose reduced,unknown,unclassified
+7bb32f03-cf69-40f2-8b8a-ea19109dc62d,female,2nd trimester,no,no,no,mild,no,hospitalisation,drug withdrawn,recovered,unlikely
+d94b215e-4650-447b-9129-e6fd0800ac01,male,not applicable,yes,na,unknown,severe,no,hospitalisation,dose increased,recovered with sequelae,unclassified
+64f6cf4e-ede7-4f74-a69e-af6593cc4d6b,female,not pregnant,no,no,yes,severe,yes,hospitalisation,dose reduced,recovered,likely
+0930e9e7-f9ae-4f30-91da-48b460b71cc9,female,1st trimester,no,no,no,moderate,no,disability,drug withdrawn,recovered,possible
+3a76bbf7-4b60-4fca-ae28-947c49637352,female,1st trimester,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+a1b76593-eddd-4065-9b49-d02dfe2bcc9a,female,1st trimester,no,na,unknown,mild,yes,disability,drug withdrawn,recovering,unclassified
+fcb5e8d5-8c90-4d06-9ab5-72f0fef139ad,female,1st trimester,no,na,unknown,severe,no,hospitalisation,dose not changed,recovered with sequelae,unclassifiable
+a17f90dd-32e4-46a6-ae19-d3991c39b009,male,not applicable,yes,unknown,yes,moderate,no,disability,drug withdrawn,recovered,likely
+3c6c033f-e0f0-4087-a9fb-83180bc50020,female,3rd trimester,no,unknown,na,moderate,yes,disability,dose not changed,recovered,unclassifiable
+2437d652-0b51-4668-8fce-b6e18a81947b,male,not applicable,no,na,na,moderate,yes,disability,dose not changed,not recovered,unclassifiable
+fdcfd204-6867-4641-8f92-daba79d95ca7,male,not applicable,no,no,no,mild,yes,disability,dose reduced,recovered,possible
+076091fb-7a1e-4c9e-8cf3-e2f157e80991,male,not applicable,yes,unknown,unknown,moderate,no,disability,drug withdrawn,recovered,unclassified
+8302a07c-4e44-4105-a9ea-0f611eb07460,female,1st trimester,no,no,na,mild,no,congenital anomaly,dose reduced,recovered,unlikely
+728eb84b-091a-46fd-83a9-39cc5285d930,male,not applicable,no,no,no,moderate,yes,disability,dose not changed,recovered,unlikely
+61a4e375-b5c3-4904-a8e5-5693adc47c70,female,1st trimester,no,unknown,unknown,moderate,no,disability,dose not changed,recovered with sequelae,unclassifiable
+d1dccea3-d442-4341-88d9-594bd33cb3bb,female,1st trimester,no,na,unknown,moderate,no,congenital anomaly,drug withdrawn,recovering,unclassified
+9745f462-e56a-4c0f-8d83-d8484c8c01da,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+d60f1054-5da4-4833-82c8-a3bb56a603a5,male,not applicable,yes,na,na,mild,yes,hospitalisation,dose reduced,recovered,unclassified
+f54309b1-c268-4c31-a851-708cad32d5c7,male,not applicable,no,unknown,unknown,moderate,no,disability,drug withdrawn,recovered,unclassified
+d5e2b119-094e-440e-a3a8-68678d493b23,female,1st trimester,yes,unknown,unknown,mild,no,hospitalisation,drug withdrawn,unknown,unclassified
+e2b87a64-897d-4d8f-b9c6-10959bd587df,male,not applicable,yes,unknown,no,moderate,no,disability,dose reduced,not recovered,possible
+e5b2d898-f5a0-4e4e-9139-9840a7ccc401,male,not applicable,no,unknown,na,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+1a4c561c-1534-46a7-812b-37a6bf35072a,male,not applicable,no,no,na,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+9f8e8787-8925-4de1-9a6e-f54e609d3691,female,1st trimester,no,unknown,no,mild,no,congenital anomaly,drug withdrawn,recovered,unlikely
+14b4c311-93ca-444b-aa7b-7473000b56db,male,not applicable,no,no,no,severe,no,disability,drug withdrawn,death,possible
+a9470949-c01f-4fa2-8b14-d37247c098ce,female,not pregnant,no,no,yes,severe,yes,life-threatening,drug withdrawn,recovered,likely
+335da8e1-82fc-4057-aeec-0677c741149f,male,not applicable,no,na,unknown,moderate,no,death,dose not changed,not recovered,unclassifiable
+58b17f7f-a16e-4eab-8347-fb172efddfff,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered,possible
+20b08ec2-5015-477b-8174-dad20ae07c2e,female,3rd trimester,no,unknown,unknown,mild,no,congenital anomaly,drug withdrawn,recovered,unclassified
+764537be-19de-48ad-9607-5a8aa5458f0d,female,not pregnant,no,no,no,severe,no,disability,dose increased,recovered,possible
+82610ade-c3a8-41e4-a117-edce774d05a6,female,not pregnant,no,no,yes,mild,yes,hospitalisation,dose reduced,recovered,likely
+2b917bd1-38ab-4474-85ae-7abf9923c1e0,male,not applicable,yes,no,no,fatal,no,hospitalisation,dose reduced,recovering,possible
+5a5cc870-02ef-44de-9973-96f9adb38b04,male,not applicable,no,unknown,na,mild,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+ed786749-a634-40a0-9c63-5a3b9699e960,male,not applicable,no,no,unknown,fatal,no,hospitalisation,dose not changed,recovering,likely
+1eb7a590-791a-4919-841f-abea092d1f3c,female,2nd trimester,no,no,no,mild,no,hospitalisation,dose reduced,recovered,unlikely
+1b08ae4b-05f1-42fc-b51d-7a98a157d7a3,female,not pregnant,no,no,yes,moderate,no,death,drug withdrawn,recovered with sequelae,likely
+1e776ce4-094e-4950-ba05-b11561d50359,female,3rd trimester,no,no,no,fatal,no,hospitalisation,dose reduced,recovered with sequelae,possible
+266b1e57-d90f-4f23-bcbb-d01b0690287d,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+7d3bdb31-fb2a-4741-9605-d360760be307,male,not applicable,no,na,na,mild,yes,disability,drug withdrawn,recovered with sequelae,unclassified
+7873657a-6775-43db-b616-2cdbb526496f,female,1st trimester,no,na,unknown,fatal,no,death,drug withdrawn,recovered,unclassifiable
+99991d62-a1ab-441c-b269-e5d1f8ffdf08,male,not applicable,no,na,unknown,moderate,no,disability,not applicable,recovering,unclassified
+3dcaaeeb-85c8-419d-84c5-43ad60c48c8b,female,not pregnant,no,unknown,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+566fa6fe-694a-491f-a146-1960effb6927,female,not pregnant,no,na,unknown,moderate,yes,life-threatening,not applicable,recovered with sequelae,unclassified
+14c1a364-a30d-44a2-a353-bd8537df6faa,female,2nd trimester,no,na,na,severe,yes,hospitalisation,drug withdrawn,unknown,unclassified
+72dbbd61-241c-4b99-acf6-48d6d1f7607c,female,not pregnant,yes,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+fb3270d3-7b5d-4710-982d-9fd702b80683,female,3rd trimester,no,unknown,na,fatal,yes,life-threatening,dose not changed,recovered with sequelae,unclassifiable
+84b2331e-dc6f-4d33-8b97-e09cb65ed75f,female,1st trimester,no,na,na,mild,no,life-threatening,dose reduced,recovered with sequelae,unclassified
+8dd45d2e-a4c3-45ff-ae35-a25dc25a2bfa,male,not applicable,no,no,yes,moderate,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+7f023ebf-9cb1-4228-83ee-4e4329d49a64,male,not applicable,no,no,no,fatal,yes,hospitalisation,dose reduced,recovered,possible
+e8f3e9ac-5f00-4beb-8343-cb1317f32543,male,not applicable,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+825e3b7f-008a-4fe1-a161-0b791894f704,male,not applicable,no,no,no,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unlikely
+8c7ce892-0b83-4350-9917-ff520e31e453,male,not applicable,no,no,no,moderate,no,life-threatening,dose reduced,recovered,possible
+20bcdf83-b902-472c-b132-4de4028e2d45,female,1st trimester,no,no,na,mild,yes,congenital anomaly,dose reduced,recovered with sequelae,unlikely
+23ee990c-5826-4a4f-91a8-f764d0c915dd,female,2nd trimester,yes,no,no,mild,no,disability,dose reduced,recovered with sequelae,unlikely
+52a9bcfc-27a9-4523-b0c2-ebce1f626509,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+a05faf16-d3fc-4df9-a5d8-778d3a79bd13,male,not applicable,no,no,yes,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+ae8c621f-5840-432f-b059-c528f28d654a,female,3rd trimester,no,unknown,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+71aecdb4-0574-402f-9b08-129adca2c339,male,not applicable,no,no,yes,mild,no,life-threatening,drug withdrawn,death,likely
+ba50e95c-b12a-483f-a877-81b78b357f77,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+c306d8ce-9b12-4846-b36b-67927e8201ae,female,3rd trimester,no,na,na,mild,yes,hospitalisation,dose not changed,recovered with sequelae,unclassified
+89755510-c5f1-4830-a8a0-83b7579b4380,female,3rd trimester,no,na,no,mild,no,hospitalisation,drug withdrawn,recovered,possible
+a3821296-46e8-478a-a39e-3341f79215ec,female,2nd trimester,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovering,unclassified
+2d90f19c-cfc1-492e-a1a2-5e1890c09647,male,not applicable,no,na,na,moderate,no,congenital anomaly,not applicable,recovered with sequelae,unlikely
+5c26ef27-a959-4b81-a212-ace4245d1d93,male,not applicable,no,no,no,mild,no,hospitalisation,dose not changed,recovered,unlikely
+5b5f016b-4827-4e78-99c4-dbe82e97ba4e,male,not applicable,no,unknown,na,fatal,no,hospitalisation,dose not changed,recovered with sequelae,unclassifiable
+76387471-3a23-4d6b-8426-1807e941b4ac,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered,likely
+a4513fb9-bd27-46b2-b494-d5ed1d5f4e6f,female,3rd trimester,no,na,unknown,severe,no,hospitalisation,dose not changed,recovered,unclassifiable
+c44c8600-9c0c-4952-a396-a1f87891f1e3,female,2nd trimester,no,no,no,moderate,yes,life-threatening,drug withdrawn,recovered with sequelae,unlikely
+26165751-b864-43ac-baa8-988fd35aeaf0,female,2nd trimester,no,unknown,unknown,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+3db20dc5-fa17-4804-abcb-786f06082659,male,not applicable,yes,no,no,mild,no,death,dose reduced,recovered,possible
+ad033ce7-b9da-419d-9000-32d8346bb4c3,male,not applicable,no,no,unknown,moderate,no,hospitalisation,dose reduced,recovered,possible
+b45db7fa-109b-4c57-beca-cffc27faaf9b,male,not applicable,yes,na,no,moderate,no,hospitalisation,dose reduced,recovering,unlikely
+dfd51e37-e57d-47c8-9fab-5476f5d374c0,male,not applicable,no,na,na,mild,yes,death,dose reduced,recovered,unclassifiable
+b14984d4-626b-441a-9b04-c09bb246451f,male,not applicable,no,no,unknown,mild,no,hospitalisation,drug withdrawn,death,likely
+da917c1a-3ef6-4929-bb62-6576d8556fee,male,not applicable,yes,no,yes,moderate,no,life-threatening,drug withdrawn,death,likely
+66332ef0-0bd7-468a-836f-9013b216457c,male,not applicable,no,unknown,unknown,severe,no,life-threatening,dose increased,recovered,unclassifiable
+0bbd33d6-a301-488f-a521-59a595c3609a,female,1st trimester,no,na,na,moderate,no,congenital anomaly,dose reduced,not recovered,unclassifiable
+07f36586-261d-44fa-a0b3-9f33b923b02a,male,not applicable,yes,no,no,severe,no,life-threatening,drug withdrawn,recovered with sequelae,possible
+116ebc23-bf56-4ec8-b502-2f7383aa6b65,male,not applicable,no,no,no,moderate,no,disability,dose not changed,recovered with sequelae,possible
+8e0d6c44-9c29-4f05-b9ad-a08886bb0d2e,male,not applicable,no,no,no,moderate,no,disability,dose reduced,recovered with sequelae,possible
+86c1e322-0f1d-474c-937c-b52e9dc6ef03,female,2nd trimester,no,unknown,na,mild,no,life-threatening,dose increased,recovered with sequelae,unclassified
+041c4c02-1212-4e94-b9cc-6fd82c7d0583,female,not pregnant,no,no,no,severe,no,disability,drug withdrawn,recovering,possible
+277da528-893c-4c9d-825b-0d4b1abec2fa,male,not applicable,no,no,yes,severe,yes,death,drug withdrawn,recovered,likely
+b5a4a096-28bc-45b4-8191-b9622d11376a,male,not applicable,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,possible
+da409df1-45d8-4078-8b0d-20929197c784,male,not applicable,no,unknown,unknown,moderate,no,disability,dose reduced,recovered with sequelae,possible
+4c742573-2b5b-4308-b0e3-3633e2118fee,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,dose reduced,recovered,unclassified
+82aaa0e4-9054-4763-8efa-952bcb4af256,female,3rd trimester,no,no,unknown,moderate,no,congenital anomaly,dose reduced,recovered,unlikely
+1b2bf611-5177-41e9-85e4-3d34c5e6216b,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,recovered with sequelae,possible
+58c144b9-c69a-4412-b2d4-942150e1b488,male,not applicable,no,unknown,na,severe,no,death,dose reduced,recovered with sequelae,unclassifiable
+0914d3cd-3ad1-4f01-a238-d4dfdb451c4a,female,2nd trimester,no,na,no,mild,no,disability,drug withdrawn,recovered,unlikely
+1d2f392e-92c1-438e-b45b-d2430d551c93,female,not pregnant,no,no,yes,severe,yes,life-threatening,dose reduced,recovering,likely
+9767ad15-9440-4563-8b23-c02b0b9cf006,male,not applicable,no,na,no,moderate,no,congenital anomaly,dose increased,recovering,possible
+4ea6f02c-8c15-4230-b73c-7bc1d11b7f81,female,1st trimester,no,no,yes,severe,no,disability,drug withdrawn,recovered,likely
+d7c9c814-53e4-4637-999f-815c14e9dafb,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovering,possible
+91c0da53-a049-47ca-abb7-1b155a3b6fe8,male,not applicable,no,no,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+65c486b2-a14a-4189-b721-64836ae9c0b1,female,3rd trimester,no,no,na,severe,no,life-threatening,drug withdrawn,recovering,possible
+c0bd8e8b-b3ab-4988-8ddd-c08d0c742869,female,not pregnant,yes,no,no,unknown,yes,congenital anomaly,dose reduced,recovered,possible
+45856d13-dea5-4c18-b284-d4c785b9d962,male,not applicable,no,yes,yes,severe,no,disability,drug withdrawn,recovered,certain
+ddba9b3d-8dd3-46dd-8692-2f7bae6681f0,male,not applicable,no,no,na,severe,no,hospitalisation,drug withdrawn,recovered,possible
+ea2622f9-561c-411b-aef2-13e4367c421e,male,not applicable,no,no,yes,unknown,yes,disability,drug withdrawn,recovered with sequelae,likely
+1276d628-1636-4af7-9e64-9e25743a7412,male,not applicable,no,na,na,moderate,yes,congenital anomaly,dose not changed,recovered,unclassified
+ae61e866-aaa1-4157-bfd0-e3772159fad9,male,not applicable,no,na,na,moderate,no,hospitalisation,dose increased,recovered,unclassified
+9308a052-8b00-4b73-8b43-df4ec981bf13,male,not applicable,no,na,na,mild,no,disability,dose reduced,recovered,unlikely
+9372f8b9-9b6d-4831-abf0-b66c6d4a8d52,male,not applicable,no,na,na,moderate,no,congenital anomaly,drug withdrawn,recovered with sequelae,unclassified
+aaf41993-de96-4397-9978-affce2ce343f,female,3rd trimester,no,na,unknown,fatal,no,disability,dose reduced,recovered,unclassifiable
+a911029e-3006-401a-81a0-db2a148cb0d0,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,not recovered,possible
+6a70f550-cd07-4837-9b08-c15596701007,male,not applicable,no,no,no,mild,yes,life-threatening,drug withdrawn,recovered with sequelae,possible
+07b67a08-9e85-47b4-b58c-9c74f13b0c25,male,not applicable,no,no,yes,severe,yes,disability,drug withdrawn,recovered,likely
+d4b42718-a9ee-4c5b-95e2-a002a8e516b9,male,not applicable,yes,na,na,mild,no,disability,dose not changed,recovered with sequelae,unclassified
+10bcc504-739e-4de2-a091-ec462bd950b7,female,2nd trimester,no,no,yes,severe,yes,hospitalisation,dose not changed,recovered,likely
+17d85380-af58-4b50-b4c0-1bf9ee38dc94,male,not applicable,no,no,unknown,mild,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+5b28cbb0-977d-4d7e-93a4-559c128ff28d,male,not applicable,no,na,unknown,mild,no,congenital anomaly,drug withdrawn,recovered,unclassified
+fd9cfba8-0dd5-4d37-b513-1848857f78ed,male,not applicable,no,no,yes,moderate,yes,disability,dose not changed,recovered with sequelae,likely
+4558e7a2-298f-40b5-a57d-37c0acec03fc,male,not applicable,no,yes,yes,fatal,no,death,drug withdrawn,not recovered,certain
+7e3b2e58-9694-4d7d-a9d3-ea67af07c29f,female,1st trimester,no,na,na,moderate,yes,hospitalisation,dose reduced,recovered,unclassifiable
+0645264f-68f9-409f-baac-d1313b37fbae,female,not pregnant,no,no,yes,mild,yes,hospitalisation,drug withdrawn,recovering,likely
+75e2b339-276c-4dc3-ab25-dc395dc8ab3f,male,not applicable,yes,no,no,moderate,yes,hospitalisation,dose reduced,recovered with sequelae,possible
+2c68d2dc-c857-4637-8046-37dd3ded107a,male,not applicable,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+15e44ac6-74aa-4112-a9ae-82ce51f8500e,female,1st trimester,no,na,no,mild,no,disability,dose not changed,not recovered,possible
+d3a7b53e-8659-4566-a4ec-adea7592c769,male,not applicable,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+78afe23d-5b13-47e9-9c7b-f9f2a8aca53b,female,not pregnant,yes,no,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+3d824ef9-e7a3-4c72-a51d-85e1f88223b2,female,not pregnant,no,unknown,unknown,moderate,no,congenital anomaly,dose reduced,recovered,unclassified
+19043e48-b4d6-4f41-b101-3458e2f80a02,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+09ff7a39-872c-4e59-9d3b-beebacd5a53d,female,2nd trimester,no,no,no,moderate,no,disability,drug withdrawn,recovered,unlikely
+bbf4fe74-17b2-4ebf-9e99-7ecf2611fd57,male,not applicable,yes,no,yes,severe,no,hospitalisation,dose reduced,recovered,likely
+5cfc3bea-be0b-49b5-992c-e6ef8496984c,female,not pregnant,yes,na,unknown,fatal,no,hospitalisation,drug withdrawn,recovered,certain
+be8f3b4d-b5d5-4b1d-91a8-e80a194bc939,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+b510a225-5ddc-4b03-996d-878aae758eab,male,not applicable,no,yes,yes,fatal,no,life-threatening,drug withdrawn,recovered,certain
+e53d48c7-200f-4bac-98cc-95096e6397f2,male,not applicable,yes,no,na,mild,no,hospitalisation,dose not changed,recovered,possible
+1de0accb-8759-4293-a7cd-01033689d2ce,male,not applicable,no,na,na,moderate,no,hospitalisation,dose reduced,recovered with sequelae,unclassified
+baf5bc86-ba01-4e43-aa93-1000c74c142a,female,not pregnant,no,no,no,moderate,no,congenital anomaly,dose not changed,recovered with sequelae,possible
+25990101-f754-4cf4-a749-980a26c6de08,male,not applicable,no,no,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+ca202c2e-44a4-4e9d-9e12-c19e181780a5,male,not applicable,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+6ad8951f-92db-4899-b0fa-76eea58950d3,female,1st trimester,no,unknown,unknown,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+0df1b5df-6f8f-484c-80f0-cb231b534264,female,1st trimester,no,no,no,mild,no,disability,dose not changed,recovered,unlikely
+237e9955-aeaf-463e-9709-f7c9845c56f4,female,2nd trimester,no,no,yes,mild,no,disability,drug withdrawn,recovered with sequelae,likely
+88fd0d8a-8d4d-4335-81b6-f82598396f24,female,not pregnant,yes,yes,unknown,fatal,yes,death,drug withdrawn,recovered,certain
+588d4e29-70a4-487c-9fb6-d5e1fdf34348,male,not applicable,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,unlikely
+3c372328-40ea-477d-ad8d-7d835a950118,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered,possible
+256ab91d-5daa-4e4d-a5c3-0937a28b3e3f,female,3rd trimester,no,na,na,mild,yes,life-threatening,dose increased,recovering,unclassified
+609fe176-b66b-422c-9aa6-044ac698d90f,male,not applicable,no,no,yes,unknown,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+ea58fbe0-183c-4155-a4cd-08f36653af8b,female,1st trimester,no,no,yes,severe,yes,hospitalisation,dose increased,recovered,likely
+52437666-784f-4a07-ae2d-75d5b3532734,male,not applicable,no,na,na,mild,no,hospitalisation,dose reduced,recovered,unclassified
+365aa8ba-02c3-4dcd-8cde-f9225c9c82ef,male,not applicable,yes,no,yes,severe,no,disability,dose increased,recovered,likely
+55a46f7c-0581-468b-9de8-0e4c240dba08,female,not pregnant,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered,possible
+0b8a8fdd-2d67-4c0a-a3d7-03539359bf54,male,not applicable,no,no,no,severe,yes,hospitalisation,dose reduced,recovered,possible
+6bd41c86-ce5e-4989-9edc-a827d1f7c636,female,not pregnant,no,no,na,fatal,yes,hospitalisation,drug withdrawn,recovered,likely
+897253cb-19e4-4f0e-90ef-7e91f2daf608,female,not pregnant,no,no,no,severe,no,hospitalisation,dose reduced,recovered,possible
+ffdf5e6d-5f23-4dfe-96cd-d88f0a29f77a,male,not applicable,no,na,unknown,mild,no,hospitalisation,dose not changed,recovered,unclassified
+0b57e2e4-dcd5-435a-9500-089893b08d02,male,not applicable,no,na,na,severe,yes,disability,dose reduced,recovered,unclassified
+9c6c1d2b-36f8-40d5-b496-a42da1b82d80,male,not applicable,no,na,unknown,moderate,yes,disability,dose reduced,recovered with sequelae,unclassified
+b08f8c0d-03c9-4271-bb4f-7b768750335f,male,not applicable,no,no,no,fatal,yes,disability,dose reduced,recovered,possible
+e5ce5f7d-3fd6-4bf4-a5f6-184499d54ab1,male,not applicable,no,na,yes,severe,yes,hospitalisation,dose not changed,recovered,likely
+d2e86183-b5c9-460f-9394-d98073e1fd70,female,2nd trimester,no,na,unknown,moderate,no,hospitalisation,dose not changed,recovered,unclassified
+02962ec0-39b6-40da-86af-e62a98ecf81b,male,not applicable,no,no,yes,moderate,no,death,drug withdrawn,recovered with sequelae,likely
+ea040aaa-c245-4a45-8a7a-f972255e5787,female,not pregnant,no,no,yes,fatal,yes,life-threatening,drug withdrawn,recovered,likely
+d58c9db9-3838-4df5-834a-72f64dea1b34,female,not pregnant,no,no,no,moderate,yes,hospitalisation,dose reduced,recovering,possible
+43283ed3-9d1d-4bd1-b268-7cca0abd0d3e,male,not applicable,no,unknown,unknown,moderate,no,disability,drug withdrawn,recovered,unclassified
+41da13d6-5e24-469f-bf52-c6d15c9d05f7,female,1st trimester,no,na,unknown,mild,no,hospitalisation,dose not changed,recovered,unclassifiable
+3b0fdfe4-84cd-4e2e-a0cd-74c951094277,male,not applicable,no,no,no,moderate,yes,disability,dose not changed,recovered,unlikely
+e31af8b3-18d9-4dc8-8f01-980103ef8700,male,not applicable,no,yes,yes,severe,no,death,drug withdrawn,recovering,certain
+3e2305e2-59f9-44d8-837f-0a3292dda8f8,female,not pregnant,no,no,yes,severe,no,hospitalisation,dose reduced,recovered,likely
+57fb73c0-e766-4f69-ba52-b69a1b7900f0,female,not pregnant,no,na,yes,fatal,yes,life-threatening,drug withdrawn,recovered,likely
+ec60157b-cbc6-4127-8ce2-b1f533ae9155,male,not applicable,no,na,na,fatal,yes,congenital anomaly,drug withdrawn,recovered with sequelae,likely
+29702484-f7f1-4734-8543-97763502669e,male,not applicable,no,no,no,moderate,no,life-threatening,dose reduced,recovered,possible
+ac870cbc-6496-4347-b301-fbe4858c37fe,male,not applicable,no,no,no,mild,no,hospitalisation,dose increased,recovered,possible
+e240d5c5-1baf-4a58-9cc3-c2ecd31c6ea2,male,not applicable,no,no,no,moderate,no,hospitalisation,dose not changed,recovered with sequelae,unlikely
+a6f4e03e-433f-47a4-afec-e53ff27c6ba6,male,not applicable,no,unknown,unknown,severe,no,hospitalisation,dose reduced,unknown,unclassifiable
+e30860ca-ce45-4f23-a9a9-788adaae1dbb,female,2nd trimester,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,unlikely
+161503c7-95b1-4ff6-8d72-451b5cd5ac72,male,not applicable,no,na,no,mild,no,hospitalisation,dose reduced,recovered,possible
+11bf0630-85b6-4ed6-bda7-8236f56fde3a,female,not pregnant,no,yes,unknown,fatal,yes,life-threatening,drug withdrawn,recovered,certain
+a45ebdd4-3d7e-44e9-9de1-3dd32f8b0ca0,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+36653671-c8ca-4709-907e-7ca7cb4c7881,male,not applicable,no,na,unknown,mild,no,disability,drug withdrawn,death,unclassified
+8966c82e-f042-45b1-8e6e-fc0b51d3b726,male,not applicable,no,unknown,unknown,moderate,yes,hospitalisation,dose reduced,recovered,unclassified
+e54d386e-8e32-4c51-ab36-9a7aa94431e5,male,not applicable,no,no,unknown,mild,no,hospitalisation,dose reduced,recovered,unlikely
+88b9ba3f-f55e-475b-a695-1e9085b37b4d,male,not applicable,no,na,na,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+7ca7b23a-e058-4a55-9a54-a919ebcd0a2f,female,2nd trimester,yes,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+97969708-eea5-4740-82f3-79dd6bca219c,male,not applicable,no,unknown,na,severe,no,congenital anomaly,drug withdrawn,recovered,unclassified
+23d7adc2-d7ce-4a70-8efa-e051c5c44c22,male,not applicable,no,na,unknown,moderate,no,life-threatening,dose reduced,recovered with sequelae,unclassified
+2d0eb28b-df88-4d60-b68f-b8c658c4ad4d,male,not applicable,no,no,yes,severe,no,disability,drug withdrawn,recovered,likely
+33cf3bb0-2589-422c-ab54-d4b6de95d32d,male,not applicable,no,no,yes,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+a835570c-e2c4-4702-8c26-c58fabda7bd1,male,not applicable,yes,unknown,na,moderate,no,congenital anomaly,drug withdrawn,recovering,unclassified
+71927b6b-5059-404b-9b0e-340b33c67bc6,male,not applicable,no,unknown,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+778b1f0b-d269-4c00-b7d5-c2da9f69650d,female,1st trimester,no,unknown,na,moderate,yes,life-threatening,dose reduced,not recovered,unclassified
+aaac4f98-4c47-46cf-8b9c-90eb48e3fa67,female,1st trimester,no,unknown,na,severe,no,hospitalisation,dose reduced,not recovered,unclassified
+48ed0ee6-d101-45f2-985f-41785988dce2,female,1st trimester,no,na,na,mild,no,hospitalisation,dose not changed,recovered,unclassified
+486d0dff-8a65-4b3e-92ec-5b167ec736d1,female,not pregnant,no,no,yes,moderate,no,death,drug withdrawn,recovered,likely
+e6746a95-df7e-4373-b412-14f8256c5483,male,not applicable,no,no,yes,severe,no,disability,dose increased,recovered with sequelae,likely
+73c051a6-4799-4d15-865a-75609729ada4,female,1st trimester,no,no,yes,moderate,no,congenital anomaly,drug withdrawn,recovered with sequelae,likely
+f1b20763-8377-4afe-bff3-5003d9251d89,female,1st trimester,yes,unknown,no,mild,yes,disability,drug withdrawn,recovered,possible
+6cc4fd02-85ab-4c5e-a2de-35ca8ff4de4d,male,not applicable,no,unknown,na,mild,no,disability,dose not changed,recovered,unclassified
+6caf5db5-8d74-4a39-abd1-d118f759981d,female,1st trimester,no,na,unknown,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+5236584d-6ed6-4de7-b964-d68ac50e55e6,female,not pregnant,no,no,unknown,fatal,no,life-threatening,drug withdrawn,not recovered,likely
+5b1e3ccf-8f19-402a-ab25-a0645c9647e0,male,not applicable,no,no,no,moderate,no,disability,dose reduced,recovered,possible
+18657fed-60df-4aa8-99ab-bfdd0df65b1a,male,not applicable,no,no,no,mild,no,disability,drug withdrawn,recovered,possible
+2341a381-c2a1-4beb-a373-2fd39b13c48d,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered,possible
+7401a6f9-3e9d-41a8-abcf-b5d91ca40013,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,dose increased,recovered,unclassified
+9593d64d-a9bc-4aed-a9a1-ac74673878d4,male,not applicable,no,unknown,na,moderate,yes,hospitalisation,drug withdrawn,recovered,unclassified
+07d90c48-0663-4c0c-94f8-8f55fb6aac3e,male,not applicable,no,unknown,yes,moderate,no,life-threatening,dose increased,recovered with sequelae,likely
+ecd28698-d554-46e0-99b0-9511b5330284,female,not pregnant,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+1c19fbd7-7bd1-4c67-89b0-316ee4cfcfc6,male,not applicable,no,no,no,moderate,no,hospitalisation,dose reduced,recovered with sequelae,possible
+83302b9b-779b-418f-bc28-47b322961788,female,1st trimester,no,na,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+be0af48b-4f06-4535-84d2-d7c9162a8f4d,male,not applicable,no,no,no,moderate,yes,hospitalisation,dose reduced,recovered,possible
+19ac7de0-394e-4bad-a4ca-ae2a74b45c0d,male,not applicable,no,no,no,moderate,no,hospitalisation,dose increased,recovered,possible
+6f0957b8-bb35-4fa4-88dd-d30543c44e23,female,not pregnant,no,no,yes,severe,yes,hospitalisation,dose reduced,recovered,likely
+924e07ec-b5e2-43fb-a969-5b4362a39aa6,female,1st trimester,no,unknown,no,moderate,no,hospitalisation,dose reduced,recovered,unlikely
+4ca1fa6e-7d38-4819-b84e-4ed714955d3a,male,not applicable,no,unknown,unknown,severe,yes,life-threatening,not applicable,recovered,unclassified
+d4c40693-2122-45d1-be0a-5b9d354b03d2,female,1st trimester,no,na,unknown,mild,yes,disability,dose reduced,recovered,unclassified
+21b892ae-f5f1-4fb2-b7f4-75e687d45c12,female,1st trimester,no,no,no,mild,yes,life-threatening,drug withdrawn,recovering,possible
+4c5865f9-2d58-4a1c-bb33-294a7999b542,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+522c57c4-3b35-4a7f-a7ce-b30af1858e12,male,not applicable,no,na,no,severe,no,disability,dose increased,recovered,possible
+1b3dfb0c-b5af-4e5d-bf78-0ae2998b8a5f,male,not applicable,no,unknown,unknown,mild,yes,hospitalisation,dose not changed,recovered,unclassifiable
+a69f0fa8-6d48-4856-8a16-348b56fd7548,male,not applicable,no,no,yes,mild,yes,hospitalisation,drug withdrawn,death,likely
+71fa84f1-b9d2-4853-82a9-770502828fe5,male,not applicable,yes,na,na,severe,yes,hospitalisation,dose reduced,recovered with sequelae,possible
+284f4311-0441-4b49-99f1-6bc2d1e5920a,female,not pregnant,no,na,yes,severe,no,hospitalisation,dose reduced,recovered,likely
+459c1858-b025-47d4-95f2-7b21c4ca2929,female,1st trimester,no,unknown,na,severe,no,hospitalisation,drug withdrawn,recovered,unclassified
+769ad485-1d12-4425-a4bb-89f53fb199cb,male,not applicable,yes,unknown,unknown,mild,no,disability,dose reduced,unknown,unclassified
+b4d92bc6-7e5f-4d0a-9460-dde689fe7f12,male,not applicable,no,no,no,unknown,yes,hospitalisation,dose reduced,recovered,possible
+39d25699-55f1-4add-af31-0cb5ac79be4f,male,not applicable,yes,na,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+10c1e63a-5de2-43b4-9504-1f96ece07447,male,not applicable,no,yes,unknown,fatal,yes,death,drug withdrawn,recovered,certain
+f603d97a-2ff6-42fa-a5e1-445e78868224,male,not applicable,yes,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+f3d5ab40-7a6c-4863-804b-0813bbc99bf8,male,not applicable,no,unknown,na,mild,yes,hospitalisation,dose not changed,recovered,unclassified
+69d8a3a8-4221-4c12-a4a5-d5f5749e1435,male,not applicable,yes,no,no,moderate,no,disability,dose not changed,recovering,unlikely
+7196562c-6f29-4dc6-be98-e4919ba676fd,female,1st trimester,no,no,no,moderate,no,hospitalisation,dose reduced,recovered with sequelae,possible
+0799afdb-cc01-4726-92f6-ccfd0649c19e,male,not applicable,no,no,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+3c8c8972-1798-4204-88ed-45bb7781267b,male,not applicable,no,unknown,unknown,mild,yes,hospitalisation,dose reduced,death,unclassifiable
+1852267d-3e25-40d2-b3f6-4245e608b7f9,male,not applicable,no,na,unknown,unknown,no,congenital anomaly,dose reduced,recovered with sequelae,unclassified
+45abd549-9f98-4b1a-9e9c-d1abd4636421,male,not applicable,yes,unknown,unknown,moderate,no,hospitalisation,not applicable,recovered,unclassified
+3c3da1b1-6a7f-44b7-9e47-2772a6c27d5a,male,not applicable,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+bad82956-eac2-4faf-8ada-211438bf1a74,female,not pregnant,no,unknown,yes,fatal,no,disability,dose reduced,recovered,likely
+33c87382-472e-47f8-8c4e-4bc47b1df203,male,not applicable,yes,unknown,unknown,severe,yes,hospitalisation,dose reduced,recovered,unclassified
+96d57771-4de2-4092-b61a-03991123d052,female,not pregnant,no,no,yes,moderate,no,life-threatening,dose reduced,recovered with sequelae,likely
+63641b66-70dc-402d-9180-23eabcc31501,female,not pregnant,no,no,na,severe,no,disability,drug withdrawn,recovered,likely
+4c73b409-4d31-4156-b920-b7a1d60c3b2b,female,1st trimester,yes,na,unknown,moderate,yes,disability,dose not changed,recovered,unclassifiable
+717b304f-62ff-4aab-a7f5-329fe1ec3c07,male,not applicable,no,yes,yes,moderate,no,death,drug withdrawn,death,certain
+fd7194f3-18d2-469b-9022-22376e208e37,female,1st trimester,yes,unknown,unknown,moderate,yes,hospitalisation,drug withdrawn,recovering,unclassified
+2c874069-d835-449b-b1e1-4d5a3926e514,female,not pregnant,no,no,na,mild,no,hospitalisation,dose reduced,recovered,possible
+fd4e1a4e-76ab-4d5e-9af0-f2b4d83adf4c,male,not applicable,no,unknown,unknown,moderate,no,hospitalisation,dose reduced,recovered,unclassifiable
+53ecbe19-b8af-4d86-8403-676832a4e26f,male,not applicable,no,unknown,unknown,mild,no,hospitalisation,dose not changed,recovered with sequelae,unclassifiable
+b1a02f51-5071-4cf9-b3ec-b1d5e01a21c0,female,1st trimester,no,na,na,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+83102c2a-511d-42ff-9255-a11f47a9d917,female,2nd trimester,no,no,no,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+91a69b47-05b1-406a-8d65-163b7f0e61c4,female,not pregnant,no,no,no,moderate,yes,disability,dose increased,recovered,possible
+458751dc-d4be-4a30-b512-a29fdb371057,male,not applicable,no,na,na,moderate,no,hospitalisation,dose not changed,unknown,unclassified
+b8a39766-6d6c-4051-8a21-55c947e82e84,male,not applicable,no,no,na,moderate,no,disability,drug withdrawn,recovering,possible
+072932fc-95c1-497f-83a0-0753cc455c54,male,not applicable,no,no,no,mild,no,hospitalisation,dose reduced,recovered,possible
+2ed9a70c-4f65-4dd1-8356-5919618ace14,male,not applicable,yes,no,no,moderate,no,hospitalisation,dose reduced,recovered with sequelae,possible
+f695b77c-0fcf-4450-839e-fd55ddf2e539,female,not pregnant,no,no,no,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+6ddb69ea-3d1a-4d17-b955-0eed17db2e01,male,not applicable,no,no,yes,moderate,no,hospitalisation,dose reduced,recovered with sequelae,likely
+b39ea46d-51d2-4a53-9e79-8896ef7f08f0,male,not applicable,no,na,na,mild,no,hospitalisation,dose increased,not recovered,unclassifiable
+6dd842a5-3175-499b-9abc-d98aca996718,female,2nd trimester,no,no,no,mild,no,disability,dose not changed,recovered,unlikely
+897c45ec-8ed5-46e8-829a-7f0587c6ac7e,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+65ca0c38-ab1c-4f15-8332-44452a8c6cb6,male,not applicable,no,no,yes,mild,no,life-threatening,drug withdrawn,recovered with sequelae,likely
+bd25b53c-1750-43b7-8fb5-1018c5b1419f,female,not pregnant,no,no,yes,severe,no,life-threatening,dose not changed,recovered,likely
+650f0009-44ef-450c-ba2f-1b8e4ca39d8c,female,2nd trimester,no,na,na,mild,no,hospitalisation,dose reduced,recovered,unclassified
+3e3928e4-2458-4c39-a22b-78618ac0d7c6,male,not applicable,no,no,no,severe,no,hospitalisation,dose reduced,recovered,unlikely
+a003a442-4245-4849-9f0d-3a9957eb9d9a,male,not applicable,no,no,no,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,unlikely
+52843ab8-12a3-43dc-8a0c-a0c6748800db,female,2nd trimester,no,na,no,mild,no,congenital anomaly,drug withdrawn,recovered,unlikely
+2d152486-6388-4d06-beee-ad2a48db3d0d,female,not pregnant,no,yes,yes,severe,yes,death,drug withdrawn,recovered,certain
+fe8e155a-aa4f-44c9-b53d-00f048108322,male,not applicable,yes,no,yes,unknown,yes,hospitalisation,drug withdrawn,death,likely
+74e320e9-19f0-40b9-b528-9f317528e255,male,not applicable,no,no,yes,fatal,no,hospitalisation,drug withdrawn,recovered,likely
+8a051702-6383-433f-a50f-9103437c36eb,female,1st trimester,no,no,yes,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+371e83cb-c498-42e2-b6db-b13846f195a9,male,not applicable,no,no,yes,severe,no,death,drug withdrawn,recovered with sequelae,likely
+6dc8c361-2e1e-4f4e-88a7-344a41f75c91,female,1st trimester,no,unknown,na,moderate,no,hospitalisation,dose reduced,recovered,unclassifiable
+06b61791-0379-4a3b-9e78-010f4f6fd809,male,not applicable,no,na,unknown,moderate,no,hospitalisation,dose reduced,recovered,unclassifiable
+6b948d37-a7dc-4688-ba7b-56fb67d6113a,female,1st trimester,no,na,na,moderate,no,hospitalisation,dose not changed,recovered,unclassifiable
+1c147e87-ad5c-4829-a3e3-589c05218e3a,female,3rd trimester,no,na,unknown,mild,no,hospitalisation,dose reduced,not recovered,unclassifiable
+4a4ee8b5-6c39-4ac7-a320-8286a82834a3,male,not applicable,no,no,no,severe,no,hospitalisation,dose not changed,recovered with sequelae,possible
+170c1778-fe40-42c0-bbbc-68c230d348a0,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+854336e0-b72f-49f9-be5f-d85717175d0f,male,not applicable,no,na,unknown,mild,no,hospitalisation,drug withdrawn,recovered with sequelae,unclassified
+9bc1387e-74c9-4adf-93a2-ac0c766c4d4d,male,not applicable,no,na,yes,mild,no,disability,drug withdrawn,recovered,likely
+c0149cbe-24c5-4146-81e3-5bc75cb83062,female,not pregnant,no,no,yes,mild,no,life-threatening,drug withdrawn,not recovered,likely
+e9803005-dc2d-4cd4-b7c8-9e49fc6cee99,male,not applicable,no,no,no,mild,no,disability,dose reduced,recovered,possible
+7ffd18c1-2bfd-4c56-86f9-15cd1cf69570,male,not applicable,no,no,no,moderate,yes,disability,dose reduced,recovered with sequelae,possible
+46f0ca91-bdf6-418d-a116-cc3a883564c7,male,not applicable,yes,no,no,mild,yes,hospitalisation,dose not changed,recovered with sequelae,possible
+6c88bb84-53ab-43e3-85f6-845c4d094de1,male,not applicable,no,na,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassified
+f0108753-f593-48bd-976e-99b21078536e,female,1st trimester,no,unknown,no,mild,no,disability,drug withdrawn,recovered with sequelae,unlikely
+916ea29e-3b79-4a8f-b8c2-601b2d243684,male,not applicable,no,no,unknown,mild,no,disability,dose reduced,recovering,unlikely
+f95661c5-b598-4dd1-a6c4-e90aeb226f84,female,2nd trimester,no,unknown,na,moderate,yes,life-threatening,dose not changed,recovered,unclassifiable
+1032d662-47d6-4d9f-8298-209457be49ca,female,1st trimester,no,na,unknown,mild,no,hospitalisation,drug withdrawn,recovering,unclassifiable
+ff5a68b1-cc3c-4b5a-98c7-7b684b59958a,male,not applicable,yes,na,na,moderate,no,death,dose not changed,recovered,unclassifiable
+234197d9-69e8-4136-955d-9e598200bfbe,male,not applicable,no,no,unknown,mild,no,disability,dose increased,recovered,unlikely
+2807d59d-8e8a-4e49-accc-5406f5eac85a,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+19896a65-d4b7-4bbd-88ed-2277749d9fd6,male,not applicable,no,na,na,severe,no,hospitalisation,dose not changed,recovered,unclassified
+52fe9b0c-5010-476f-a5ad-8c57f1238c21,male,not applicable,yes,no,yes,moderate,yes,hospitalisation,dose reduced,recovered with sequelae,likely
+5caa169f-d999-47bf-863f-734a040dc746,female,1st trimester,no,no,no,moderate,no,hospitalisation,dose not changed,recovered,unlikely
+78b14ec2-3827-4836-981d-e59d419b6f6c,male,not applicable,no,unknown,yes,severe,yes,death,drug withdrawn,recovered with sequelae,certain
+9e1f2492-807e-4fa4-bb9d-b5408ca22b9a,male,not applicable,no,na,unknown,moderate,yes,disability,dose not changed,death,unclassifiable
+4f2c16cd-ee32-4a2d-a69b-3d65e55e1942,female,1st trimester,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovered,unclassifiable
+d10388ca-ce3b-4d7c-bf25-145d0c07007a,male,not applicable,no,unknown,na,mild,no,disability,dose increased,recovering,possible
+19c6ddf1-d189-4757-a4ee-cbd264c3b362,female,2nd trimester,no,no,no,mild,no,congenital anomaly,dose reduced,recovered,unlikely
+fdee91ae-eb8a-4cf7-b3de-4581c75006af,female,2nd trimester,no,no,unknown,moderate,no,life-threatening,dose not changed,recovered with sequelae,likely
+119043c7-6fd1-419e-9070-549cbef75fd8,female,not pregnant,yes,unknown,na,severe,yes,hospitalisation,dose reduced,death,unclassifiable
+2037af8f-0601-4a65-bf65-637beb392750,female,3rd trimester,no,na,no,severe,no,disability,drug withdrawn,recovered with sequelae,possible
+952f2f39-c21f-4f35-a43a-563e2e474f9a,male,not applicable,no,na,na,moderate,no,hospitalisation,dose not changed,recovering,unclassified
+d8ac8d10-3d1e-4684-89cb-073f17a1b895,male,not applicable,no,no,yes,moderate,no,hospitalisation,drug withdrawn,recovered,likely
+036a8b38-bcdb-4112-88a8-cc611d4a64d0,female,3rd trimester,no,no,unknown,mild,yes,hospitalisation,drug withdrawn,recovered,unlikely
+5b5f7b49-94c8-41b1-9aee-6873a5681de4,male,not applicable,no,no,yes,fatal,no,life-threatening,drug withdrawn,recovered,likely
+3644340a-ccb9-46c5-8b8b-199cc348329e,female,not pregnant,no,yes,na,fatal,no,death,drug withdrawn,death,certain
+70c7ee06-f588-4d5f-a684-28935d2c9165,female,not pregnant,no,unknown,no,moderate,no,hospitalisation,dose increased,recovered with sequelae,possible
+6ecfcce2-c417-4abd-b43e-8f3e5daedd74,female,3rd trimester,no,na,na,moderate,yes,life-threatening,dose increased,recovered with sequelae,unclassified
+024daedc-8402-4b2e-9621-6f96dc9ebfeb,male,not applicable,no,na,yes,moderate,yes,hospitalisation,drug withdrawn,recovered,likely
+dae02d08-b392-474a-a571-6b5a68f4da29,female,not pregnant,no,na,yes,severe,no,death,drug withdrawn,recovered,certain
+47762327-44f2-4dab-b09b-3cd66e3f93da,male,not applicable,no,na,no,mild,yes,disability,dose increased,recovered,unlikely
+08fee911-067a-47b0-ac5f-66936963fe9d,male,not applicable,yes,na,unknown,severe,yes,hospitalisation,dose not changed,not recovered,unclassified
+3a8c624c-7363-4aed-b1e0-76e99330dffa,male,not applicable,no,na,unknown,severe,yes,disability,dose reduced,recovered,unclassifiable
+d500d222-786c-4f8d-9f54-951cf854b844,female,3rd trimester,no,no,yes,severe,yes,death,drug withdrawn,recovered,likely
+2458aae9-c457-4a9c-aee3-c4108bd1767c,male,not applicable,no,unknown,na,mild,yes,life-threatening,dose reduced,recovered with sequelae,unclassified
+82326807-2a5b-4a61-81e0-610f2a42ff4a,male,not applicable,no,no,no,severe,yes,congenital anomaly,dose reduced,recovering,possible
+c1d3166e-f6b5-41f1-92ef-10fd6bc71917,female,2nd trimester,no,unknown,na,moderate,no,disability,drug withdrawn,recovered,unclassified
+dcc2002b-29e5-4680-9e57-a4c4611f617c,female,2nd trimester,no,no,no,mild,no,hospitalisation,drug withdrawn,death,possible
+dfe2e74a-df0c-4d2b-b754-047aa4ac46cb,female,1st trimester,no,unknown,unknown,moderate,no,hospitalisation,dose increased,recovered,unclassified
+289bd489-202e-4fc1-970e-e9d01240797d,female,1st trimester,no,no,no,mild,no,disability,drug withdrawn,recovered,possible
+243d6a5a-2f12-48de-a4bf-ea1e9507525a,male,not applicable,no,no,no,severe,no,hospitalisation,drug withdrawn,recovered,possible
+8b0765f9-b624-4248-8581-64ceeea9e904,female,1st trimester,no,no,na,unknown,no,disability,drug withdrawn,recovered,likely
+fe4056b4-38bc-4ed4-a2f7-2306564fec95,male,not applicable,no,no,yes,moderate,no,disability,drug withdrawn,recovered,likely
+7be7895f-4019-411c-848e-454da1fd2a75,male,not applicable,no,yes,yes,severe,yes,hospitalisation,drug withdrawn,recovered with sequelae,certain
+e26d0e35-3bdf-47a8-a8e4-9f271547cd99,male,not applicable,no,no,yes,moderate,no,hospitalisation,dose not changed,recovered,likely
+86f8de16-5dc4-4711-82ea-516d5ffa42fd,male,not applicable,no,no,no,unknown,no,hospitalisation,dose reduced,recovered,possible
+9d159c4a-e7c0-4558-b868-af2e2b874e1a,male,not applicable,no,yes,yes,severe,no,death,drug withdrawn,recovered with sequelae,certain
+6d877f99-7605-423e-91ff-e818868e6f99,male,not applicable,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,possible
+9b01b6c3-d784-495f-b815-c8522bb34a17,female,1st trimester,no,no,no,mild,no,hospitalisation,dose not changed,recovered,possible
+e08e78db-ab98-476d-a156-f089c29fbd2a,male,not applicable,no,unknown,na,moderate,yes,hospitalisation,drug withdrawn,recovered,possible
+f3b8fd4c-b11d-4962-beb1-e734b1303107,male,not applicable,no,no,na,unknown,no,life-threatening,drug withdrawn,recovered,likely
+451266f2-526f-492d-9cc3-598df9319de9,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovered with sequelae,likely
+f9d444bf-6680-4c25-b395-cedf37d34c1a,female,2nd trimester,no,unknown,na,severe,yes,hospitalisation,drug withdrawn,recovering,unclassified
+53a3b2ab-215d-42c5-8711-4fdbf518c826,female,2nd trimester,no,na,na,moderate,yes,disability,drug withdrawn,recovered with sequelae,unclassified
+fa6b3900-04a0-426a-80ba-f0b0e46aff50,male,not applicable,no,no,unknown,mild,no,disability,dose increased,recovered,possible
+4e6932d7-c5cd-40ab-b023-63c07fcf288a,male,not applicable,no,unknown,no,moderate,yes,congenital anomaly,drug withdrawn,recovering,possible
+ff806c3e-6f8d-434b-b2b4-5cff1d9ac25c,male,not applicable,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovered,likely
+1df9b1c7-ce44-4adc-b902-1ce4b77b2bfb,male,not applicable,no,no,no,moderate,no,hospitalisation,not applicable,recovered,unlikely
+4cb5ebe2-1551-4b5f-9b50-353338145c4e,female,1st trimester,no,no,no,mild,yes,hospitalisation,dose increased,recovered with sequelae,possible
+cf3cce05-df6e-4a46-be8d-0635ab44e51f,male,not applicable,yes,na,unknown,fatal,no,hospitalisation,drug withdrawn,recovered,certain
+167a0b6d-03e0-4ac0-909f-39867308abb9,male,not applicable,no,no,no,severe,yes,hospitalisation,dose increased,recovered,possible
+7752a598-14f8-43ea-b8c7-dba2f61ee1aa,female,3rd trimester,no,unknown,unknown,moderate,yes,disability,drug withdrawn,not recovered,unclassifiable
+236909ad-9550-42a2-8598-94c61378a673,male,not applicable,no,no,yes,severe,no,death,drug withdrawn,recovered with sequelae,likely
+1d5c8b93-69c4-4702-8022-31e73ed01b7c,female,not pregnant,no,no,na,mild,no,disability,drug withdrawn,recovered,possible
+8dc4af8b-196c-4c00-81a1-be0b0d095e24,female,2nd trimester,no,unknown,unknown,mild,no,disability,drug withdrawn,recovered,unclassified
+63567ddf-bf35-45b6-b682-b8b4a844c3fa,male,not applicable,no,no,na,moderate,no,hospitalisation,dose reduced,recovered,likely
+42d5cb50-adf7-4aa9-a425-56d77e992957,male,not applicable,no,yes,yes,moderate,no,hospitalisation,drug withdrawn,recovered,certain
+60eec654-463a-4dc9-8258-8ee5b000c296,female,1st trimester,no,no,yes,severe,yes,life-threatening,drug withdrawn,recovered,likely
+342188c8-6418-40bc-a4f4-8fbe08b03921,female,2nd trimester,no,no,no,mild,yes,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+f3c629a8-54a0-4d3c-90a0-672d146945cd,female,1st trimester,no,na,na,moderate,no,congenital anomaly,dose not changed,recovered,unclassifiable
+d2affacc-ad12-4e43-bc4d-69de5cce8c4a,male,not applicable,no,no,yes,moderate,yes,life-threatening,dose reduced,recovered,likely
+6cc6f2d3-b9a8-4348-a0f4-f7cf2f67b943,male,not applicable,no,no,no,moderate,no,life-threatening,dose increased,recovered with sequelae,possible
+ff86924b-0b36-4e72-8628-4f2ddfccd5ca,female,1st trimester,no,na,na,moderate,no,life-threatening,drug withdrawn,recovered with sequelae,unclassifiable
+f8cbf6ad-3b69-4bec-b9c8-24097e77fab1,male,not applicable,no,unknown,na,mild,no,hospitalisation,dose reduced,recovered,unclassified
+8d614b20-7752-4f9c-8f3b-9e9e27137ee6,male,not applicable,no,na,na,fatal,no,disability,drug withdrawn,recovered,unclassifiable
+b0d270bd-f065-49dd-8874-bf0319239680,female,1st trimester,no,na,yes,moderate,yes,disability,dose reduced,recovered,likely
+051802ae-db84-4b41-a2b3-b88f957081af,female,not pregnant,no,no,unknown,moderate,no,disability,dose reduced,recovered,possible
+804c5c19-f828-453f-ba6f-5e12a409e5e0,female,3rd trimester,no,no,yes,moderate,yes,hospitalisation,drug withdrawn,recovered,likely
+8fff7800-ff38-4d00-aa1f-c906edaf323f,male,not applicable,no,unknown,na,mild,no,hospitalisation,unknown,recovered with sequelae,unclassified
+d8f04220-3f40-4b79-b818-b9deadabca42,male,not applicable,yes,na,unknown,moderate,yes,hospitalisation,dose reduced,recovered with sequelae,unclassified
+1c6f634c-d93e-44ae-8123-668114b1460f,female,not pregnant,no,no,unknown,moderate,yes,hospitalisation,dose not changed,recovering,possible
+451111ab-2aca-4180-a695-5a6fafd0c8df,male,not applicable,no,na,na,mild,no,hospitalisation,dose increased,recovered,unclassified
+892a1cb1-d43f-47bd-b451-7a4fbfb8ac6d,male,not applicable,no,na,no,moderate,no,congenital anomaly,dose reduced,recovered with sequelae,unlikely
+00e856f3-5683-4e90-895a-0509f9a74903,female,not pregnant,no,no,yes,mild,no,life-threatening,dose reduced,recovered,likely
+a9a017df-6056-4d93-8661-94c93d7bd618,female,not pregnant,no,no,yes,severe,no,congenital anomaly,drug withdrawn,recovered,likely
+a461f080-4ace-4b2b-a0c1-2f209d6c07e9,male,not applicable,no,na,no,severe,yes,hospitalisation,dose reduced,recovered with sequelae,possible
+c5985d1b-36d8-4fd3-a299-21dc32e03432,female,3rd trimester,no,na,unknown,moderate,no,hospitalisation,dose not changed,recovered with sequelae,unclassifiable
+d71c064e-9992-44f5-9f78-cd75791138df,female,3rd trimester,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+2d50013f-1020-426a-bfa4-fc001cb69d74,female,1st trimester,no,na,yes,severe,no,disability,dose reduced,recovered,likely
+843bedcb-d7e9-4f3f-aa26-05c35dd7ce1a,male,not applicable,no,unknown,na,mild,yes,death,dose reduced,recovered,unclassified
+a08b41dd-1f74-4d82-8636-8a03b268e5d8,female,1st trimester,no,unknown,unknown,mild,no,hospitalisation,dose reduced,unknown,unclassifiable
+4c229205-ab94-4b16-8406-c4b843ed6ae5,male,not applicable,yes,unknown,no,mild,no,life-threatening,dose reduced,recovered with sequelae,unlikely
+bb0920d0-5eff-49a2-9931-e1ba248564d1,female,not pregnant,no,no,no,moderate,no,disability,drug withdrawn,recovered,possible
+ebe64475-b9cb-4591-b544-18ed7683981c,female,3rd trimester,no,na,unknown,fatal,no,hospitalisation,dose reduced,recovered,unclassified
+42bd948e-9890-4b1e-8627-5869348a3859,male,not applicable,yes,no,na,fatal,no,hospitalisation,drug withdrawn,recovered with sequelae,likely
+cb107c3f-23aa-407b-a8ca-d3e98039cd40,female,1st trimester,no,na,unknown,moderate,yes,hospitalisation,dose reduced,recovered,unclassifiable
+21fba536-8315-4146-86ef-3e4890223ef6,female,1st trimester,no,na,na,severe,no,disability,dose reduced,recovered with sequelae,unclassified
+539fad56-35df-4bb0-82d6-158a38f541eb,male,not applicable,no,no,no,moderate,no,life-threatening,dose reduced,not recovered,unlikely
+0543526b-d5d8-498a-82a9-e3300237cc49,male,not applicable,no,no,no,mild,yes,death,drug withdrawn,not recovered,possible
+2d59de4c-f103-43e5-8994-7058a4e4bace,male,not applicable,no,unknown,na,severe,yes,disability,drug withdrawn,recovered,unclassified
+8b57bd21-890c-44e2-88a0-b4decfad6a5b,female,2nd trimester,no,unknown,unknown,severe,no,hospitalisation,drug withdrawn,recovering,unclassified
+82cedd6b-47c3-42fa-8c0d-8efd0bff4725,female,3rd trimester,no,unknown,unknown,mild,yes,congenital anomaly,dose reduced,not recovered,unclassified
+37774407-8dba-44b0-b56a-b90b73050509,male,not applicable,no,no,na,moderate,no,hospitalisation,drug withdrawn,recovered with sequelae,possible
+32e52145-0fba-4c73-b6ea-90699132ea13,male,not applicable,no,no,no,severe,no,hospitalisation,dose increased,unknown,unlikely
+a7ccf27e-a925-41ce-8aab-82ed3297c53a,female,not pregnant,no,yes,yes,severe,no,death,drug withdrawn,recovered,certain
+ac0cdc81-7fe9-4516-ac3d-157e7b3b7ba8,male,not applicable,no,no,yes,moderate,no,hospitalisation,dose reduced,recovered with sequelae,likely
+da8c1eff-2b27-497c-81f2-3aac9ad0862e,female,not pregnant,no,unknown,na,mild,no,hospitalisation,drug withdrawn,recovered,possible
+400c7756-2fb6-4632-afb3-868741ab664e,male,not applicable,no,na,unknown,mild,no,disability,dose reduced,recovered with sequelae,unclassified
+539e9ed2-45ac-4546-baa0-d920a220c427,female,1st trimester,no,na,na,mild,no,disability,dose not changed,recovered,unclassifiable
+cdd86825-3edb-46b1-a15b-1b65adf3b9da,male,not applicable,no,na,na,moderate,no,hospitalisation,dose reduced,recovered,unclassified
+3b326ccb-f753-4b5f-9830-1b855816ce8e,female,3rd trimester,no,no,unknown,mild,yes,hospitalisation,drug withdrawn,recovered with sequelae,unlikely
+95832aa3-dbad-407d-9eca-d3291bc5d06d,male,not applicable,no,no,no,moderate,no,congenital anomaly,dose reduced,recovered with sequelae,possible
+6bd081f0-c070-4d94-8063-decd30e99f60,male,not applicable,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered with sequelae,certain
+ef6132e0-ff11-4d87-a11e-cd4d0e135665,male,not applicable,no,no,no,severe,no,congenital anomaly,dose reduced,recovering,possible
+a7338bde-c6a9-401d-97e3-112560f02de1,female,1st trimester,no,no,no,moderate,no,congenital anomaly,drug withdrawn,recovered with sequelae,possible
+5113dde5-d677-4e8c-ab75-eca11840942c,female,not pregnant,no,unknown,na,moderate,yes,congenital anomaly,drug withdrawn,recovered with sequelae,unclassified
+712252cb-9867-436c-a025-069334a2c5d3,female,not pregnant,no,yes,yes,severe,no,hospitalisation,drug withdrawn,recovered,certain
+ea76a746-8a4d-4dff-ba02-3963239d1553,male,not applicable,yes,no,no,moderate,no,life-threatening,drug withdrawn,recovered,possible
+2311881e-3dd2-4e8c-b044-48b599ff538d,female,not pregnant,yes,no,yes,fatal,yes,death,drug withdrawn,recovered,likely
+1449824a-5257-4a18-8f23-823c74650d70,male,not applicable,no,unknown,na,moderate,no,hospitalisation,dose not changed,recovered,unclassified
+4253f731-0148-4503-bb8a-212d4de39584,male,not applicable,no,unknown,yes,severe,no,disability,dose reduced,recovered,likely
+98eb39ba-4786-40ae-842a-0852178ce16f,female,2nd trimester,yes,no,no,mild,yes,hospitalisation,dose increased,recovered with sequelae,possible
+647ce69b-4385-4da9-8385-41db02dd5959,male,not applicable,no,na,na,mild,yes,hospitalisation,dose not changed,recovered with sequelae,unclassified
+0c7a06fb-4884-4c71-9a8d-391bf7fb1ad0,male,not applicable,no,no,no,moderate,yes,hospitalisation,drug withdrawn,recovering,possible
+007a1193-cf7c-44eb-89c9-b22b63bef899,male,not applicable,no,na,no,severe,no,disability,dose reduced,recovered,possible
+5adea17b-d00e-4052-93e4-b459164e2ec9,male,not applicable,no,unknown,unknown,moderate,no,hospitalisation,drug withdrawn,recovered,unclassified
+61c3b11f-9d72-43b9-a8a0-b83954b4ea86,male,not applicable,no,na,yes,severe,yes,life-threatening,drug withdrawn,recovered with sequelae,likely

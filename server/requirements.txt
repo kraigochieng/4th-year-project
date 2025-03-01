@@ -1,0 +1,10 @@
+fastapi[standard]
+pydantic-settings
+joblib
+scikit-learn==1.5.1
+ipykernel
+humps
+pyjwt
+passlib[bcrypt]
+bcrypt==4.0.1
+mlflow
