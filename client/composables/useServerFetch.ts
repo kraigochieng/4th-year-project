@@ -1,4 +1,5 @@
-import type { $Fetch, NitroFetchRequest, NitroFetchOptions } from "nitropack";
+// import type { UseFetchOptions, UseFetchReturn } from "#app";
+// import type { NitroFetchRequest } from "nitropack";
 
 /**
  * A composable for making API requests with automatic access token handling.
@@ -16,23 +17,23 @@ export async function useServerFetch<T>(url: string, options: any = {}) {
 
 	// Attach access token if available
 	if (authStore.accessToken) {
-		options.headers.Authorization = `Bearer ${authStore.accessToken}`;
+		options.headers = {
+			...options.headers,
+			Authorization: `Bearer ${authStore.accessToken}`,
+		};
 	}
 
 	// Make the request using useFetch
-	const originalRequest = await useFetch<T>(url, {
+	let response = await useFetch<T>(url, {
 		baseURL: getServerApi,
 		...options,
 	});
 
-	if (originalRequest.status.value == "success") {
+	if (response.status.value == "success") {
 		// Access Token Valid
-		return await useFetch<T>(url, {
-			baseURL: getServerApi,
-			...options,
-		});
+		return response;
 	} else if (
-		originalRequest.error.value?.statusCode === 401 &&
+		response.error.value?.statusCode === 401 &&
 		authStore.refreshToken
 	) {
 		// Access Token Invalid
@@ -45,7 +46,7 @@ export async function useServerFetch<T>(url: string, options: any = {}) {
 
 			options.headers.Authorization = `Bearer ${authStore.accessToken}`;
 
-			return await useFetch<T>(url, {
+			response = await useFetch<T>(url, {
 				baseURL: getServerApi,
 				...options,
 			});
@@ -53,5 +54,7 @@ export async function useServerFetch<T>(url: string, options: any = {}) {
 			// Refresh Token Invalid
 			authStore.logout();
 		}
+
+		return response;
 	}
 }

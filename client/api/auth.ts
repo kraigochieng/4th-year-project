@@ -1,41 +1,25 @@
 import humps from "humps";
-import type { ADRBaseModel } from "~/types/ADR";
-
-interface Credentials {
-	username: string;
-	password: string;
-}
-
-interface UserSignUp {
-	username: string;
-	password: string;
-	firstName?: string;
-	lastName?: string;
-}
-
-interface RefreshTokenResponse {
-	accessToken: string;
-	tokenType: string;
-}
-
-interface LoginResponse {
-	accessToken: string;
-	refreshToken: string;
-	tokenType: string;
-}
+import type { ADRBaseModel } from "~/types/adr";
+import type {
+	TokenResponse,
+	TokenRefreshResponse,
+	LoginCredentials,
+	SignUpDetails,
+} from "~/types/auth";
+import type { UserDetails } from "~/types/user";
 
 function getServerApi() {
 	const runtimeConfig = useRuntimeConfig();
 	return runtimeConfig.public.serverApi;
 }
 
-export async function postToken(credentials: Credentials) {
+export function postToken(credentials: LoginCredentials) {
 	const body = new URLSearchParams();
 
 	body.set("username", credentials.username);
 	body.set("password", credentials.password);
 
-	return await useFetch<LoginResponse>(`${getServerApi()}/token`, {
+	return useFetch<TokenResponse>(`${getServerApi()}/token`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
@@ -45,7 +29,7 @@ export async function postToken(credentials: Credentials) {
 }
 
 export async function postTokenRefresh(refreshToken: string) {
-	return await useFetch<RefreshTokenResponse>(
+	return await useFetch<TokenRefreshResponse>(
 		`${getServerApi()}/token/refresh`,
 		{
 			method: "POST",
@@ -54,18 +38,15 @@ export async function postTokenRefresh(refreshToken: string) {
 	);
 }
 
-export async function postSignup(user: UserSignUp) {
+export async function postSignup(user: SignUpDetails) {
 	return await useFetch(`${getServerApi()}/signup`, {
 		method: "POST",
 		body: humps.decamelizeKeys(user),
 	});
 }
 
-export async function getCurrentUser(accessToken: string) {
-	return await useServerFetch(`/users/me`, {
+export async function getCurrentUser() {
+	return await useServerFetch<UserDetails>(`/users/me`, {
 		method: "GET",
-		headers: {
-			Authorization: `Bearer ${accessToken}`,
-		},
 	});
 }

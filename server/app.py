@@ -1,10 +1,13 @@
 import datetime
 import logging
 import os
+import shutil
 from contextlib import asynccontextmanager
 
+import boto3
 import joblib
 import jwt
+import mlflow
 import pandas as pd
 from auth import (
     create_access_token,
@@ -16,6 +19,8 @@ from auth import (
 from basemodels import (
     ADRBaseModel,
     ADRBaseModelCreate,
+    ADRCreateResponse,
+    ADRReviewCreateRequest,
     CausalityAssessmentLevelEnum,
     Token,
     UserDetailsBaseModel,
@@ -29,7 +34,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from models import ADRModel, Base, UserModel
+from mlflow.tracking import MlflowClient
+from models import ADRModel, Base, ReviewModel, UserModel
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
@@ -37,6 +43,7 @@ from typing_extensions import Annotated
 DB_PATH = "db.sqlite"
 ADR_CSV_PATH = "data.csv"  # Path to the CSV file
 USERS_CSV_PATH = "users.csv"
+ARTIFACTS_DIR = f"./{settings.mlflow_model_artifacts_path}"
 
 logging.basicConfig(level=logging.INFO)
 
@@ -51,16 +58,6 @@ async def lifespan(app: FastAPI):
 
     session = Session(bind=engine)
 
-    adr_count = session.query(ADRModel).count()
-
-    if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
-        adr_df = pd.read_csv(ADR_CSV_PATH)
-        session.bulk_insert_mappings(ADRModel, adr_df.to_dict(orient="records"))
-        session.commit()
-        logging.info("ADR data inserted successfully.")
-    else:
-        logging.info("ADR data already exists. Skipping CSV insertion.")
-
     user_count = session.query(UserModel).count()
 
     if user_count == 0 and os.path.exists(USERS_CSV_PATH):
@@ -71,8 +68,93 @@ async def lifespan(app: FastAPI):
     else:
         logging.info("User data already exists. Skipping CSV insertion.")
 
+    # Retrieve User ID for username "A"
+    user_a = session.query(UserModel).filter(UserModel.username == "A").first()
+
+    if not user_a:
+        logging.error("User with username 'A' not found! ADR insertion aborted.")
+        session.close()
+        yield
+        return
+
+    user_a_id = user_a.id  # Get user ID
+
+    adr_count = session.query(ADRModel).count()
+
+    if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
+        adr_df = pd.read_csv(ADR_CSV_PATH)
+        adr_records = adr_df.to_dict(orient="records")
+        for record in adr_records:
+            record["user_id"] = user_a_id  # Assign retrieved user_id
+
+        session.bulk_insert_mappings(ADRModel, adr_records)
+        session.commit()
+        logging.info("ADR data inserted successfully.")
+    else:
+        logging.info("ADR data already exists. Skipping CSV insertion.")
+
     session.close()
 
+    if not os.path.exists(ARTIFACTS_DIR):
+        try:
+            logging.info("Downloading ML Model Artifacts")
+
+            # Tracking URI
+            mlflow.set_tracking_uri(
+                f"http://{settings.mlflow_tracking_server_host}:{settings.mlflow_tracking_server_port}"
+            )
+
+            # Credentials
+            # Set MinIO Credentials
+            os.environ["AWS_ACCESS_KEY_ID"] = settings.minio_access_key
+            os.environ["AWS_SECRET_ACCESS_KEY"] = settings.minio_secret_access_key
+            os.environ["AWS_DEFAULT_REGION"] = settings.aws_region
+
+            os.environ["MLFLOW_S3_ENDPOINT_URL"] = (
+                f"http://{settings.minio_host}:{settings.minio_api_port}"
+            )
+
+            # Test if credentials are set correctly
+            boto3.client(
+                "s3",
+                endpoint_url=os.getenv("MLFLOW_S3_ENDPOINT_URL"),
+            )
+
+            mlflow_client = MlflowClient()
+
+            ml_model_version = mlflow_client.get_model_version_by_alias(
+                settings.mlflow_model_name, settings.mlflow_model_alias
+            )
+
+            ml_model_run_id = ml_model_version.run_id
+
+            logging.info(
+                f"✅ Retrieved model version {ml_model_version.version} (run_id: {ml_model_run_id})"
+            )
+
+            # 2️⃣ List available artifacts
+            artifacts = mlflow_client.list_artifacts(ml_model_run_id)
+            if not artifacts:
+                logging.warning("No artifacts found for this model.")
+            else:
+                logging.info(
+                    f"Available artifacts: {[artifact.path for artifact in artifacts]}"
+                )
+
+            # 3️⃣ Ensure local artifacts directory exists
+            os.makedirs(ARTIFACTS_DIR, exist_ok=True)
+            mlflow_client.download_artifacts(
+                ml_model_run_id,
+                "",
+                dst_path=ARTIFACTS_DIR,
+            )
+            logging.info("Downloaded ML Model Artifacts")
+
+        except Exception as e:
+            logging.error(f"Error during ML model retrieval: {e}")
+
+    else:
+        logging.info("Skipping artifact download")
     yield
 
     # Delete the SQLite database after shutdown
@@ -82,6 +164,14 @@ async def lifespan(app: FastAPI):
             logging.info("Database deleted successfully.")
         except Exception as e:
             logging.error(f"Error deleting database: {e}")
+
+    # Delete the SQLite database after shutdown
+    if os.path.exists(ARTIFACTS_DIR):
+        try:
+            shutil.rmtree(ARTIFACTS_DIR)
+            logging.info("Artifacts deleted successfully.")
+        except Exception as e:
+            logging.error(f"Error deleting artifacts: {e}")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -96,6 +186,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
+    # lhreje
     return "test"
 
 
@@ -121,8 +212,14 @@ async def signup(user: UserSignupBaseModel, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    user_basemodel = UserDetailsBaseModel(
+        id=new_user.id,
+        username=new_user.username,
+        first_name=new_user.first_name,
+        last_name=new_user.last_name,
+    )
     return JSONResponse(
-        content=jsonable_encoder(new_user), status_code=status.HTTP_200_OK
+        content=jsonable_encoder(user_basemodel), status_code=status.HTTP_200_OK
     )
 
 
@@ -150,14 +247,16 @@ async def login_for_access_token(
         )
 
     access_token_expires = datetime.timedelta(
-        minutes=settings.access_token_expire_minutes
+        minutes=settings.server_access_token_expire_minutes
     )
 
     access_token = create_access_token(
         data={"sub": existing_user.username}, expires_delta=access_token_expires
     )
 
-    refresh_token_expires = datetime.timedelta(days=settings.refresh_token_expire_days)
+    refresh_token_expires = datetime.timedelta(
+        days=settings.server_refresh_token_expire_days
+    )
 
     refresh_token = create_refresh_token(
         data={"sub": existing_user.username}, expires_delta=refresh_token_expires
@@ -180,8 +279,8 @@ async def refresh_access_token(refresh_token: str):
     try:
         payload = jwt.decode(
             refresh_token,
-            settings.refresh_secret_key,
-            algorithms=[settings.refresh_algorithm],
+            settings.server_refresh_secret_key,
+            algorithms=[settings.server_refresh_algorithm],
         )
         username = payload.get("sub")
 
@@ -194,7 +293,7 @@ async def refresh_access_token(refresh_token: str):
         new_access_token = create_access_token(
             data={"sub": username},
             expires_delta=datetime.timedelta(
-                minutes=settings.access_token_expire_minutes
+                minutes=settings.server_access_token_expire_minutes
             ),
         )
         return {"access_token": new_access_token, "token_type": "bearer"}
@@ -241,8 +340,14 @@ def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
 
 
 @app.post("/api/v1/adr")
-async def post_adr(adr: ADRBaseModelCreate, db: Session = Depends(get_db)):
-    ml_model = joblib.load(settings.ml_model_path)
+async def post_adr(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    adr: ADRBaseModelCreate,
+    db: Session = Depends(get_db),
+):
+    ml_model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
+
+    ml_model = joblib.load(ml_model_path)
 
     temp_df = pd.DataFrame([adr.model_dump()])
     categorical_columns = [
@@ -257,11 +362,11 @@ async def post_adr(adr: ADRBaseModelCreate, db: Session = Depends(get_db)):
         "action_taken",
         "outcome",
     ]
-    one_hot_encoder: OneHotEncoder = joblib.load(
-        f"{settings.encoders_path}/one_hot_encoder.pkl"
-    )
+
+    encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
+    one_hot_encoder: OneHotEncoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
     ordinal_encoder: OrdinalEncoder = joblib.load(
-        f"{settings.encoders_path}/ordinal_encoder.pkl"
+        f"{encoders_path}/ordinal_encoder.pkl"
     )
 
     cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
@@ -307,12 +412,52 @@ async def post_adr(adr: ADRBaseModelCreate, db: Session = Depends(get_db)):
         causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
     )
 
-    adr_model = ADRModel(**adr_full.model_dump())
+    db_user = (
+        db.query(UserModel).filter(UserModel.username == current_user.username).first()
+    )
+
+    adr_model = ADRModel(
+        **adr_full.model_dump(),
+        user_id=db_user.id,
+    )
+    # adr_model.user = current_user
+    # adr_model.user_id = current_user.id
     db.add(adr_model)
     db.commit()
     db.refresh(adr_model)
 
+    # content = ADRCreateResponse.model_validate(adr_model)
     return JSONResponse(
         content=jsonable_encoder(adr_model),
+        status_code=status.HTTP_201_CREATED,
+    )
+
+
+@app.post("/api/v1/adr/review/{adr_id}")
+async def post_adr_review(
+    adr_id: str,
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    review: ADRReviewCreateRequest,
+    db: Session = Depends(get_db),
+):
+    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+
+    if not adr:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="ADR not found"
+        )
+
+    db_user = (
+        db.query(UserModel).filter(UserModel.username == current_user.username).first()
+    )
+
+    review_model = ReviewModel(**review.model_dump(), user_id=db_user.id, adr_id=adr_id)
+
+    db.add(review_model)
+    db.commit()
+    db.refresh(review_model)
+    # content = ADRCreateResponse.model_validate(adr_model)
+    return JSONResponse(
+        content=jsonable_encoder(review_model),
         status_code=status.HTTP_201_CREATED,
     )

@@ -1,7 +1,8 @@
 import enum
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
 
 # Define Enums for each field
@@ -104,10 +105,25 @@ class ADRBaseModelCreate(BaseModel):
     outcome: OutcomeEnum
 
 
+class ADRCreateResponse(BaseModel):
+    patient_id: str
+    user_id: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+
+
 class ADRBaseModel(ADRBaseModelCreate):
     id: str | None = None
     causality_assessment_level: CausalityAssessmentLevelEnum | None = None
-    prediction_reason: str | None = None
+    # prediction_reason: str | None = None
 
 
 class User(BaseModel):
@@ -138,6 +154,7 @@ class UserSignupBaseModel(BaseModel):
 
 
 class UserDetailsBaseModel(BaseModel):
+    id: str | None = None
     username: str
     first_name: str | None = None
     last_name: str | None = None
@@ -146,3 +163,9 @@ class UserDetailsBaseModel(BaseModel):
 class UserLoginBaseModel(BaseModel):
     username: str
     password: str
+
+
+class ADRReviewCreateRequest(BaseModel):
+    approved: bool
+    proposed_causality_level: CausalityAssessmentLevelEnum | None = None
+    reason: str | None = None

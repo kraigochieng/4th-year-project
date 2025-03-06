@@ -93,12 +93,12 @@
 	<div>
 		<p>Values {{ values }}</p>
 		<p>Errors {{ errors }}</p>
-		<p>Mutation Error {{ error }}</p>
 	</div>
 </template>
 
 <script setup lang="ts">
 import * as z from "zod";
+import humps from "humps";
 import FormRadio from "./ui/custom/FormRadio.vue";
 const defaultValue = [
 	"personal-details",
@@ -133,48 +133,64 @@ const [criteriaForSeriousness, criteriaForSeriousnessAttrs] = defineField(
 );
 const [actionTaken, actionTakenAttrs] = defineField("actionTaken");
 const [outcome, outcomeAttrs] = defineField("outcome");
-const queryClient = useQueryClient();
+// const queryClient = useQueryClient();
 
-const getQuery = useQuery({
-	queryKey: ["adrs", { offset: 0, limit: 10 }],
-	queryFn: async () => (await fetchAdrs({ offset: 0, limit: 10 })) || [],
-});
+// const { isPending, isError, error, isSuccess, mutate } = useMutation<
+// 	ADRBaseModel,
+// 	Error,
+// 	typeValidationSchema
+// >({
+// 	mutationFn: (newAdr) => postAdr(newAdr),
+// 	onSuccess: (data, variables, context) => {
+// 		queryClient.invalidateQueries({ queryKey: ["adrs"] });
+// 		if (data && data.id) {
+// 			router.push(`/adr/review/${data.id}`);
+// 		} else {
+// 			console.error("Mutation response does not contain an ID:", data);
+// 		}
+// 	},
+// });
 
-console.log(getQuery.data.value)
+// function onSubmitSuccess(values: typeValidationSchema) {
+// 	// mutate(values);
 
-const { isPending, isError, error, isSuccess, mutate } = useMutation<
-	ADRBaseModel,
-	Error,
-	typeValidationSchema
->({
-	mutationFn: (newAdr) => postAdr(newAdr),
-	onSuccess: (data, variables, context) => {
-		queryClient.invalidateQueries({ queryKey: ["adrs"] });
-		if (data && data.id) {
-			router.push(`/adr/review/${data.id}`);
-		} else {
-			console.error("Mutation response does not contain an ID:", data);
+// }
+
+// function onSubmitError({
+// 	values,
+// 	errors,
+// 	results,
+// }: {
+// 	values: Partial<typeValidationSchema>;
+// 	errors: any;
+// 	results: any;
+// }) {
+// 	console.error(values);
+// }
+
+// const onSubmit = handleSubmit(onSubmitSuccess, onSubmitError);
+
+const onSubmit = handleSubmit(async (values) => {
+	const runtimeConfig = useRuntimeConfig();
+	const authStore = useAuthStore();
+
+	// await nextTick();
+	console.log(authStore.accessToken);
+	const serverApi = runtimeConfig.public.serverApi;
+	const { data, status, error } = await useFetch<ADRCreateResponse>(
+		`${serverApi}/adr`,
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${authStore.accessToken}`,
+			},
+			body: humps.decamelizeKeys(values),
 		}
-	},
+	);
+	
+	if (status.value == "success") {
+		navigateTo(`/adr/review/${data.value?.id}`);
+	}
 });
-
-function onSubmitSuccess(values: typeValidationSchema) {
-	mutate(values);
-}
-
-function onSubmitError({
-	values,
-	errors,
-	results,
-}: {
-	values: Partial<typeValidationSchema>;
-	errors: any;
-	results: any;
-}) {
-	console.error(values);
-}
-
-const onSubmit = handleSubmit(onSubmitSuccess, onSubmitError);
-
 // console.log(data.value);
 </script>

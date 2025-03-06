@@ -172,3 +172,8 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+
+
+db.sqlite
+ml_model_artifacts

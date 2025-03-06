@@ -1,9 +1,9 @@
 const path = "adr";
 import humps from "humps";
-import type { ADRBaseModel } from "~/types/ADR";
+import type { ADRBaseModel } from "~/types/adr";
 
 export async function fetchAdrs(params = { offset: 0, limit: 10 }) {
-	return await useServerFetch(`/${path}`, {
+	return await useServerFetch<ADRInterface[]>(`/${path}`, {
 		method: "GET",
 		query: params,
 	});
@@ -14,7 +14,7 @@ export async function fetchAdrById(id: string) {
 		method: "GET",
 	});
 }
-export async function postAdr(body: any)  {
+export async function postAdr(body: any) {
 	return await useServerFetch(`/${path}`, {
 		method: "POST",
 		body: humps.decamelizeKeys(body),

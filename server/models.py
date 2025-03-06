@@ -35,7 +35,10 @@ Base = declarative_base()
 class ADRModel(Base, IDMixin, TimestampMixin):
     __tablename__ = "adr"
 
+    
     patient_id = Column(String, nullable=False)
+    user_id = Column(String, ForeignKey("user.id"), nullable=False)
+    
     gender = Column(SQLAlchemyEnum(GenderEnum), nullable=False)
     pregnancy_status = Column(SQLAlchemyEnum(PregnancyStatusEnum), nullable=False)
     known_allergy = Column(SQLAlchemyEnum(KnownAllergyEnum), nullable=False)
@@ -52,29 +55,35 @@ class ADRModel(Base, IDMixin, TimestampMixin):
         SQLAlchemyEnum(CausalityAssessmentLevelEnum), nullable=True
     )
 
+    user = relationship("UserModel", back_populates="adrs")
+
     reviews = relationship(
         "ReviewModel", back_populates="adr", cascade="all, delete-orphan"
     )
 
-    causality_assesment_levels = relationship(
-        "CausalityAssessmentLevelModel",
-        back_populates="adr",
-        cascade="all, delete-orphan",
-    )
+    # causality_assesment_levels = relationship(
+    #     "CausalityAssessmentLevelModel",
+    #     back_populates="adr",
+    #     cascade="all, delete-orphan",
+    # )
 
 
-class CausalityAssessmentLevelModel(Base, IDMixin, TimestampMixin):
-    __tablename__ = "causality_assessment_level"
+# class CausalityAssessmentLevelModel(Base, IDMixin, TimestampMixin):
+#     __tablename__ = "causality_assessment_level"
 
-    adr_id = Column(String, ForeignKey("adr.id"), nullable=False)
-    ml_model_id = Column(String, ForeignKey("ml_model.id"), nullable=False)
-    causality_assessment_level = Column(
-        SQLAlchemyEnum(CausalityAssessmentLevelEnum), nullable=False
-    )
-    prediction_reason = Column(String, nullable=True)
+#     adr_id = Column(String, ForeignKey("adr.id"), nullable=False)
+#     ml_model_id = Column(
+#         String,
+#         nullable=False,
+#         default="final_ml_model@champion",
+#     )
+#     causality_assessment_level = Column(
+#         SQLAlchemyEnum(CausalityAssessmentLevelEnum), nullable=False
+#     )
+#     prediction_reason = Column(String, nullable=True)
 
-    adr = relationship("ADRModel", back_populates="causality_assesment_levels")
-    ml_model = relationship("MLModelModel", back_populates="causality_assesment_levels")
+#     adr = relationship("ADRModel", back_populates="causality_assesment_levels")
+# ml_model = relationship("MLModelModel", back_populates="causality_assesment_levels")
 
 
 class ReviewModel(Base, IDMixin, TimestampMixin):
@@ -107,23 +116,24 @@ class UserModel(Base, IDMixin, TimestampMixin):
     reviews = relationship(
         "ReviewModel", back_populates="user", cascade="all, delete-orphan"
     )
+    adrs = relationship("ADRModel", back_populates="user", cascade="all, delete-orphan")
 
 
-class MLModelModel(Base, IDMixin, TimestampMixin):
-    __tablename__ = "ml_model"
+# class MLModelModel(Base, IDMixin, TimestampMixin):
+#     __tablename__ = "ml_model"
 
-    model = Column(LargeBinary, nullable=False)
-    name = Column(String, nullable=True, unique=True)
-    numerical_columns = Column(String, nullable=False)
-    categorical_columns = Column(String, nullable=False)
-    prediciton_columns = Column(String, nullable=False)
-    one_hot_encoder = Column(LargeBinary, nullable=True)
-    ordinal_encoder = Column(LargeBinary, nullable=True)
-    f1_score = Column(String)
-    f1_score_per_class = Column(String)
+#     model = Column(LargeBinary, nullable=False)
+#     name = Column(String, nullable=True, unique=True)
+#     numerical_columns = Column(String, nullable=False)
+#     categorical_columns = Column(String, nullable=False)
+#     prediciton_columns = Column(String, nullable=False)
+#     one_hot_encoder = Column(LargeBinary, nullable=True)
+#     ordinal_encoder = Column(LargeBinary, nullable=True)
+#     f1_score = Column(String)
+#     f1_score_per_class = Column(String)
 
-    causality_assesment_levels = relationship(
-        "CausalityAssessmentLevelModel",
-        back_populates="ml_model",
-        cascade="all, delete-orphan",
-    )
+#     causality_assesment_levels = relationship(
+#         "CausalityAssessmentLevelModel",
+#         back_populates="ml_model",
+#         cascade="all, delete-orphan",
+#     )

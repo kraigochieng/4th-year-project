@@ -13,37 +13,38 @@
 			placeholder="Enter Password"
 		/>
 		<Button type="submit">Login</Button>
+		<NuxtLink to="/auth/signup">Create a new account</NuxtLink>
 	</form>
-	<div>
+	<!-- <div>
 		<p>Values {{ values }}</p>
-	</div>
+	</div> -->
 </template>
 <script setup lang="ts">
 // Stores
-
 const authStore = useAuthStore();
 
-import * as z from "zod";
 import FormInput from "~/components/ui/custom/FormInput.vue";
-import { useAuthStore } from "~/stores/auth";
-const validationSchema = z.object({
-	username: z.string(),
-	password: z.string(),
-});
 
 const { values, errors, handleSubmit, defineField, isSubmitting } = useForm({
-	validationSchema: toTypedSchema(validationSchema),
+	validationSchema: toTypedSchema(loginValidationSchema),
 });
 
 const [username, usernameAttrs] = defineField("username");
 const [password, passwordAttrs] = defineField("password");
 
-const onSubmit = handleSubmit((values) => {
-	authStore.login(values);
-	// if (authStore.accessToken) {
-	// 	console.log("success")
-	// } else {
-	// 	console.log("fail");
+const runtimeConfig = useRuntimeConfig();
+const serverApi = runtimeConfig.public.serverApi;
+
+const onSubmit = handleSubmit(async (values) => {
+	// const {data} = useFetch<TokenResponse>(`${serverApi}/login`, {
+	// 	method: "POST",
+	// 	body:
+	// })
+
+	// const { data } = await postToken(values);
+	// if (data.value) {
+	// 	localStorage.setItem("accessToken", data.value.accessToken);
 	// }
+	authStore.login(values)
 });
 </script>
