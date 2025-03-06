@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 from contextlib import asynccontextmanager
+from typing import List
 
 import boto3
 import joblib
@@ -21,6 +22,7 @@ from basemodels import (
     ADRBaseModelCreate,
     ADRCreateResponse,
     ADRReviewCreateRequest,
+    ADRReviewGetResponse,
     CausalityAssessmentLevelEnum,
     Token,
     UserDetailsBaseModel,
@@ -37,7 +39,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from mlflow.tracking import MlflowClient
 from models import ADRModel, Base, ReviewModel, UserModel
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
-from sqlalchemy.orm import Session
+from sqlalchemy import desc
+from sqlalchemy.orm import Session, joinedload
 from typing_extensions import Annotated
 
 DB_PATH = "db.sqlite"
@@ -323,6 +326,46 @@ def get_all_adrs(
     db: Session = Depends(get_db),
 ):
     content = db.query(ADRModel).offset(skip).limit(limit).all()
+
+    return JSONResponse(
+        content=jsonable_encoder(content), status_code=status.HTTP_200_OK
+    )
+
+
+@app.get("/api/v1/adr/review")
+async def get_adr_reviews(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    skip: int = Query(default=0, alias="offset", ge=0),
+    limit: int = Query(default=10, alias="limit", ge=1),
+    db: Session = Depends(get_db),
+):
+    logging.info("Fetching ADRs with reviews...")
+
+    # content = (
+    #     db.query(ADRModel)
+    #     .outerjoin(ReviewModel, ADRModel.id == ReviewModel.adr_id)
+    #     .order_by(desc(ReviewModel.created_at))
+    #     .all()
+    # )
+
+    content = (
+        db.query(ADRModel)
+        .outerjoin(
+            ReviewModel, ADRModel.id == ReviewModel.adr_id
+        )  # Allow ADRs without reviews
+        .options(joinedload(ADRModel.reviews))  # Load reviews with ADR
+        .order_by(desc(ReviewModel.created_at))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    # content = db.query(ReviewModel).all()
+    logging.info(f"Fetched ADR records: {len(content)}")
+
+    if not content:
+        logging.warning("No ADR records found.")
+        return []
 
     return JSONResponse(
         content=jsonable_encoder(content), status_code=status.HTTP_200_OK

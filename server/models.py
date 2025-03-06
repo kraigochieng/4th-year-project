@@ -27,7 +27,7 @@ from sqlalchemy import (
     Uuid,
 )
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base,  relationship
 
 Base = declarative_base()
 

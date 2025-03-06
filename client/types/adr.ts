@@ -100,3 +100,34 @@ export interface ADRCreateResponse {
 	outcome: OutcomeEnum;
 	causality_assessment_level?: CausalityAssessmentLevelEnum;
 }
+
+interface ADRReview {
+	id: string;
+	adr_id: string;
+	user_id: string;
+	approved: boolean;
+	proposed_causality_level: CausalityAssessmentLevelEnum;
+	reason: string;
+	created_at: string; // ISO 8601 timestamp
+	updated_at: string; // ISO 8601 timestamp
+}
+
+interface ADRReviewFull {
+	id: string;
+	patient_id: string;
+	user_id: string;
+	gender: GenderEnum;
+	pregnancy_status: PregnancyStatusEnum;
+	known_allergy: KnownAllergyEnum;
+	rechallenge: RechallengeEnum;
+	dechallenge: DechallengeEnum;
+	severity: SeverityEnum;
+	is_serious: IsSeriousEnum;
+	criteria_for_seriousness: CriteriaForSeriousnessEnum;
+	action_taken: ActionTakenEnum;
+	outcome: OutcomeEnum;
+	causality_assessment_level: CausalityAssessmentLevelEnum;
+	created_at: string; // ISO 8601 timestamp
+	updated_at: string; // ISO 8601 timestamp
+	reviews: ADRReview[]; // Array of reviews
+}

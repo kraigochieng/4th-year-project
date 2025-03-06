@@ -1,5 +1,6 @@
 <template>
-	<p>ADRS</p>
+	<p>ADRs</p>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+</script>

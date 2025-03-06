@@ -6,12 +6,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
 	const authStore = useAuthStore();
 
-	// Debugging logs
-	console.log(
-		"Middleware Check - isAuthenticated:",
-		authStore.isAuthenticated
-	);
-	console.log("Middleware Check - Access Token:", authStore.accessToken);
+	// // Debugging logs
+	// console.log(
+	// 	"Middleware Check - isAuthenticated:",
+	// 	authStore.isAuthenticated
+	// );
+	// console.log("Middleware Check - Access Token:", authStore.accessToken);
 
 	// Wait for authentication state to update before redirecting
 	await nextTick();

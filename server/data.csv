@@ -1,4 +1,4 @@
-patient_id,gender,pregnancy_status,known_allergy,rechallenge,dechallenge,severity,is_serious,criteria_for_seriousness,action_taken,outcome,class
+patient_id,gender,pregnancy_status,known_allergy,rechallenge,dechallenge,severity,is_serious,criteria_for_seriousness,action_taken,outcome,causality_assessment_level
 4e32a65d-2dce-452c-a5b6-a2d2ebb0ca0d,female,not pregnant,no,na,na,moderate,no,disability,dose reduced,recovered,unclassified
 828ec9bb-f97d-43aa-b392-a4a52ad789e8,female,1st trimester,yes,unknown,unknown,mild,no,disability,drug withdrawn,recovered,unclassified
 440b093c-40d5-4873-90c9-f5d5dd441e45,male,not applicable,yes,na,na,mild,no,hospitalisation,dose not changed,recovered,unclassifiable

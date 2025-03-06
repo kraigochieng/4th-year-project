@@ -90,10 +90,10 @@
 
 		<Button type="submit">Submit</Button>
 	</form>
-	<div>
+	<!-- <div>
 		<p>Values {{ values }}</p>
 		<p>Errors {{ errors }}</p>
-	</div>
+	</div> -->
 </template>
 
 <script setup lang="ts">
