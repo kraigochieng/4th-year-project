@@ -5,7 +5,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-vue-next";
@@ -21,6 +20,7 @@ const router = useRouter();
 function handleView() {
 	router.push(`/adr/${props.row.id}`);
 }
+const isOpen = ref(false);
 </script>
 
 <template>

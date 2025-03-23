@@ -95,6 +95,7 @@ import {
 	type ColumnDef,
 } from "@tanstack/vue-table";
 import { TableActionsAdr } from "#components";
+import Checkbox from "./ui/checkbox/Checkbox.vue";
 
 interface ADRReviewFull {
 	id: string;
@@ -162,6 +163,26 @@ console.log(data.value);
 const tableData = data.value ?? [];
 
 const columns: ColumnDef<ADRReviewFull>[] = [
+	{
+		id: "select",
+		header: ({ table }) =>
+			h(Checkbox, {
+				modelValue:
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && "indeterminate"),
+				"onUpdate:modelValue": (value) =>
+					table.toggleAllPageRowsSelected(!!value),
+				ariaLabel: "Select all",
+			}),
+		cell: ({ row }) =>
+			h(Checkbox, {
+				modelValue: row.getIsSelected(),
+				"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+				ariaLabel: "Select row",
+			}),
+		enableSorting: false,
+		enableHiding: false,
+	},
 	{
 		id: "patient_id",
 		accessorKey: "patient_id",

@@ -39,6 +39,12 @@ export default defineNuxtConfig({
 		},
 	},
 	shadcn: {
+		prefix: "",
+		/**
+		 * Directory that the component lives in.
+		 * @default "./components/ui"
+		 */
+
 		componentDir: "./components/ui",
 	},
 	security: {

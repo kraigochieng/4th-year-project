@@ -99,6 +99,7 @@ import {
 	TableActionsAdr,
 	TableActionsCausalityAssessmentLevel,
 } from "#components";
+import Checkbox from "./ui/checkbox/Checkbox.vue";
 
 // Types
 interface ADRCausality {
@@ -127,6 +128,26 @@ console.log(props.data);
 const tableData = props.data ?? [];
 
 const columns: ColumnDef<ADRCausality>[] = [
+	{
+		id: "select",
+		header: ({ table }) =>
+			h(Checkbox, {
+				modelValue:
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && "indeterminate"),
+				"onUpdate:modelValue": (value) =>
+					table.toggleAllPageRowsSelected(!!value),
+				ariaLabel: "Select all",
+			}),
+		cell: ({ row }) =>
+			h(Checkbox, {
+				modelValue: row.getIsSelected(),
+				"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+				ariaLabel: "Select row",
+			}),
+		enableSorting: false,
+		enableHiding: false,
+	},
 	{
 		id: "ml_model_id",
 		accessorKey: "ml_model_id",
