@@ -19,13 +19,20 @@
 </template>
 
 <script setup lang="ts">
-const authStore = useAuthStore();
+const props = defineProps({
+	causality_assessment_level_id: String,
+});
+
+// Imports
 import FormRadio from "./ui/custom/FormRadio.vue";
 import FormSwitch from "./ui/custom/FormSwitch.vue";
 import FormTextArea from "./ui/custom/FormTextArea.vue";
 import humps from "humps";
-const route = useRoute();
-const id = route.params.id as string; // Get ADR ID from the URL
+
+// Stores
+const authStore = useAuthStore();
+
+// Form
 const {
 	values,
 	errors,
@@ -37,16 +44,22 @@ const {
 	validationSchema: toTypedSchema(reviewFormValidationSchema),
 });
 
+// Form Fields
 const [approved, approvedAttrs] = defineField("approved");
 const [proposedCausalityLevel, proposedCausalityLevelAttrs] = defineField(
 	"proposedCausalityLevel"
 );
 const [reason, reasonAttrs] = defineField("reason");
 
+// Form Submission
 const onSubmit = handleSubmit(async (values) => {
 	try {
 		const response = await $fetch(
-			`${useRuntimeConfig().public.serverApi}/adr/review/${id}`,
+			`${
+				useRuntimeConfig().public.serverApi
+			}/causality_assessment_level/${
+				props.causality_assessment_level_id
+			}/review`,
 			{
 				method: "POST",
 				headers: {
@@ -57,7 +70,7 @@ const onSubmit = handleSubmit(async (values) => {
 			}
 		);
 		console.log("Form submitted successfully:", response);
-		navigateTo("/adr/review");
+		navigateTo("/review");
 	} catch (error) {
 		console.error("Error submitting form:", error);
 	}

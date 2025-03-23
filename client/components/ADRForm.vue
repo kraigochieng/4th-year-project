@@ -187,9 +187,9 @@ const onSubmit = handleSubmit(async (values) => {
 			body: humps.decamelizeKeys(values),
 		}
 	);
-	
+
 	if (status.value == "success") {
-		navigateTo(`/adr/review/${data.value?.id}`);
+		navigateTo(`/causality-assessment-level/${data.value?.id}/review`);
 	}
 });
 // console.log(data.value);

@@ -35,7 +35,6 @@ const { data, status, error } = useFetch<ADRReviewFull[]>(
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
-import { useFetch } from "@vueuse/core";
 import { ref } from "vue";
 import ADRDataTable from "@/components/ADRDataTable.vue";
 
@@ -51,6 +50,38 @@ interface ADRReview {
 	updated_at: string;
 }
 
+interface Review {
+	id: string;
+	user_id: string;
+	causality_assessment_level?: CausalityAssessmentLevelEnum
+	approved: boolean
+	proposed_causality_level?: CausalityAssessmentLevelEnum
+	reason?: string
+	created_at: string;
+	updated_at: string;
+}
+
+// interface ADRReviewFull {
+// 	id: string;
+// 	patient_id: string;
+// 	user_id: string;
+// 	gender: string;
+// 	pregnancy_status: string;
+// 	known_allergy: string;
+// 	rechallenge: string;
+// 	dechallenge: string;
+// 	severity: string;
+// 	is_serious: string;
+// 	criteria_for_seriousness: string;
+// 	action_taken: string;
+// 	outcome: string;
+// 	causality_assessment_level: string;
+// 	created_at: string;
+// 	updated_at: string;
+// 	reviews?: ADRReview[]; // Array of reviews
+// }
+
+
 interface ADRReviewFull {
 	id: string;
 	patient_id: string;
@@ -65,16 +96,14 @@ interface ADRReviewFull {
 	criteria_for_seriousness: string;
 	action_taken: string;
 	outcome: string;
-	causality_assessment_level: string;
 	created_at: string;
 	updated_at: string;
-	reviews?: ADRReview[]; // Array of reviews
+	reviews?: Review[]; // Array of reviews
 }
-
 // Fetch ADR Data
 const authStore = useAuthStore();
 const { data, status, error } = useFetch<ADRReviewFull[]>(
-	`${useRuntimeConfig().public.serverApi}/adr/review`,
+	`${useRuntimeConfig().public.serverApi}/review`,
 	{
 		method: "GET",
 		headers: {
@@ -84,7 +113,7 @@ const { data, status, error } = useFetch<ADRReviewFull[]>(
 );
 
 console.log(data.value)
-
+console.log(error.value)
 // Function to handle viewing details of an ADR
 const handleViewDetails = (adr: ADRReviewFull) => {
 	// Navigate to details page or open a modal

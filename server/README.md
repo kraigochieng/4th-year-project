@@ -76,7 +76,7 @@ fundamentals of disease surveillance
 
 
 
-do not reeinvent the wheel => refer to pv
+do not reeinvent the wheel => refer to pv(for graphs)
 
 
 terry

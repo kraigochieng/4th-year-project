@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+// Imports
+import { ref, computed, type PropType } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -94,49 +95,27 @@ import {
 	FlexRender,
 	type ColumnDef,
 } from "@tanstack/vue-table";
-import { TableActionsAdr } from "#components";
+import {
+	TableActionsAdr,
+	TableActionsCausalityAssessmentLevel,
+} from "#components";
 
-interface ADRReviewFull {
+// Types
+interface Review {
 	id: string;
-	patient_id: string;
 	user_id: string;
-	gender: string;
-	pregnancy_status: string;
-	known_allergy: string;
-	rechallenge: string;
-	dechallenge: string;
-	severity: string;
-	is_serious: string;
-	criteria_for_seriousness: string;
-	action_taken: string;
-	outcome: string;
-	created_at: string;
-	updated_at: string;
-	causality_assessment_levels?: ADRCausality[]; // Array of reviews
-}
-
-interface ADRCausality {
-	id: string;
-	adr_id: string;
-	ml_model_id: string;
-	causality_assessment_level_value: CausalityAssessmentLevelEnum;
-	created_at: string;
-	updated_at: string;
-	reviews: ADRReview[];
-}
-
-// Define the ADR & Review interfaces
-interface ADRReview {
-	id: string;
-	causality_assessment_level_id: string;
-	user_id: string;
+	causality_assessment_level?: CausalityAssessmentLevelEnum;
 	approved: boolean;
 	proposed_causality_level?: CausalityAssessmentLevelEnum;
-	reason?: string | null;
+	reason?: string;
 	created_at: string;
 	updated_at: string;
 }
 
+// Props
+const props = defineProps({
+	data: Array as PropType<Review[]>,
+});
 // State
 const tableFilter = ref("");
 const currentPage = ref(1);
@@ -145,35 +124,25 @@ const { toast } = useToast();
 
 // Fetch ADR Data
 const authStore = useAuthStore();
-const {
-	data,
-	status,
-	error,
-	refresh: refreshData,
-} = useFetch<ADRReviewFull[]>(`${useRuntimeConfig().public.serverApi}/review`, {
-	method: "GET",
-	headers: {
-		Authorization: `Bearer ${authStore.accessToken}`,
-	},
-});
 
-console.log(data.value);
+console.log(props.data);
 // Table creation
-const tableData = data.value ?? [];
+const tableData = props.data ?? [];
 
-const columns: ColumnDef<ADRReviewFull>[] = [
+const columns: ColumnDef<Review>[] = [
 	{
-		id: "patient_id",
-		accessorKey: "patient_id",
-		header: "Patient ID",
-		cell: ({ row }) => h("div", {}, row.getValue("patient_id")),
+		id: "ml_model_id",
+		accessorKey: "ml_model_id",
+		header: "ML Model ID",
+		cell: ({ row }) => h("div", {}, row.getValue("ml_model_id")),
 		enableSorting: false,
 	},
 	{
-		id: "gender",
-		accessorKey: "gender",
-		header: "Gender",
-		cell: ({ row }) => h("div", {}, row.getValue("gender")),
+		id: "causality_assessment_level_value",
+		accessorKey: "causality_assessment_level_value",
+		header: "Causality Assessment Level",
+		cell: ({ row }) =>
+			h("div", {}, row.getValue("causality_assessment_level_value")),
 	},
 	// {
 	// 	accessorKey:
@@ -192,7 +161,7 @@ const columns: ColumnDef<ADRReviewFull>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			return h(TableActionsAdr, {
+			return h(TableActionsCausalityAssessmentLevel, {
 				row: row.original,
 				onExpand: row.toggleExpanded,
 			});

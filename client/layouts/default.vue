@@ -28,6 +28,9 @@
 	<NavigationMenu>
 		<NavigationMenuList>
 			<NavigationMenuItem>
+				<NavigationMenuLink href="/">Home</NavigationMenuLink>
+			</NavigationMenuItem>
+			<NavigationMenuItem>
 				<NavigationMenuTrigger>ADR</NavigationMenuTrigger>
 				<NavigationMenuContent>
 					<ul
@@ -38,9 +41,7 @@
 								as-child
 								class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 							>
-								<NuxtLink to="/adr"
-									>Go to ADR Home page</NuxtLink
-								>
+								<NuxtLink to="/adr/add">Add ADR</NuxtLink>
 							</NavigationMenuLink>
 						</li>
 						<li>
@@ -48,22 +49,14 @@
 								as-child
 								class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 							>
-								<NuxtLink to="/adr/add"> Add ADR</NuxtLink>
+								<NuxtLink to="/adr">View ADRs</NuxtLink>
 							</NavigationMenuLink>
-						</li>
-						<li>
-							<NavigationMenuLink
-								as-child
-								class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-							>
-								<NuxtLink to="/adr/review">Review</NuxtLink>
-							</NavigationMenuLink>
-						</li>
-						<li>
-							<Button @click="useAuthStore().logout()">Logout</Button>
 						</li>
 					</ul>
 				</NavigationMenuContent>
+			</NavigationMenuItem>
+			<NavigationMenuItem>
+				<Button @click="useAuthStore().logout()">Logout</Button>
 			</NavigationMenuItem>
 		</NavigationMenuList>
 	</NavigationMenu>

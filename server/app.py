@@ -18,12 +18,23 @@ from auth import (
     verify_password,
 )
 from basemodels import (
+    ActionTakenEnum,
     ADRBaseModel,
     ADRBaseModelCreate,
+    ADRCreateRequest,
     ADRCreateResponse,
     ADRReviewCreateRequest,
     ADRReviewGetResponse,
     CausalityAssessmentLevelEnum,
+    CriteriaForSeriousnessEnum,
+    DechallengeEnum,
+    GenderEnum,
+    IsSeriousEnum,
+    KnownAllergyEnum,
+    OutcomeEnum,
+    PregnancyStatusEnum,
+    RechallengeEnum,
+    SeverityEnum,
     Token,
     UserDetailsBaseModel,
     UserSignupBaseModel,
@@ -37,7 +48,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from mlflow.tracking import MlflowClient
-from models import ADRModel, Base, ReviewModel, UserModel
+from models import ADRModel, Base, CausalityAssessmentLevelModel, ReviewModel, UserModel
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
@@ -86,15 +97,55 @@ async def lifespan(app: FastAPI):
 
     if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
         adr_df = pd.read_csv(ADR_CSV_PATH)
-        adr_records = adr_df.to_dict(orient="records")
-        for record in adr_records:
-            record["user_id"] = user_a_id  # Assign retrieved user_id
 
-        session.bulk_insert_mappings(ADRModel, adr_records)
-        session.commit()
-        logging.info("ADR data inserted successfully.")
+        for record in adr_df.to_dict(orient="records"):
+            adr_entry = ADRModel(
+                patient_id=record["patient_id"],
+                user_id=user_a_id,
+                gender=GenderEnum(record["gender"]),
+                pregnancy_status=PregnancyStatusEnum(record["pregnancy_status"]),
+                known_allergy=KnownAllergyEnum(record["known_allergy"]),
+                rechallenge=RechallengeEnum(record["rechallenge"]),
+                dechallenge=DechallengeEnum(record["dechallenge"]),
+                severity=SeverityEnum(record["severity"]),
+                is_serious=IsSeriousEnum(record["is_serious"]),
+                criteria_for_seriousness=CriteriaForSeriousnessEnum(
+                    record["criteria_for_seriousness"]
+                ),
+                action_taken=ActionTakenEnum(record["action_taken"]),
+                outcome=OutcomeEnum(record["outcome"]),
+                # causality_assessment_level=CausalityAssessmentLevelEnum(record["causality_assessment_level"])
+            )
+            session.add(adr_entry)
+            session.commit()
+            session.refresh(adr_entry)  # Retrieve the generated adr_id
+
+            causality_entry = CausalityAssessmentLevelModel(
+                adr_id=adr_entry.id,
+                ml_model_id="final_ml_model@champion",
+                causality_assessment_level_value=CausalityAssessmentLevelEnum(
+                    record["causality_assessment_level"]
+                ),
+                prediction_reason=None,
+            )
+            session.add(causality_entry)
+            session.commit()
+
+        logging.info("ADR and Causality Assessment data inserted successfully.")
     else:
         logging.info("ADR data already exists. Skipping CSV insertion.")
+
+    # if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
+    #     adr_df = pd.read_csv(ADR_CSV_PATH)
+    #     adr_records = adr_df.to_dict(orient="records")
+    #     for record in adr_records:
+    #         record["user_id"] = user_a_id  # Assign retrieved user_id
+
+    #     session.bulk_insert_mappings(ADRModel, adr_records)
+    #     session.commit()
+    #     logging.info("ADR data inserted successfully.")
+    # else:
+    #     logging.info("ADR data already exists. Skipping CSV insertion.")
 
     session.close()
 
@@ -325,20 +376,6 @@ def get_all_adrs(
     limit: int = Query(default=10, alias="limit", ge=1),
     db: Session = Depends(get_db),
 ):
-    content = db.query(ADRModel).offset(skip).limit(limit).all()
-
-    return JSONResponse(
-        content=jsonable_encoder(content), status_code=status.HTTP_200_OK
-    )
-
-
-@app.get("/api/v1/adr/review")
-async def get_adr_reviews(
-    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    skip: int = Query(default=0, alias="offset", ge=0),
-    limit: int = Query(default=10, alias="limit", ge=1),
-    db: Session = Depends(get_db),
-):
     logging.info("Fetching ADRs with reviews...")
 
     # content = (
@@ -350,11 +387,29 @@ async def get_adr_reviews(
 
     content = (
         db.query(ADRModel)
-        .outerjoin(
-            ReviewModel, ADRModel.id == ReviewModel.adr_id
-        )  # Allow ADRs without reviews
-        .options(joinedload(ADRModel.reviews))  # Load reviews with ADR
-        .order_by(desc(ReviewModel.created_at))
+        # .join(
+        #     CausalityAssessmentLevelModel,
+        #     ADRModel.id == CausalityAssessmentLevelModel.adr_id,
+        #     isouter=True,
+        # )
+        # .join(
+        #     ReviewModel,
+        #     CausalityAssessmentLevelModel.id
+        #     == ReviewModel.causality_assessment_level_id,
+        #     isouter=True,
+        # )
+        # .outerjoin(
+        #     ReviewModel, ADRModel.id == ReviewModel.adr_id
+        # )  # Allow ADRs without reviews
+        .options(
+            joinedload(ADRModel.causality_assessment_levels).joinedload(
+                CausalityAssessmentLevelModel.reviews
+            )
+        )  # Load levels with ADR
+        # .options(
+        #     joinedload(CausalityAssessmentLevelModel.reviews)
+        # )  # Load reviews with levels
+        # .order_by(desc(ReviewModel.created_at))
         .offset(skip)
         .limit(limit)
         .all()
@@ -374,7 +429,13 @@ async def get_adr_reviews(
 
 @app.get("/api/v1/adr/{adr_id}")
 def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
-    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+    adr = (
+        db.query(ADRModel)
+        .options(joinedload(ADRModel.causality_assessment_levels))
+        .filter(ADRModel.id == adr_id)
+        .first()
+    )
+
     if not adr:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
@@ -388,10 +449,20 @@ async def post_adr(
     adr: ADRBaseModelCreate,
     db: Session = Depends(get_db),
 ):
+    # Get ML Model
     ml_model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
 
     ml_model = joblib.load(ml_model_path)
 
+    # Get encoders
+    encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
+
+    one_hot_encoder: OneHotEncoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
+    ordinal_encoder: OrdinalEncoder = joblib.load(
+        f"{encoders_path}/ordinal_encoder.pkl"
+    )
+
+    # Save data as temp df
     temp_df = pd.DataFrame([adr.model_dump()])
     categorical_columns = [
         "gender",
@@ -406,12 +477,7 @@ async def post_adr(
         "outcome",
     ]
 
-    encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
-    one_hot_encoder: OneHotEncoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
-    ordinal_encoder: OrdinalEncoder = joblib.load(
-        f"{encoders_path}/ordinal_encoder.pkl"
-    )
-
+    # Encode df
     cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
     cat_encoded = pd.DataFrame(
         cat_encoded,
@@ -450,17 +516,17 @@ async def post_adr(
     # Add prediction to ADRModel instance
     # adr.causality_assessment_level = CausalityAssessmentLevelEnum(decoded_prediction)
     # Create an ADRBaseModel object using ADRBaseModelCreate fields
-    adr_full = ADRBaseModel(
-        **adr.model_dump(),
-        causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
-    )
+    # adr_full = ADRBaseModel(
+    #     **adr.model_dump(),
+    #     causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
+    # )
 
     db_user = (
         db.query(UserModel).filter(UserModel.username == current_user.username).first()
     )
 
     adr_model = ADRModel(
-        **adr_full.model_dump(),
+        **adr.model_dump(),
         user_id=db_user.id,
     )
     # adr_model.user = current_user
@@ -469,32 +535,82 @@ async def post_adr(
     db.commit()
     db.refresh(adr_model)
 
-    # content = ADRCreateResponse.model_validate(adr_model)
+    casuality_assessment_level_model = CausalityAssessmentLevelModel(
+        adr_id=adr_model.id,
+        causality_assessment_level_value=CausalityAssessmentLevelEnum(
+            decoded_prediction
+        ),
+    )
+
+    db.add(casuality_assessment_level_model)
+    db.commit()
+    db.refresh(casuality_assessment_level_model)
+
+    # To load the causality assessment levels
+    content = (
+        db.query(ADRModel)
+        .options(joinedload(ADRModel.causality_assessment_levels))
+        .filter(ADRModel.id == adr_model.id)
+        .first()
+    )
+
     return JSONResponse(
-        content=jsonable_encoder(adr_model),
+        content=jsonable_encoder(content),
         status_code=status.HTTP_201_CREATED,
     )
 
 
-@app.post("/api/v1/adr/review/{adr_id}")
-async def post_adr_review(
-    adr_id: str,
+@app.get("/api/v1/causality_assessment_level/{causality_assessment_level_id}")
+async def get_causality_assessment_level(
+    causality_assessment_level_id: str,
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .options(joinedload(CausalityAssessmentLevelModel.reviews))
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
+
+    if not causality_assessment_level:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Causality Assessment Level record not found",
+        )
+    return JSONResponse(
+        content=jsonable_encoder(causality_assessment_level),
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.post("/api/v1/causality_assessment_level/{causality_assessment_level_id}/review")
+async def post_causality_assessment_level_review(
+    causality_assessment_level_id: str,
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     review: ADRReviewCreateRequest,
     db: Session = Depends(get_db),
 ):
-    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
 
-    if not adr:
+    if not causality_assessment_level:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="ADR not found"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Causality Level not found"
         )
 
     db_user = (
         db.query(UserModel).filter(UserModel.username == current_user.username).first()
     )
 
-    review_model = ReviewModel(**review.model_dump(), user_id=db_user.id, adr_id=adr_id)
+    review_model = ReviewModel(
+        **review.model_dump(),
+        user_id=db_user.id,
+        causality_assessment_level_id=causality_assessment_level_id,
+    )
 
     db.add(review_model)
     db.commit()
@@ -503,4 +619,62 @@ async def post_adr_review(
     return JSONResponse(
         content=jsonable_encoder(review_model),
         status_code=status.HTTP_201_CREATED,
+    )
+
+
+@app.get("/api/v1/review")
+async def get_adr_reviews(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    skip: int = Query(default=0, alias="offset", ge=0),
+    limit: int = Query(default=10, alias="limit", ge=1),
+    db: Session = Depends(get_db),
+):
+    logging.info("Fetching ADRs with reviews...")
+
+    # content = (
+    #     db.query(ADRModel)
+    #     .outerjoin(ReviewModel, ADRModel.id == ReviewModel.adr_id)
+    #     .order_by(desc(ReviewModel.created_at))
+    #     .all()
+    # )
+
+    content = (
+        db.query(ADRModel)
+        # .join(
+        #     CausalityAssessmentLevelModel,
+        #     ADRModel.id == CausalityAssessmentLevelModel.adr_id,
+        #     isouter=True,
+        # )
+        # .join(
+        #     ReviewModel,
+        #     CausalityAssessmentLevelModel.id
+        #     == ReviewModel.causality_assessment_level_id,
+        #     isouter=True,
+        # )
+        # .outerjoin(
+        #     ReviewModel, ADRModel.id == ReviewModel.adr_id
+        # )  # Allow ADRs without reviews
+        .options(
+            joinedload(ADRModel.causality_assessment_levels).joinedload(
+                CausalityAssessmentLevelModel.reviews
+            )
+        )  # Load levels with ADR
+        # .options(
+        #     joinedload(CausalityAssessmentLevelModel.reviews)
+        # )  # Load reviews with levels
+        # .order_by(desc(ReviewModel.created_at))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    # content = db.query(ReviewModel).all()
+    logging.info(f"Fetched ADR records: {len(content)}")
+
+    if not content:
+        logging.warning("No ADR records found.")
+        return []
+
+    return JSONResponse(
+        content=jsonable_encoder(content), status_code=status.HTTP_200_OK
     )

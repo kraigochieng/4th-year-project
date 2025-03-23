@@ -122,6 +122,20 @@ class ADRCreateResponse(BaseModel):
     outcome: OutcomeEnum
 
 
+class ADRCreateRequest(BaseModel):
+    patient_id: str
+    user_id: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+
 class ADRBaseModel(ADRBaseModelCreate):
     id: str | None = None
     causality_assessment_level: CausalityAssessmentLevelEnum | None = None

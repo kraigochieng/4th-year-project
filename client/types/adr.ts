@@ -112,6 +112,17 @@ interface ADRReview {
 	updated_at: string; // ISO 8601 timestamp
 }
 
+interface Review {
+	id: string;
+	user_id: string;
+	causality_assessment_level?: CausalityAssessmentLevelEnum
+	approved: boolean
+	proposed_causality_level?: CausalityAssessmentLevelEnum
+	reason?: string
+	created_at: string;
+	updated_at: string;
+}
+
 interface ADRReviewFull {
 	id: string;
 	patient_id: string;
@@ -130,4 +141,23 @@ interface ADRReviewFull {
 	created_at: string; // ISO 8601 timestamp
 	updated_at: string; // ISO 8601 timestamp
 	reviews: ADRReview[]; // Array of reviews
+}
+
+interface ADRFull {
+	id: string;
+	patient_id: string;
+	user_id: string;
+	gender: GenderEnum;
+	pregnancy_status: PregnancyStatusEnum;
+	known_allergy: KnownAllergyEnum;
+	rechallenge: RechallengeEnum;
+	dechallenge: DechallengeEnum;
+	severity: SeverityEnum;
+	is_serious: IsSeriousEnum;
+	criteria_for_seriousness: CriteriaForSeriousnessEnum;
+	action_taken: ActionTakenEnum;
+	outcome: OutcomeEnum;
+	created_at: string; // ISO 8601 timestamp
+	updated_at: string; // ISO 8601 timestamp
+	reviews: Review[]; // Array of reviews
 }
