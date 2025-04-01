@@ -1,39 +1,49 @@
 <template>
 	<form @submit.prevent="onSubmit">
-		<FormInput
-			type="text"
-			name="firstName"
-			label="First Name"
-			placeholder="Enter First Name"
-		/>
-		<FormInput
-			type="text"
-			name="lastName"
-			label="Last Name"
-			placeholder="Enter Last Name"
-		/>
-		<FormInput
-			type="text"
-			name="username"
-			label="Username"
-			placeholder="Enter Username"
-		/>
-		<FormInput
-			type="password"
-			name="password"
-			label="Password"
-			placeholder="Enter Password"
-		/>
+		<Card>
+			<CardHeader> Sign Up </CardHeader>
+			<CardContent>
+				<FormInput
+					type="text"
+					name="firstName"
+					label="First Name"
+					placeholder="Enter First Name"
+				/>
+				<FormInput
+					type="text"
+					name="lastName"
+					label="Last Name"
+					placeholder="Enter Last Name"
+				/>
+				<FormInput
+					type="text"
+					name="username"
+					label="Username"
+					placeholder="Enter Username"
+				/>
+				<FormInput
+					type="password"
+					name="password"
+					label="Password"
+					placeholder="Enter Password"
+				/>
 
-		<Button type="submit">Sign Up</Button>
-		<NuxtLink to="/auth/login">Already have an account?</NuxtLink>
+				<p v-show="authStore.isSignupError">Signup Error</p>
+			</CardContent>
+			<CardFooter class="flex justify-between px-6 pb-6">
+				<Button type="submit">Sign Up</Button>
+				<Button variant="ghost">
+					<NuxtLink to="/auth/login"
+						>Already have an account?</NuxtLink
+					>
+				</Button>
+			</CardFooter>
+		</Card>
 	</form>
-	<p v-show="authStore.isSignupError">Signup Error</p>
 </template>
+
 <script setup lang="ts">
-import * as z from "zod";
-import FormInput from "~/components/ui/custom/FormInput.vue";
-import { signupValidationSchema } from "~/forms/schemas/signup";
+import FormInput from "@/components/ui/custom/FormInput.vue";
 
 const authStore = useAuthStore();
 
@@ -48,5 +58,9 @@ const [lastName, lastNameAttrs] = defineField("lastName");
 
 const onSubmit = handleSubmit((values) => {
 	authStore.signup(values);
+});
+
+definePageMeta({
+	layout: false,
 });
 </script>

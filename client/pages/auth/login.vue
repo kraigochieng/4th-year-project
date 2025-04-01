@@ -1,29 +1,37 @@
 <template>
 	<form @submit.prevent="onSubmit">
-		<FormInput
-			type="text"
-			name="username"
-			label="Username"
-			placeholder="Enter Username"
-		/>
-		<FormInput
-			type="password"
-			name="password"
-			label="Password"
-			placeholder="Enter Password"
-		/>
-		<Button type="submit">Login</Button>
-		<NuxtLink to="/auth/signup">Create a new account</NuxtLink>
+		<Card>
+			<CardHeader> Login </CardHeader>
+			<CardContent>
+				<FormInput
+					type="text"
+					name="username"
+					label="Username"
+					placeholder="Enter Username"
+				/>
+				<FormInput
+					type="password"
+					name="password"
+					label="Password"
+					placeholder="Enter Password"
+				/>
+			</CardContent>
+			<CardFooter class="flex justify-between px-6 pb-6">
+				<Button type="submit">Login</Button>
+				<Button variant="ghost"
+					><NuxtLink to="/auth/signup"
+						>Create a new account</NuxtLink
+					></Button
+				>
+			</CardFooter>
+		</Card>
 	</form>
-	<!-- <div>
-		<p>Values {{ values }}</p>
-	</div> -->
 </template>
 <script setup lang="ts">
+import FormInput from "@/components/ui/custom/FormInput.vue";
+
 // Stores
 const authStore = useAuthStore();
-
-import FormInput from "~/components/ui/custom/FormInput.vue";
 
 const { values, errors, handleSubmit, defineField, isSubmitting } = useForm({
 	validationSchema: toTypedSchema(loginValidationSchema),
@@ -45,6 +53,10 @@ const onSubmit = handleSubmit(async (values) => {
 	// if (data.value) {
 	// 	localStorage.setItem("accessToken", data.value.accessToken);
 	// }
-	authStore.login(values)
+	authStore.login(values);
 });
+
+definePageMeta({
+	layout: false
+})
 </script>
