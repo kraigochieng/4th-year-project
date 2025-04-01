@@ -1,13 +1,14 @@
 import { defineStore } from "pinia";
-import { getCurrentUser, postToken } from "~/api/auth";
+import { getCurrentUser, postToken } from "@/api/auth";
+
 import type {
 	LoginCredentials,
 	SignUpDetails,
 	TokenResponse,
-} from "~/types/auth";
-import type { UserDetails } from "~/types/user";
+} from "@/types/auth";
+import type { UserDetails } from "@/types/user";
 import humps from "humps";
-import { RefSymbol } from "@vue/reactivity";
+
 
 function getServerApi() {
 	const runtimeConfig = useRuntimeConfig();
@@ -32,7 +33,12 @@ export const useAuthStore = defineStore("auth", () => {
 	watchEffect(() => {
 		console.log("Before update - isAuthenticated:", isAuthenticated.value);
 		isAuthenticated.value = !!accessToken.value;
-		console.log("After update - isAuthenticated:", isAuthenticated.value, "Access Token:", accessToken.value);
+		console.log(
+			"After update - isAuthenticated:",
+			isAuthenticated.value,
+			"Access Token:",
+			accessToken.value
+		);
 	});
 
 	async function signup(details: SignUpDetails) {
@@ -77,7 +83,6 @@ export const useAuthStore = defineStore("auth", () => {
 
 		const { status, data, error } = await postToken(credentials);
 		if (status.value == "success" && data.value) {
-
 			// await nextTick();
 			accessToken.value = data.value.access_token;
 			refreshToken.value = data.value.refresh_token;
