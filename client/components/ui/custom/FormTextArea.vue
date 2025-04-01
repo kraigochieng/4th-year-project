@@ -3,14 +3,10 @@
 		<FormItem>
 			<FormLabel>{{ label }}</FormLabel>
 			<FormControl>
-				<Textarea
-					:placeholder="placeholder"
-					class="resize-none"
-					v-bind="componentField"
-				/>
+				<Textarea :placeholder="placeholder" v-bind="componentField" />
 			</FormControl>
 			<FormDescription>
-				{{  description }}
+				{{ description }}
 			</FormDescription>
 			<FormMessage />
 		</FormItem>
@@ -23,6 +19,6 @@ defineProps<{
 	name: string;
 	fieldAttrs?: any; // Attributes passed from defineField()
 	placeholder: string;
-    description?: string
+	description?: string;
 }>();
 </script>

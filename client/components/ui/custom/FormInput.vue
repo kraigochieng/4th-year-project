@@ -9,9 +9,9 @@
 					v-bind="componentField"
 				/>
 			</FormControl>
-			<!-- <FormDescription>
-          This is your public display name.
-        </FormDescription> -->
+			<FormDescription>
+				{{ description }}
+			</FormDescription>
 			<FormMessage />
 		</FormItem>
 	</FormField>
