@@ -56,6 +56,56 @@
 			</TableBody>
 		</Table>
 	</div>
+	<Pagination
+		v-slot="{ page }"
+		:items-per-page="pageSize"
+		:total="totalCount"
+		:sibling-count="1"
+		show-edges
+		:default-page="1"
+	>
+		<PaginationList v-slot="{ items }" class="flex items-center gap-1">
+			<PaginationFirst />
+			<PaginationPrev />
+
+			<template v-for="(item, index) in items">
+				<PaginationListItem
+					v-if="item.type === 'page'"
+					:key="index"
+					:value="item.value"
+					as-child
+				>
+					<Button
+						class="w-9 h-9 p-0"
+						:variant="item.value === page ? 'default' : 'outline'"
+						@mouseup="handlePageChange(item.value)"
+					>
+						{{ item.value }}
+					</Button>
+				</PaginationListItem>
+				<PaginationEllipsis v-else :key="item.type" :index="index" />
+			</template>
+
+			<PaginationNext />
+			<PaginationLast />
+		</PaginationList>
+	</Pagination>
+	<Select v-model="selectedPageSize">
+		<SelectTrigger>
+			<SelectValue placeholder="Show number of pages" />
+		</SelectTrigger>
+		<SelectContent>
+			<SelectGroup>
+				<SelectItem
+					v-for="pageOption in numOfPagesOptions"
+					:key="pageOption"
+					:value="pageOption"
+				>
+					Show {{ pageOption }} rows
+				</SelectItem>
+			</SelectGroup>
+		</SelectContent>
+	</Select>
 </template>
 
 <script setup lang="ts">
@@ -99,6 +149,8 @@ import {
 	TableActionsAdr,
 	TableActionsCausalityAssessmentLevel,
 } from "#components";
+
+
 import Checkbox from "./ui/checkbox/Checkbox.vue";
 
 // Types
@@ -111,21 +163,22 @@ interface ADRCausality {
 	updated_at: string;
 }
 // Props
-const props = defineProps({
-	data: Array as PropType<ADRCausality[]>,
-});
-// State
-const tableFilter = ref("");
-const currentPage = ref(1);
-const pageSize = ref(10);
-const { toast } = useToast();
+const props = defineProps<{
+	data?: ADRCausality[];
+	isLoading: boolean;
+	currentPage: number;
+	pageSize: number;
+	totalCount: number;
+}>();
 
-// Fetch ADR Data
-const authStore = useAuthStore();
+
+
+
 
 console.log(props.data);
 // Table creation
-const tableData = props.data ?? [];
+const tableData = computed(() => props.data ?? []);
+const numOfPagesOptions = ["10", "20", "50"];
 
 const columns: ColumnDef<ADRCausality>[] = [
 	{
@@ -188,8 +241,26 @@ const columns: ColumnDef<ADRCausality>[] = [
 ];
 
 const table = useVueTable({
-	data: tableData,
+	get data() {
+		return tableData.value
+	},
 	columns: columns,
 	getCoreRowModel: getCoreRowModel(),
+});
+
+// Emits
+const emit = defineEmits<{
+	pageChange: [page: number];
+	pageSizeChange: [size: number];
+}>();
+
+function handlePageChange(page: number) {
+	emit("pageChange", page);
+}
+
+const selectedPageSize = ref("20"); // Default value
+
+watch(selectedPageSize, (newSize) => {
+	emit("pageSizeChange", Number(newSize)); // Emit the new value when it changes
 });
 </script>

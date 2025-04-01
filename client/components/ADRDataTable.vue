@@ -56,31 +56,62 @@
 			</TableBody>
 		</Table>
 	</div>
+	<Pagination
+		v-slot="{ page }"
+		:items-per-page="pageSize"
+		:total="totalCount"
+		:sibling-count="1"
+		show-edges
+		:default-page="1"
+	>
+		<PaginationList v-slot="{ items }" class="flex items-center gap-1">
+			<PaginationFirst />
+			<PaginationPrev />
+
+			<template v-for="(item, index) in items">
+				<PaginationListItem
+					v-if="item.type === 'page'"
+					:key="index"
+					:value="item.value"
+					as-child
+				>
+					<Button
+						class="w-9 h-9 p-0"
+						:variant="item.value === page ? 'default' : 'outline'"
+						@mouseup="handlePageChange(item.value)"
+					>
+						{{ item.value }}
+					</Button>
+				</PaginationListItem>
+				<PaginationEllipsis v-else :key="item.type" :index="index" />
+			</template>
+
+			<PaginationNext />
+			<PaginationLast />
+		</PaginationList>
+	</Pagination>
+	<Select v-model="selectedPageSize">
+		<SelectTrigger>
+			<SelectValue placeholder="Show number of pages" />
+		</SelectTrigger>
+		<SelectContent>
+			<SelectGroup>
+				<SelectItem
+					v-for="pageOption in numOfPagesOptions"
+					:key="pageOption"
+					:value="pageOption"
+				>
+					Show {{ pageOption }} rows
+				</SelectItem>
+			</SelectGroup>
+		</SelectContent>
+	</Select>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useAuthStore } from "@/stores/auth";
 import { useToast } from "@/components/ui/toast";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+
+
 import {
 	Eye,
 	Plus,
@@ -96,6 +127,8 @@ import {
 } from "@tanstack/vue-table";
 import { TableActionsAdr } from "#components";
 import Checkbox from "./ui/checkbox/Checkbox.vue";
+
+const numOfPagesOptions = ["10", "20", "50"];
 
 interface ADRReviewFull {
 	id: string;
@@ -138,29 +171,17 @@ interface ADRReview {
 	updated_at: string;
 }
 
-// State
-const tableFilter = ref("");
-const currentPage = ref(1);
-const pageSize = ref(10);
-const { toast } = useToast();
+// Props
+const props = defineProps<{
+	data?: ADRReviewFull[];
+	isLoading: boolean;
+	currentPage: number;
+	pageSize: number;
+	totalCount: number;
+}>();
 
-// Fetch ADR Data
-const authStore = useAuthStore();
-const {
-	data,
-	status,
-	error,
-	refresh: refreshData,
-} = useFetch<ADRReviewFull[]>(`${useRuntimeConfig().public.serverApi}/review`, {
-	method: "GET",
-	headers: {
-		Authorization: `Bearer ${authStore.accessToken}`,
-	},
-});
-
-console.log(data.value);
 // Table creation
-const tableData = data.value ?? [];
+const tableData = computed(() => props.data ?? []);
 
 const columns: ColumnDef<ADRReviewFull>[] = [
 	{
@@ -222,8 +243,34 @@ const columns: ColumnDef<ADRReviewFull>[] = [
 ];
 
 const table = useVueTable({
-	data: tableData,
+	get data() {
+		return tableData.value;
+	},
+	// data: tableData.value
 	columns: columns,
 	getCoreRowModel: getCoreRowModel(),
 });
+
+// Emits
+const emit = defineEmits<{
+	pageChange: [page: number];
+	pageSizeChange: [size: number];
+}>();
+
+function handlePageChange(page: number) {
+	emit("pageChange", page);
+}
+
+const selectedPageSize = ref("20"); // Default value
+
+watch(selectedPageSize, (newSize) => {
+	emit("pageSizeChange", Number(newSize)); // Emit the new value when it changes
+});
+
+// function handlePageSizeChange(event: Event) {
+
+// 	const selectedPageSize = (event.target as HTMLSelectElement).value;
+// 	emit("pageSizeChange", Number(selectedPageSize)); // Emit the selected page size to the parent
+// 	console.log("page size changed")
+// }
 </script>
