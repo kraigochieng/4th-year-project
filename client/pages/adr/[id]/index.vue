@@ -1,8 +1,9 @@
 <template>
-	<p v-if="status == 'pending'">Loading ADR...</p>
-	<p v-else-if="status == 'error'">Error {{ error }}</p>
-	<div v-else-if="status == 'success'">
-		<p
+	<h1 class="text-2xl font-bold mb-6">Specific ADR View</h1>
+	<p v-if="adrStatus == 'pending'">Loading ADR...</p>
+	<p v-else-if="adrStatus == 'error'">Error {{ adrError }}</p>
+	<div v-else-if="adrStatus == 'success'">
+		<!-- <p
 			v-for="causality_assessment_level in data?.causality_assessment_levels"
 		>
 			<Card>
@@ -15,7 +16,7 @@
 					}}
 				</CardContent>
 			</Card>
-		</p>
+		</p> -->
 		<Accordion type="multiple" class="w-full" :default-value="defaultValue">
 			<AccordionItem value="personal-details">
 				<AccordionTrigger>Personal Details</AccordionTrigger>
@@ -25,7 +26,7 @@
 							<CardTitle>Gender</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.gender }}
+							{{ adrData?.gender }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -33,7 +34,7 @@
 							<CardTitle>Pregnancy Status</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.pregnancy_status }}
+							{{ adrData?.pregnancy_status }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -41,7 +42,7 @@
 							<CardTitle>Known Allergy</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.known_allergy }}
+							{{ adrData?.known_allergy }}
 						</CardContent>
 					</Card>
 				</AccordionContent>
@@ -54,7 +55,7 @@
 							<CardTitle>Rechallenge</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.rechallenge }}
+							{{ adrData?.rechallenge }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -62,7 +63,7 @@
 							<CardTitle>Dechallenge</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.dechallenge }}
+							{{ adrData?.dechallenge }}
 						</CardContent>
 					</Card>
 				</AccordionContent>
@@ -75,7 +76,7 @@
 							<CardTitle>Severity</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.severity }}
+							{{ adrData?.severity }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -83,7 +84,7 @@
 							<CardTitle>Is Serious</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.is_serious }}
+							{{ adrData?.is_serious }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -91,7 +92,7 @@
 							<CardTitle>Criteria For Seriousness</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.criteria_for_seriousness }}
+							{{ adrData?.criteria_for_seriousness }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -99,7 +100,7 @@
 							<CardTitle>Action Taken</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.action_taken }}
+							{{ adrData?.action_taken }}
 						</CardContent>
 					</Card>
 					<Card>
@@ -107,7 +108,7 @@
 							<CardTitle>Outcome</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{{ data?.outcome }}
+							{{ adrData?.outcome }}
 						</CardContent>
 					</Card>
 				</AccordionContent>
@@ -124,10 +125,15 @@
 			</AccordionItem> -->
 		</Accordion>
 		<CausalityAssessmentDataTable
-			:data="data?.causality_assessment_levels"
+			:data="causalityAssessmentLevelData?.items"
+			:isLoading="causalityAssessmentLevelStatus === 'pending'"
+			:currentPage="currentPage"
+			:pageSize="pageSize"
+			:totalCount="totalCount"
+			@pageChange="handlePageChange"
+			@pageSizeChange="handlePageSizeChange"
 		/>
 	</div>
-	<p>{{ data?.causality_assessment_levels }}</p>
 </template>
 
 <script setup lang="ts">
@@ -167,6 +173,15 @@ interface CausalityAssessmentLevel {
 	created_at: string;
 	updated_at: string;
 }
+
+interface PaginatedCausalityAssessmentLevel {
+	items?: CausalityAssessmentLevel[];
+	total: number;
+	page: number;
+	size: number;
+	pages: number;
+}
+
 interface ADRFull {
 	id: string;
 	patient_id: string;
@@ -181,7 +196,7 @@ interface ADRFull {
 	criteria_for_seriousness: CriteriaForSeriousnessEnum;
 	action_taken: ActionTakenEnum;
 	outcome: OutcomeEnum;
-	causality_assessment_levels: CausalityAssessmentLevel[]; // Array of reviews
+	// causality_assessment_levels: CausalityAssessmentLevel[]; // Array of reviews
 	created_at: string; // ISO 8601 timestamp
 	updated_at: string; // ISO 8601 timestamp
 }
@@ -192,13 +207,105 @@ interface ADRFull {
 // 	enabled: !!id, // Ensures query runs only if ID is present
 // });
 
-const { data, status, error } = useFetch<ADRFull>(
-	`${useRuntimeConfig().public.serverApi}/adr/${id}`,
-	{
-		method: "GET",
-		headers: {
-			Authorization: `Bearer ${authStore.accessToken}`,
-		},
-	}
+// const { data, status, error } = useFetch<ADRFull>(
+// 	`${useRuntimeConfig().public.serverApi}/adr/${id}/causality_assessment_level`,
+// 	{
+// 		method: "GET",
+// 		headers: {
+// 			Authorization: `Bearer ${authStore.accessToken}`,
+// 		},
+// 	}
+// );
+
+const adrData = ref<ADRFull | null>(null);
+const adrStatus = ref<"pending" | "success" | "error">("pending");
+const adrError = ref<string | null>(null);
+
+const causalityAssessmentLevelData =
+	ref<PaginatedCausalityAssessmentLevel | null>(null);
+const causalityAssessmentLevelStatus = ref<"pending" | "success" | "error">(
+	"pending"
 );
+const causalityAssessmentLevelError = ref<string | null>(null);
+
+async function fetchADRData() {
+	try {
+		adrStatus.value = "pending";
+		// Using $fetch for API call
+		adrData.value = await $fetch(
+			`${useRuntimeConfig().public.serverApi}/adr/${id}`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+			}
+		);
+
+		adrStatus.value = "success";
+	} catch (err: any) {
+		adrStatus.value = "error";
+		adrError.value = err.message || "Something went wrong";
+	}
+}
+
+async function fetchCausalityAssessmentLevelData() {
+	try {
+		causalityAssessmentLevelStatus.value = "pending";
+		// Using $fetch for API call
+		causalityAssessmentLevelData.value = await $fetch(
+			`${
+				useRuntimeConfig().public.serverApi
+			}/adr/${id}/causality_assessment_level`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+				params: {
+					page: currentPage.value,
+					size: pageSize.value,
+				},
+			}
+		);
+
+		causalityAssessmentLevelStatus.value = "success";
+	} catch (err: any) {
+		causalityAssessmentLevelStatus.value = "error";
+		causalityAssessmentLevelError.value =
+			err.message || "Something went wrong";
+	}
+}
+
+const currentPage = ref(1);
+const pageSize = ref(20);
+
+const totalCount = computed(
+	() => causalityAssessmentLevelData.value?.total || 0
+);
+
+onMounted(async () => {
+	await fetchADRData();
+	await fetchCausalityAssessmentLevelData();
+});
+
+watch([currentPage, pageSize], () => {
+	fetchCausalityAssessmentLevelData();
+});
+
+// // Function to handle viewing details of an ADR
+// const handleViewDetails = (adr: ADRReviewFull) => {
+// 	// Navigate to details page or open a modal
+// 	console.log("View details for ADR:", adr);
+// 	// You could use router.push(`/adr/${adr.id}`) to navigate to a detail page
+// };
+
+function handlePageChange(page: number) {
+	currentPage.value = page;
+}
+
+const handlePageSizeChange = (size: number) => {
+	pageSize.value = size;
+	currentPage.value = 1;
+};
 </script>
