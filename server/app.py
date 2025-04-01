@@ -1,9 +1,11 @@
 import datetime
 import logging
 import os
+import random
 import shutil
 from contextlib import asynccontextmanager
 from typing import List
+from uuid import uuid4
 
 import boto3
 import joblib
@@ -23,9 +25,11 @@ from basemodels import (
     ADRBaseModelCreate,
     ADRCreateRequest,
     ADRCreateResponse,
+    ADRGetResponse,
     ADRReviewCreateRequest,
     ADRReviewGetResponse,
     CausalityAssessmentLevelEnum,
+    CausalityAssessmentLevelGetResponse2,
     CriteriaForSeriousnessEnum,
     DechallengeEnum,
     GenderEnum,
@@ -34,9 +38,11 @@ from basemodels import (
     OutcomeEnum,
     PregnancyStatusEnum,
     RechallengeEnum,
+    ReviewGetResponse,
     SeverityEnum,
     Token,
     UserDetailsBaseModel,
+    UserGetResponse,
     UserSignupBaseModel,
 )
 from config import settings
@@ -47,6 +53,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_pagination import Page, add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate
 from mlflow.tracking import MlflowClient
 from models import ADRModel, Base, CausalityAssessmentLevelModel, ReviewModel, UserModel
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
@@ -57,6 +65,7 @@ from typing_extensions import Annotated
 DB_PATH = "db.sqlite"
 ADR_CSV_PATH = "data.csv"  # Path to the CSV file
 USERS_CSV_PATH = "users.csv"
+REVIEWS_CSV_PATH = "reviews.csv"
 ARTIFACTS_DIR = f"./{settings.mlflow_model_artifacts_path}"
 
 logging.basicConfig(level=logging.INFO)
@@ -98,6 +107,9 @@ async def lifespan(app: FastAPI):
     if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
         adr_df = pd.read_csv(ADR_CSV_PATH)
 
+        adr_entries = []
+        causality_entries = []
+
         for record in adr_df.to_dict(orient="records"):
             adr_entry = ADRModel(
                 patient_id=record["patient_id"],
@@ -114,12 +126,15 @@ async def lifespan(app: FastAPI):
                 ),
                 action_taken=ActionTakenEnum(record["action_taken"]),
                 outcome=OutcomeEnum(record["outcome"]),
-                # causality_assessment_level=CausalityAssessmentLevelEnum(record["causality_assessment_level"])
             )
-            session.add(adr_entry)
-            session.commit()
-            session.refresh(adr_entry)  # Retrieve the generated adr_id
+            adr_entries.append(adr_entry)
 
+        session.add_all(adr_entries)
+        session.commit()  # This assigns IDs via flush
+
+        logging.info("ADR inserted successfully.")
+        # Now that adr_entries have IDs, link them to causality entries
+        for adr_entry, record in zip(adr_entries, adr_df.to_dict(orient="records")):
             causality_entry = CausalityAssessmentLevelModel(
                 adr_id=adr_entry.id,
                 ml_model_id="final_ml_model@champion",
@@ -128,12 +143,59 @@ async def lifespan(app: FastAPI):
                 ),
                 prediction_reason=None,
             )
-            session.add(causality_entry)
-            session.commit()
+            causality_entries.append(causality_entry)
 
-        logging.info("ADR and Causality Assessment data inserted successfully.")
+        session.add_all(causality_entries)
+        session.commit()
+
+        logging.info("Causality Assessment inserted successfully.")
     else:
         logging.info("ADR data already exists. Skipping CSV insertion.")
+
+    review_count = session.query(ReviewModel).count()
+
+    if review_count == 0:
+        causality_entries = session.query(CausalityAssessmentLevelModel).limit(20).all()
+        users = session.query(UserModel).all()
+        user_ids = [u.id for u in users]
+
+        for causality_entry in causality_entries:
+            # Ensure 20 unique users per causality assessment
+            selected_user_ids = random.sample(user_ids, min(20, len(user_ids)))
+
+            for user_id in selected_user_ids:
+                approved = random.choice([True, False])
+                proposed_level = (
+                    random.choice(list(CausalityAssessmentLevelEnum))
+                    if not approved
+                    else None
+                )
+                reason = (
+                    random.choice(
+                        [
+                            "Sufficient evidence provided.",
+                            "Missing key symptom analysis.",
+                            "Reviewed and agreed.",
+                            "Contradicts known patterns.",
+                            "Needs expert second opinion.",
+                            "",
+                        ]
+                    )
+                    if not approved
+                    else None
+                )
+
+                review = ReviewModel(
+                    causality_assessment_level_id=causality_entry.id,
+                    user_id=user_id,
+                    approved=approved,
+                    proposed_causality_level=proposed_level,
+                    reason=reason,
+                )
+                session.add(review)
+
+        session.commit()
+        logging.info("Random reviews for first 20 causality assessments inserted.")
 
     # if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
     #     adr_df = pd.read_csv(ADR_CSV_PATH)
@@ -229,6 +291,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -236,6 +299,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+add_pagination(app)
 
 
 @app.get("/")
@@ -369,62 +434,18 @@ async def read_users_me(
     return current_user
 
 
-@app.get("/api/v1/adr")
+@app.get("/api/v1/adr", response_model=Page[ADRGetResponse])
 def get_all_adrs(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    skip: int = Query(default=0, alias="offset", ge=0),
-    limit: int = Query(default=10, alias="limit", ge=1),
     db: Session = Depends(get_db),
 ):
-    logging.info("Fetching ADRs with reviews...")
-
-    # content = (
-    #     db.query(ADRModel)
-    #     .outerjoin(ReviewModel, ADRModel.id == ReviewModel.adr_id)
-    #     .order_by(desc(ReviewModel.created_at))
-    #     .all()
-    # )
-
-    content = (
-        db.query(ADRModel)
-        # .join(
-        #     CausalityAssessmentLevelModel,
-        #     ADRModel.id == CausalityAssessmentLevelModel.adr_id,
-        #     isouter=True,
-        # )
-        # .join(
-        #     ReviewModel,
-        #     CausalityAssessmentLevelModel.id
-        #     == ReviewModel.causality_assessment_level_id,
-        #     isouter=True,
-        # )
-        # .outerjoin(
-        #     ReviewModel, ADRModel.id == ReviewModel.adr_id
-        # )  # Allow ADRs without reviews
-        .options(
-            joinedload(ADRModel.causality_assessment_levels).joinedload(
-                CausalityAssessmentLevelModel.reviews
-            )
-        )  # Load levels with ADR
-        # .options(
-        #     joinedload(CausalityAssessmentLevelModel.reviews)
-        # )  # Load reviews with levels
-        # .order_by(desc(ReviewModel.created_at))
-        .offset(skip)
-        .limit(limit)
-        .all()
+    content = db.query(ADRModel).options(
+        joinedload(ADRModel.causality_assessment_levels).joinedload(
+            CausalityAssessmentLevelModel.reviews
+        )
     )
 
-    # content = db.query(ReviewModel).all()
-    logging.info(f"Fetched ADR records: {len(content)}")
-
-    if not content:
-        logging.warning("No ADR records found.")
-        return []
-
-    return JSONResponse(
-        content=jsonable_encoder(content), status_code=status.HTTP_200_OK
-    )
+    return paginate(content)
 
 
 @app.get("/api/v1/adr/{adr_id}")
@@ -441,6 +462,27 @@ def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
         )
     return JSONResponse(content=jsonable_encoder(adr), status_code=status.HTTP_200_OK)
+
+
+@app.get(
+    "/api/v1/adr/{adr_id}/causality_assessment_level",
+    response_model=Page[CausalityAssessmentLevelGetResponse2],
+)
+def get_causality_assessment_levels_for_adrs(
+    adr_id: str, db: Session = Depends(get_db)
+):
+    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+
+    if not adr:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
+        )
+
+    content = db.query(CausalityAssessmentLevelModel).filter(
+        CausalityAssessmentLevelModel.adr_id == adr_id
+    )
+
+    return paginate(content)
 
 
 @app.post("/api/v1/adr")
@@ -568,7 +610,16 @@ async def get_causality_assessment_level(
 ):
     causality_assessment_level = (
         db.query(CausalityAssessmentLevelModel)
-        .options(joinedload(CausalityAssessmentLevelModel.reviews))
+        .options(
+            joinedload(CausalityAssessmentLevelModel.reviews)
+            .joinedload(ReviewModel.user)
+            .load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
         .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
         .first()
     )
@@ -578,10 +629,60 @@ async def get_causality_assessment_level(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Causality Assessment Level record not found",
         )
+
+    approved_count = sum(1 for r in causality_assessment_level.reviews if r.approved)
+    not_approved_count = sum(
+        1 for r in causality_assessment_level.reviews if not r.approved
+    )
+
+    content = {
+        **jsonable_encoder(causality_assessment_level),
+        "approved_count": approved_count,
+        "not_approved_count": not_approved_count,
+    }
     return JSONResponse(
-        content=jsonable_encoder(causality_assessment_level),
+        content=content,
         status_code=status.HTTP_200_OK,
     )
+
+
+@app.get(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
+    response_model=Page[ReviewGetResponse],
+)
+async def get_reviews_for_causality_assessment_level(
+    causality_assessment_level_id: str,
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
+
+    if not causality_assessment_level:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Causality Assessment Level record not found",
+        )
+
+    content = (
+        db.query(ReviewModel)
+        .options(
+            joinedload(ReviewModel.user).load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
+        .filter(
+            ReviewModel.causality_assessment_level_id == causality_assessment_level_id
+        )
+    )
+
+    return paginate(content)
 
 
 @app.post("/api/v1/causality_assessment_level/{causality_assessment_level_id}/review")
