@@ -136,6 +136,58 @@ class ADRCreateRequest(BaseModel):
     action_taken: ActionTakenEnum
     outcome: OutcomeEnum
 
+
+class CausalityAssessmentLevelGetResponse2(BaseModel):
+    id: str
+    adr_id: str
+    ml_model_id: str
+    causality_assessment_level_value: CausalityAssessmentLevelEnum
+    prediction_reason: str | None = None
+
+class UserGetResponse(BaseModel):
+    id: str
+    username: str
+    first_name: str
+    last_name: str
+    
+class ReviewGetResponse(BaseModel):
+    id: str
+    causality_assessment_level_id: str
+    user_id: str
+    user: UserGetResponse
+    approved: bool
+    proposed_causality_level: CausalityAssessmentLevelEnum | None = None
+    reason: str | None
+
+
+
+
+class CausalityAssessmentLevelGetResponse(BaseModel):
+    id: str
+    adr_id: str
+    ml_model_id: str
+    causality_assessment_level_value: CausalityAssessmentLevelEnum
+    prediction_reason: str | None = None
+    reviews: List[ReviewGetResponse] = []
+
+
+class ADRGetResponse(BaseModel):
+    id: str
+    patient_id: str
+    user_id: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+    causality_assessment_levels: List[CausalityAssessmentLevelGetResponse] = []
+
+
 class ADRBaseModel(ADRBaseModelCreate):
     id: str | None = None
     causality_assessment_level: CausalityAssessmentLevelEnum | None = None

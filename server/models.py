@@ -4,6 +4,7 @@ import uuid
 from basemodels import (
     ActionTakenEnum,
     CausalityAssessmentLevelEnum,
+    CausalityAssessmentLevelGetResponse,
     CriteriaForSeriousnessEnum,
     DechallengeEnum,
     GenderEnum,
