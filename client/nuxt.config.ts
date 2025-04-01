@@ -5,10 +5,10 @@ export default defineNuxtConfig({
 	imports: {
 		dirs: [
 			"./api/**",
-			"./types/**",
+			"./composables/**",
 			"./forms/**",
 			"./stores/**",
-			"./composables/**",
+			"./types/**",
 		],
 	},
 	runtimeConfig: {
@@ -51,5 +51,9 @@ export default defineNuxtConfig({
 		headers: {
 			crossOriginResourcePolicy: "cross-origin",
 		},
+	},
+	tailwindcss: {
+		exposeConfig: true,
+		// viewer: true
 	},
 });
