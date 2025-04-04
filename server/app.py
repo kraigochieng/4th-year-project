@@ -58,7 +58,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from mlflow.tracking import MlflowClient
 from models import ADRModel, Base, CausalityAssessmentLevelModel, ReviewModel, UserModel
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 from typing_extensions import Annotated
 
@@ -778,4 +778,157 @@ async def get_adr_reviews(
 
     return JSONResponse(
         content=jsonable_encoder(content), status_code=status.HTTP_200_OK
+    )
+
+
+@app.get("/api/v1/monitoring")
+def get_monitoring(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    # Gender Proportion
+    gender_proportions_data = (
+        db.query(ADRModel.gender, func.count(ADRModel.id))
+        .group_by(ADRModel.gender)
+        .all()
+    )
+
+    gender_proportions_content = {"series": [], "data": []}
+
+    for label, count in gender_proportions_data:
+        gender_proportions_content["series"].append(label.value)
+        gender_proportions_content["data"].append(count)
+
+    # Pregnancy Status Proportion
+    pregnancy_status_proportions_data = (
+        db.query(ADRModel.pregnancy_status, func.count(ADRModel.id))
+        .group_by(ADRModel.pregnancy_status)
+        .all()
+    )
+
+    pregnancy_status_proportions_content = {"series": [], "data": []}
+
+    for label, count in pregnancy_status_proportions_data:
+        pregnancy_status_proportions_content["series"].append(label.value)
+        pregnancy_status_proportions_content["data"].append(count)
+
+    # Known Allergy Proportion
+    known_allergy_proportions_data = (
+        db.query(ADRModel.known_allergy, func.count(ADRModel.id))
+        .group_by(ADRModel.known_allergy)
+        .all()
+    )
+
+    known_allergy_proportions_content = {"series": [], "data": []}
+
+    for label, count in known_allergy_proportions_data:
+        known_allergy_proportions_content["series"].append(label.value)
+        known_allergy_proportions_content["data"].append(count)
+
+    # Rechallenge Proportion
+    rechallenge_proportions_data = (
+        db.query(ADRModel.rechallenge, func.count(ADRModel.id))
+        .group_by(ADRModel.rechallenge)
+        .all()
+    )
+
+    rechallenge_proportions_content = {"series": [], "data": []}
+
+    for label, count in rechallenge_proportions_data:
+        rechallenge_proportions_content["series"].append(label.value)
+        rechallenge_proportions_content["data"].append(count)
+
+    # Dechallenge Proportion
+    dechallenge_proportions_data = (
+        db.query(ADRModel.rechallenge, func.count(ADRModel.id))
+        .group_by(ADRModel.rechallenge)
+        .all()
+    )
+
+    dechallenge_proportions_content = {"series": [], "data": []}
+
+    for label, count in dechallenge_proportions_data:
+        dechallenge_proportions_content["series"].append(label.value)
+        dechallenge_proportions_content["data"].append(count)
+
+    # Severity Proportion
+    severity_proportions_data = (
+        db.query(ADRModel.severity, func.count(ADRModel.id))
+        .group_by(ADRModel.severity)
+        .all()
+    )
+
+    severity_proportions_content = {"series": [], "data": []}
+
+    for label, count in severity_proportions_data:
+        severity_proportions_content["series"].append(label.value)
+        severity_proportions_content["data"].append(count)
+
+    # Severity Proportion
+    severity_proportions_data = (
+        db.query(ADRModel.severity, func.count(ADRModel.id))
+        .group_by(ADRModel.severity)
+        .all()
+    )
+
+    severity_proportions_content = {"series": [], "data": []}
+
+    for label, count in severity_proportions_data:
+        severity_proportions_content["series"].append(label.value)
+        severity_proportions_content["data"].append(count)
+
+    # Criteria For Seriousness Proportion
+    criteria_for_seriousness_proportions_data = (
+        db.query(ADRModel.criteria_for_seriousness, func.count(ADRModel.id))
+        .group_by(ADRModel.criteria_for_seriousness)
+        .all()
+    )
+
+    criteria_for_seriousness_proportions_content = {"series": [], "data": []}
+
+    for label, count in criteria_for_seriousness_proportions_data:
+        criteria_for_seriousness_proportions_content["series"].append(label.value)
+        criteria_for_seriousness_proportions_content["data"].append(count)
+
+    # Is Serious Proportion
+    is_serious_proportions_data = (
+        db.query(ADRModel.is_serious, func.count(ADRModel.id))
+        .group_by(ADRModel.is_serious)
+        .all()
+    )
+
+    is_serious_proportions_content = {"series": [], "data": []}
+
+    for label, count in is_serious_proportions_data:
+        is_serious_proportions_content["series"].append(label.value)
+        is_serious_proportions_content["data"].append(count)
+
+    # Outcome Proportion
+    outcome_proportions_data = (
+        db.query(ADRModel.outcome, func.count(ADRModel.id))
+        .group_by(ADRModel.outcome)
+        .all()
+    )
+
+    outcome_proportions_content = {"series": [], "data": []}
+
+    for label, count in outcome_proportions_data:
+        outcome_proportions_content["series"].append(label.value)
+        outcome_proportions_content["data"].append(count)
+
+    content = {
+        "gender_proportions": gender_proportions_content,
+        "pregnancy_status_proportions": pregnancy_status_proportions_content,
+        "known_allergy_proportions": known_allergy_proportions_content,
+        "dechallenge_proportions": dechallenge_proportions_content,
+        "rechallenge_proportions": rechallenge_proportions_content,
+        "severity_proportions": severity_proportions_content,
+        "criteria_for_seriousness_proportions": criteria_for_seriousness_proportions_content,
+        "is_serious_proportions": is_serious_proportions_content,
+        "outcome_proportions": outcome_proportions_content,
+    }
+
+    return JSONResponse(
+        content=jsonable_encoder(content),
+        status_code=status.HTTP_200_OK,
     )
