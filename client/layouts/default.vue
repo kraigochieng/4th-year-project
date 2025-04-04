@@ -26,9 +26,9 @@
 	</SidebarProvider> -->
 
 	<div
-		class="flex items-center justify-between sticky top-0 z-50 bg-white border-b"
+		class="flex items-center justify-between sticky top-0 z-50 border-b bg-background"
 	>
-		<NuxtLink href="/" class="flex items-center"
+		<NuxtLink href="/" class="flex items-center text-primary"
 			><Icon
 				name="material-symbols-light:settings-heart-outline-rounded"
 				size="64px"
@@ -37,7 +37,7 @@
 		>
 
 		<NavigationMenu>
-			<NavigationMenuList>
+			<NavigationMenuList class="flex gap-x-2">
 				<NavigationMenuItem>
 					<NavigationMenuLink href="/">Home</NavigationMenuLink>
 				</NavigationMenuItem>
@@ -67,10 +67,16 @@
 					</NavigationMenuContent>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
+					<NavigationMenuLink href="/monitoring"
+						>Monitor</NavigationMenuLink
+					>
+				</NavigationMenuItem>
+				<NavigationMenuItem>
 					<Button @click="useAuthStore().logout()">Logout</Button>
 				</NavigationMenuItem>
 			</NavigationMenuList>
 		</NavigationMenu>
+
 		<div>Avatar Here</div>
 	</div>
 

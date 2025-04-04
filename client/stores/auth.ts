@@ -9,7 +9,6 @@ import type {
 import type { UserDetails } from "@/types/user";
 import humps from "humps";
 
-
 function getServerApi() {
 	const runtimeConfig = useRuntimeConfig();
 	return runtimeConfig.public.serverApi;
@@ -31,14 +30,14 @@ export const useAuthStore = defineStore("auth", () => {
 	const isLoginError = ref(false);
 
 	watchEffect(() => {
-		console.log("Before update - isAuthenticated:", isAuthenticated.value);
+		// console.log("Before update - isAuthenticated:", isAuthenticated.value);
 		isAuthenticated.value = !!accessToken.value;
-		console.log(
-			"After update - isAuthenticated:",
-			isAuthenticated.value,
-			"Access Token:",
-			accessToken.value
-		);
+		// console.log(
+		// 	"After update - isAuthenticated:",
+		// 	isAuthenticated.value,
+		// 	"Access Token:",
+		// 	accessToken.value
+		// );
 	});
 
 	async function signup(details: SignUpDetails) {
@@ -87,8 +86,8 @@ export const useAuthStore = defineStore("auth", () => {
 			accessToken.value = data.value.access_token;
 			refreshToken.value = data.value.refresh_token;
 			// isAuthenticated.value = true;
-			console.log("data.value", data.value);
-			console.log("data.value.accessToken", data.value.access_token);
+			// console.log("data.value", data.value);
+			// console.log("data.value.accessToken", data.value.access_token);
 			navigateTo("/adr");
 		}
 
