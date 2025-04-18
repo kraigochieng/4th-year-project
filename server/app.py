@@ -12,6 +12,7 @@ import joblib
 import jwt
 import mlflow
 import pandas as pd
+import shap
 from auth import (
     create_access_token,
     create_refresh_token,
@@ -435,7 +436,7 @@ async def read_users_me(
 
 
 @app.get("/api/v1/adr", response_model=Page[ADRGetResponse])
-def get_all_adrs(
+def get_adrs(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
@@ -464,27 +465,6 @@ def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
     return JSONResponse(content=jsonable_encoder(adr), status_code=status.HTTP_200_OK)
 
 
-@app.get(
-    "/api/v1/adr/{adr_id}/causality_assessment_level",
-    response_model=Page[CausalityAssessmentLevelGetResponse2],
-)
-def get_causality_assessment_levels_for_adrs(
-    adr_id: str, db: Session = Depends(get_db)
-):
-    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
-
-    if not adr:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
-        )
-
-    content = db.query(CausalityAssessmentLevelModel).filter(
-        CausalityAssessmentLevelModel.adr_id == adr_id
-    )
-
-    return paginate(content)
-
-
 @app.post("/api/v1/adr")
 async def post_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
@@ -493,12 +473,10 @@ async def post_adr(
 ):
     # Get ML Model
     ml_model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
-
     ml_model = joblib.load(ml_model_path)
 
     # Get encoders
     encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
-
     one_hot_encoder: OneHotEncoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
     ordinal_encoder: OrdinalEncoder = joblib.load(
         f"{encoders_path}/ordinal_encoder.pkl"
@@ -526,6 +504,9 @@ async def post_adr(
         columns=one_hot_encoder.get_feature_names_out(categorical_columns),
     )
 
+    # Preprocess Background data (To be done by you GPT, do the encoding)
+
+    # Define columns for prediction
     prediction_columns = [
         "rechallenge_yes",
         "rechallenge_no",
@@ -537,18 +518,46 @@ async def post_adr(
         "dechallenge_na",
     ]
 
-    # print(cat_encoded[prediction_columns])
-    # Decide the columns that are required
-    # Preprocess the columns decided
-    # Predict with the row
-    # Save the row
-    # Return the row
-
     # Extract prediction input
     prediction_input = cat_encoded[prediction_columns]
 
     # Predict using the ML model
     prediction = ml_model.predict(prediction_input)
+
+    # Get Background Data
+    background_data_csv = "data.csv"
+    background_data_df = pd.read_csv(background_data_csv)
+    background_data_df = background_data_df[categorical_columns]
+
+    cat_encoded_background = one_hot_encoder.transform(background_data_df)
+    cat_encoded_background = pd.DataFrame(
+        cat_encoded_background,
+        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
+    )
+
+    background_data_for_prediction = cat_encoded_background[prediction_columns]
+
+    # Explain with SHAP
+    explainer = shap.KernelExplainer(
+        ml_model.predict_proba, background_data_for_prediction
+    )
+    shap_values = explainer.shap_values(prediction_input)
+
+    print(shap_values)
+    # Convert SHAP explanation to a more understandable format
+    feature_names = prediction_input.columns
+    shap_summary = []
+
+    # Loop through each class and its corresponding SHAP values
+    for class_index, shap_class_values in enumerate(shap_values):
+        class_explanation = {
+            "class": class_index,
+            "shap_values": [
+                {"feature": feature, "shap_value": value.item()}
+                for feature, value in zip(feature_names, shap_class_values)
+            ],
+        }
+        shap_summary.append(class_explanation)
 
     # Decode prediction using ordinal encoder
     decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
@@ -597,7 +606,7 @@ async def post_adr(
     )
 
     return JSONResponse(
-        content=jsonable_encoder(content),
+        content={"model": jsonable_encoder(content), "shap": shap_summary},
         status_code=status.HTTP_201_CREATED,
     )
 
@@ -647,39 +656,19 @@ async def get_causality_assessment_level(
 
 
 @app.get(
-    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
-    response_model=Page[ReviewGetResponse],
+    "/api/v1/adr/{adr_id}/causality_assessment_level",
+    response_model=Page[CausalityAssessmentLevelGetResponse2],
 )
-async def get_reviews_for_causality_assessment_level(
-    causality_assessment_level_id: str,
-    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    db: Session = Depends(get_db),
-):
-    causality_assessment_level = (
-        db.query(CausalityAssessmentLevelModel)
-        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
-        .first()
-    )
+def get_causality_assessment_levels_for_adr(adr_id: str, db: Session = Depends(get_db)):
+    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
 
-    if not causality_assessment_level:
+    if not adr:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Causality Assessment Level record not found",
+            status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
         )
 
-    content = (
-        db.query(ReviewModel)
-        .options(
-            joinedload(ReviewModel.user).load_only(
-                UserModel.id,
-                UserModel.username,
-                UserModel.first_name,
-                UserModel.last_name,
-            )
-        )
-        .filter(
-            ReviewModel.causality_assessment_level_id == causality_assessment_level_id
-        )
+    content = db.query(CausalityAssessmentLevelModel).filter(
+        CausalityAssessmentLevelModel.adr_id == adr_id
     )
 
     return paginate(content)
@@ -732,38 +721,13 @@ async def get_adr_reviews(
 ):
     logging.info("Fetching ADRs with reviews...")
 
-    # content = (
-    #     db.query(ADRModel)
-    #     .outerjoin(ReviewModel, ADRModel.id == ReviewModel.adr_id)
-    #     .order_by(desc(ReviewModel.created_at))
-    #     .all()
-    # )
-
     content = (
         db.query(ADRModel)
-        # .join(
-        #     CausalityAssessmentLevelModel,
-        #     ADRModel.id == CausalityAssessmentLevelModel.adr_id,
-        #     isouter=True,
-        # )
-        # .join(
-        #     ReviewModel,
-        #     CausalityAssessmentLevelModel.id
-        #     == ReviewModel.causality_assessment_level_id,
-        #     isouter=True,
-        # )
-        # .outerjoin(
-        #     ReviewModel, ADRModel.id == ReviewModel.adr_id
-        # )  # Allow ADRs without reviews
         .options(
             joinedload(ADRModel.causality_assessment_levels).joinedload(
                 CausalityAssessmentLevelModel.reviews
             )
-        )  # Load levels with ADR
-        # .options(
-        #     joinedload(CausalityAssessmentLevelModel.reviews)
-        # )  # Load reviews with levels
-        # .order_by(desc(ReviewModel.created_at))
+        )
         .offset(skip)
         .limit(limit)
         .all()
@@ -781,140 +745,129 @@ async def get_adr_reviews(
     )
 
 
-@app.get("/api/v1/monitoring")
-def get_monitoring(
+@app.get(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
+    response_model=Page[ReviewGetResponse],
+)
+async def get_reviews_for_causality_assessment_level(
+    causality_assessment_level_id: str,
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
-    # Gender Proportion
-    gender_proportions_data = (
-        db.query(ADRModel.gender, func.count(ADRModel.id))
-        .group_by(ADRModel.gender)
-        .all()
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
     )
 
-    gender_proportions_content = {"series": [], "data": []}
+    if not causality_assessment_level:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Causality Assessment Level record not found",
+        )
 
-    for label, count in gender_proportions_data:
-        gender_proportions_content["series"].append(label.value)
-        gender_proportions_content["data"].append(count)
+    content = (
+        db.query(ReviewModel)
+        .options(
+            joinedload(ReviewModel.user).load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
+        .filter(
+            ReviewModel.causality_assessment_level_id == causality_assessment_level_id
+        )
+    )
+
+    return paginate(content)
+
+
+@app.get("/api/v1/monitoring")
+def get_monitoring(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    start: str = Query(...),
+    end: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    # Parse date strings
+    start_date = datetime.datetime.strptime(start, "%Y-%m-%d").replace(
+        tzinfo=datetime.timezone.utc
+    )
+    # Include the full day by setting end time to 23:59:59.999999
+    end_date = (
+        datetime.datetime.strptime(end, "%Y-%m-%d").replace(
+            tzinfo=datetime.timezone.utc
+        )
+        + datetime.timedelta(days=1)
+        - datetime.timedelta(microseconds=1)
+    )
+
+    def query_proportion_data(db: Session, column):
+        return (
+            db.query(column, func.count(ADRModel.id))
+            .filter(ADRModel.created_at >= start_date)
+            .filter(ADRModel.created_at <= end_date)
+            .group_by(column)
+            .all()
+        )
+
+    def format_proportion_data(raw_data):
+        return {
+            "series": [label.value for label, _ in raw_data],
+            "data": [count for _, count in raw_data],
+        }
+
+    # Gender Proportion
+    gender_proportions_data = query_proportion_data(db, ADRModel.gender)
+    gender_proportions_content = format_proportion_data(gender_proportions_data)
 
     # Pregnancy Status Proportion
-    pregnancy_status_proportions_data = (
-        db.query(ADRModel.pregnancy_status, func.count(ADRModel.id))
-        .group_by(ADRModel.pregnancy_status)
-        .all()
+    pregnancy_status_proportions_data = query_proportion_data(
+        db, ADRModel.pregnancy_status
     )
-
-    pregnancy_status_proportions_content = {"series": [], "data": []}
-
-    for label, count in pregnancy_status_proportions_data:
-        pregnancy_status_proportions_content["series"].append(label.value)
-        pregnancy_status_proportions_content["data"].append(count)
+    pregnancy_status_proportions_content = format_proportion_data(
+        pregnancy_status_proportions_data
+    )
 
     # Known Allergy Proportion
-    known_allergy_proportions_data = (
-        db.query(ADRModel.known_allergy, func.count(ADRModel.id))
-        .group_by(ADRModel.known_allergy)
-        .all()
+    known_allergy_proportions_data = query_proportion_data(db, ADRModel.known_allergy)
+    known_allergy_proportions_content = format_proportion_data(
+        known_allergy_proportions_data
     )
-
-    known_allergy_proportions_content = {"series": [], "data": []}
-
-    for label, count in known_allergy_proportions_data:
-        known_allergy_proportions_content["series"].append(label.value)
-        known_allergy_proportions_content["data"].append(count)
 
     # Rechallenge Proportion
-    rechallenge_proportions_data = (
-        db.query(ADRModel.rechallenge, func.count(ADRModel.id))
-        .group_by(ADRModel.rechallenge)
-        .all()
+    rechallenge_proportions_data = query_proportion_data(db, ADRModel.rechallenge)
+    rechallenge_proportions_content = format_proportion_data(
+        rechallenge_proportions_data
     )
 
-    rechallenge_proportions_content = {"series": [], "data": []}
-
-    for label, count in rechallenge_proportions_data:
-        rechallenge_proportions_content["series"].append(label.value)
-        rechallenge_proportions_content["data"].append(count)
-
-    # Dechallenge Proportion
-    dechallenge_proportions_data = (
-        db.query(ADRModel.rechallenge, func.count(ADRModel.id))
-        .group_by(ADRModel.rechallenge)
-        .all()
+    # Dechallenge Proportion (fixed column name)
+    dechallenge_proportions_data = query_proportion_data(db, ADRModel.dechallenge)
+    dechallenge_proportions_content = format_proportion_data(
+        dechallenge_proportions_data
     )
-
-    dechallenge_proportions_content = {"series": [], "data": []}
-
-    for label, count in dechallenge_proportions_data:
-        dechallenge_proportions_content["series"].append(label.value)
-        dechallenge_proportions_content["data"].append(count)
 
     # Severity Proportion
-    severity_proportions_data = (
-        db.query(ADRModel.severity, func.count(ADRModel.id))
-        .group_by(ADRModel.severity)
-        .all()
-    )
-
-    severity_proportions_content = {"series": [], "data": []}
-
-    for label, count in severity_proportions_data:
-        severity_proportions_content["series"].append(label.value)
-        severity_proportions_content["data"].append(count)
-
-    # Severity Proportion
-    severity_proportions_data = (
-        db.query(ADRModel.severity, func.count(ADRModel.id))
-        .group_by(ADRModel.severity)
-        .all()
-    )
-
-    severity_proportions_content = {"series": [], "data": []}
-
-    for label, count in severity_proportions_data:
-        severity_proportions_content["series"].append(label.value)
-        severity_proportions_content["data"].append(count)
+    severity_proportions_data = query_proportion_data(db, ADRModel.severity)
+    severity_proportions_content = format_proportion_data(severity_proportions_data)
 
     # Criteria For Seriousness Proportion
-    criteria_for_seriousness_proportions_data = (
-        db.query(ADRModel.criteria_for_seriousness, func.count(ADRModel.id))
-        .group_by(ADRModel.criteria_for_seriousness)
-        .all()
+    criteria_for_seriousness_proportions_data = query_proportion_data(
+        db, ADRModel.criteria_for_seriousness
     )
-
-    criteria_for_seriousness_proportions_content = {"series": [], "data": []}
-
-    for label, count in criteria_for_seriousness_proportions_data:
-        criteria_for_seriousness_proportions_content["series"].append(label.value)
-        criteria_for_seriousness_proportions_content["data"].append(count)
+    criteria_for_seriousness_proportions_content = format_proportion_data(
+        criteria_for_seriousness_proportions_data
+    )
 
     # Is Serious Proportion
-    is_serious_proportions_data = (
-        db.query(ADRModel.is_serious, func.count(ADRModel.id))
-        .group_by(ADRModel.is_serious)
-        .all()
-    )
-
-    is_serious_proportions_content = {"series": [], "data": []}
-
-    for label, count in is_serious_proportions_data:
-        is_serious_proportions_content["series"].append(label.value)
-        is_serious_proportions_content["data"].append(count)
+    is_serious_proportions_data = query_proportion_data(db, ADRModel.is_serious)
+    is_serious_proportions_content = format_proportion_data(is_serious_proportions_data)
 
     # Outcome Proportion
-    outcome_proportions_data = (
-        db.query(ADRModel.outcome, func.count(ADRModel.id))
-        .group_by(ADRModel.outcome)
-        .all()
-    )
-
-    outcome_proportions_content = {"series": [], "data": []}
-
-    for label, count in outcome_proportions_data:
-        outcome_proportions_content["series"].append(label.value)
-        outcome_proportions_content["data"].append(count)
+    outcome_proportions_data = query_proportion_data(db, ADRModel.outcome)
+    outcome_proportions_content = format_proportion_data(outcome_proportions_data)
 
     content = {
         "gender_proportions": gender_proportions_content,
@@ -927,6 +880,8 @@ def get_monitoring(
         "is_serious_proportions": is_serious_proportions_content,
         "outcome_proportions": outcome_proportions_content,
     }
+
+    print(content)
 
     return JSONResponse(
         content=jsonable_encoder(content),
