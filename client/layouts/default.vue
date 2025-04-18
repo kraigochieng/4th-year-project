@@ -28,13 +28,7 @@
 	<div
 		class="flex items-center justify-between sticky top-0 z-50 border-b bg-background"
 	>
-		<NuxtLink href="/" class="flex items-center text-primary"
-			><Icon
-				name="material-symbols-light:settings-heart-outline-rounded"
-				size="64px"
-			/>
-			<p>MediLinda</p></NuxtLink
-		>
+		<NuxtLink href="/"><Logo /></NuxtLink>
 
 		<NavigationMenu>
 			<NavigationMenuList class="flex gap-x-2">
