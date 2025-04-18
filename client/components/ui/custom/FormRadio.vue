@@ -9,26 +9,30 @@ defineProps<{
 </script>
 
 <template>
-	<FormField v-slot="{ componentField }" type="radio" :name="name">
+	<FormField
+		v-slot="{ componentField }"
+		type="radio"
+		:name="name"
+		class="form-field-wrapper"
+	>
 		<FormItem>
-			<FormLabel> {{ label }}</FormLabel>
-			<HoverCard>
-				<HoverCardTrigger>
-					<Icon name="ic:twotone-help" />
-				</HoverCardTrigger>
-				<HoverCardContent>
-					{{ description ? description : label }}
-				</HoverCardContent>
-			</HoverCard>
+			<div class="flex items-center gap-x-1">
+				<FormLabel> {{ label }}</FormLabel>
+				<HoverCard>
+					<HoverCardTrigger>
+						<Icon name="ic:twotone-help" />
+					</HoverCardTrigger>
+					<HoverCardContent>
+						{{ description ? description : label }}
+					</HoverCardContent>
+				</HoverCard>
+			</div>
 
 			<FormControl>
-				<RadioGroup
-					v-bind="componentField"
-					class="flex flex-col space-y-1"
-				>
+				<RadioGroup v-bind="componentField" class="flex gap-4">
 					<FormItem
 						v-for="option in options"
-						class="flex items-center space-y-0 gap-x-3"
+						class="flex items-center space-y-0 gap-x-1"
 					>
 						<FormControl>
 							<RadioGroupItem :value="option.value" />

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { cn } from '@/lib/utils'
-import { RangeCalendarHeadCell, type RangeCalendarHeadCellProps, useForwardProps } from 'radix-vue'
+import { RangeCalendarHeadCell, type RangeCalendarHeadCellProps, useForwardProps } from 'reka-ui'
 import { computed, type HTMLAttributes } from 'vue'
 
 const props = defineProps<RangeCalendarHeadCellProps & { class?: HTMLAttributes['class'] }>()
@@ -15,7 +15,10 @@ const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>
-  <RangeCalendarHeadCell :class="cn('w-9 rounded-md text-[0.8rem] font-normal text-slate-500 dark:text-slate-400', props.class)" v-bind="forwardedProps">
+  <RangeCalendarHeadCell
+    :class="cn('w-8 rounded-md text-[0.8rem] font-normal text-muted-foreground', props.class)"
+    v-bind="forwardedProps"
+  >
     <slot />
   </RangeCalendarHeadCell>
 </template>
