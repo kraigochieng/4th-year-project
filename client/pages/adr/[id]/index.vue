@@ -1,9 +1,10 @@
 <template>
-	<h1 class="text-2xl font-bold mb-6">Specific ADR View</h1>
-	<p v-if="adrStatus == 'pending'">Loading ADR...</p>
-	<p v-else-if="adrStatus == 'error'">Error {{ adrError }}</p>
-	<div v-else-if="adrStatus == 'success'">
-		<!-- <p
+	<div class="page-wrapper">
+		
+		<p v-if="adrStatus == 'pending'">Loading ADR...</p>
+		<p v-else-if="adrStatus == 'error'">Error {{ adrError }}</p>
+		<div v-else-if="adrStatus == 'success'">
+			<!-- <p
 			v-for="causality_assessment_level in data?.causality_assessment_levels"
 		>
 			<Card>
@@ -17,103 +18,118 @@
 				</CardContent>
 			</Card>
 		</p> -->
-		<Accordion type="multiple" class="w-full" :default-value="defaultValue">
-			<AccordionItem value="personal-details">
-				<AccordionTrigger>Personal Details</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Gender</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.gender }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Pregnancy Status</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.pregnancy_status }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Known Allergy</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.known_allergy }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<AccordionItem value="rechallenge-dechallenge">
-				<AccordionTrigger>Rechallenge/Dechallenge</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Rechallenge</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.rechallenge }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Dechallenge</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.dechallenge }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<AccordionItem value="grading-of-the-event">
-				<AccordionTrigger>Grading of the Event</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Severity</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.severity }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Is Serious</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.is_serious }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Criteria For Seriousness</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.criteria_for_seriousness }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Action Taken</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.action_taken }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Outcome</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ adrData?.outcome }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<!-- <AccordionItem value="review">
+			<Card>
+				<CardHeader> <CardTitle>Specific ADR</CardTitle> </CardHeader>
+				<CardContent>
+					<Accordion
+						type="multiple"
+						class="w-full"
+						:default-value="defaultValue"
+					>
+						<AccordionItem value="personal-details">
+							<AccordionTrigger
+								>Personal Details</AccordionTrigger
+							>
+							<AccordionContent :class="accordionContentClass">
+								<Card>
+									<CardHeader>
+										<CardTitle>Gender</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.gender }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Pregnancy Status</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.pregnancy_status }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Known Allergy</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.known_allergy }}
+									</CardContent>
+								</Card>
+							</AccordionContent>
+						</AccordionItem>
+						<AccordionItem value="rechallenge-dechallenge">
+							<AccordionTrigger
+								>Rechallenge/Dechallenge</AccordionTrigger
+							>
+							<AccordionContent :class="accordionContentClass">
+								<Card>
+									<CardHeader>
+										<CardTitle>Rechallenge</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.rechallenge }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Dechallenge</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.dechallenge }}
+									</CardContent>
+								</Card>
+							</AccordionContent>
+						</AccordionItem>
+						<AccordionItem value="grading-of-the-event">
+							<AccordionTrigger
+								>Grading of the Event</AccordionTrigger
+							>
+							<AccordionContent :class="accordionContentClass">
+								<Card>
+									<CardHeader>
+										<CardTitle>Severity</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.severity }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Is Serious</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.is_serious }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle
+											>Criteria For Seriousness</CardTitle
+										>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.criteria_for_seriousness }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Action Taken</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.action_taken }}
+									</CardContent>
+								</Card>
+								<Card>
+									<CardHeader>
+										<CardTitle>Outcome</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{{ adrData?.outcome }}
+									</CardContent>
+								</Card>
+							</AccordionContent>
+						</AccordionItem>
+						<!-- <AccordionItem value="review">
 				<AccordionTrigger>Review</AccordionTrigger>
 				<AccordionContent>
 					<ADRReviewForm
@@ -123,20 +139,30 @@
 					/>
 				</AccordionContent>
 			</AccordionItem> -->
-		</Accordion>
-		<CausalityAssessmentDataTable
-			:data="causalityAssessmentLevelData?.items"
-			:isLoading="causalityAssessmentLevelStatus === 'pending'"
-			:currentPage="currentPage"
-			:pageSize="pageSize"
-			:totalCount="totalCount"
-			@pageChange="handlePageChange"
-			@pageSizeChange="handlePageSizeChange"
-		/>
+					</Accordion>
+				</CardContent>
+			</Card>
+
+			<DataTable
+				title="Causality Assessments"
+				:data="causalityAssessmentLevelData?.items"
+				:columns="columns"
+				:isLoading="causalityAssessmentLevelStatus === 'pending'"
+				:currentPage="currentPage"
+				:pageSize="pageSize"
+				:totalCount="totalCount"
+				@pageChange="handlePageChange"
+				@pageSizeChange="handlePageSizeChange"
+			/>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { TableActionsCausalityAssessmentLevel } from "#components";
+import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
+import { type ColumnDef } from "@tanstack/vue-table";
+
 // Get ADR id
 const route = useRoute();
 const id = route.params.id as string;
@@ -308,4 +334,64 @@ const handlePageSizeChange = (size: number) => {
 	pageSize.value = size;
 	currentPage.value = 1;
 };
+
+const columns: ColumnDef<CausalityAssessmentLevel>[] = [
+	{
+		id: "select",
+		header: ({ table }) =>
+			h(Checkbox, {
+				modelValue:
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && "indeterminate"),
+				"onUpdate:modelValue": (value) =>
+					table.toggleAllPageRowsSelected(!!value),
+				ariaLabel: "Select all",
+			}),
+		cell: ({ row }) =>
+			h(Checkbox, {
+				modelValue: row.getIsSelected(),
+				"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+				ariaLabel: "Select row",
+			}),
+		enableSorting: false,
+		enableHiding: false,
+	},
+	{
+		id: "ml_model_id",
+		accessorKey: "ml_model_id",
+		header: "ML Model ID",
+		cell: ({ row }) => h("div", {}, row.getValue("ml_model_id")),
+		enableSorting: false,
+	},
+	{
+		id: "causality_assessment_level_value",
+		accessorKey: "causality_assessment_level_value",
+		header: "Causality Assessment Level",
+		cell: ({ row }) =>
+			h("div", {}, row.getValue("causality_assessment_level_value")),
+	},
+	// {
+	// 	accessorKey:
+	// 		"causality_assessment_levels.causality_assessment_level_value",
+	// 	header: "Causality Assessment Level",
+	// 	cell: ({ row }) =>
+	// 		h(
+	// 			"div",
+	// 			{},
+	// 			row.getValue(
+	// 				"causality_assessment_levels"
+	// 			)
+	// 		),
+	// },
+	{
+		id: "actions",
+		enableHiding: false,
+		cell: ({ row }) => {
+			return h(TableActionsCausalityAssessmentLevel, {
+				row: row.original,
+				onExpand: row.toggleExpanded,
+			});
+		},
+	},
+];
 </script>

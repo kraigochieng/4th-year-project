@@ -1,68 +1,91 @@
 <template>
+	<h1 class="text-center text-3xl font-bold p-4">Summary Statistics</h1>
+	<div class="flex gap-4 items-center p-4">
+		<DateRangePicker label="Choose Date Range" v-model="dateRange" />
+		<Select v-model="timeFrame">
+			<SelectTrigger>
+				<SelectValue placeholder="Choose a Time Frame" />
+			</SelectTrigger>
+			<SelectContent>
+				<SelectGroup>
+					<SelectItem value="today">Today</SelectItem>
+					<SelectItem value="last-week">Last Week</SelectItem>
+					<SelectItem value="last-1-month">Last 1 Month</SelectItem>
+					<SelectItem value="last-3-months">Last 3 Months</SelectItem>
+					<SelectItem value="last-6-months">Last 6 Months</SelectItem>
+					<SelectItem value="last-1-year">Last 1 Year</SelectItem>
+					<SelectItem value="last-2-years">Last 2 Years</SelectItem>
+					<SelectItem value="last-5-years">Last 5 Years</SelectItem>
+				</SelectGroup>
+			</SelectContent>
+		</Select>
+	</div>
 	<div v-if="status == 'success'">
-		<div class="flex flex-wrap">
+		<div class="flex flex-wrap gap-4 m-4">
 			<div class="chart-wrapper">
-			<ApexChart
-				:options="genderProportionsChart?.options"
-				:series="genderProportionsChart?.series"
-			></ApexChart>
+				<ApexChart
+					:options="genderProportionsChart?.options"
+					:series="genderProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="pregnancyStatusProportionsChart?.options"
+					:series="pregnancyStatusProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="knownChallengeProportionsChart?.options"
+					:series="knownChallengeProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="dechallengeProportionsChart?.options"
+					:series="dechallengeProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="rechallengeProportionsChart?.options"
+					:series="rechallengeProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="severityProportionsChart?.options"
+					:series="severityProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="criteriaForSeriousnessProportionsChart?.options"
+					:series="criteriaForSeriousnessProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="isSeriousProportionsChart?.options"
+					:series="isSeriousProportionsChart?.series"
+				></ApexChart>
+			</div>
+			<div class="chart-wrapper">
+				<ApexChart
+					:options="outcomeProportionsChart?.options"
+					:series="outcomeProportionsChart?.series"
+				></ApexChart>
+			</div>
 		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="pregnancyStatusProportionsChart?.options"
-				:series="pregnancyStatusProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="knownChallengeProportionsChart?.options"
-				:series="knownChallengeProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="dechallengeProportionsChart?.options"
-				:series="dechallengeProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="rechallengeProportionsChart?.options"
-				:series="rechallengeProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="severityProportionsChart?.options"
-				:series="severityProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="criteriaForSeriousnessProportionsChart?.options"
-				:series="criteriaForSeriousnessProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="isSeriousProportionsChart?.options"
-				:series="isSeriousProportionsChart?.series"
-			></ApexChart>
-		</div>
-		<div class="chart-wrapper">
-			<ApexChart
-				:options="outcomeProportionsChart?.options"
-				:series="outcomeProportionsChart?.series"
-			></ApexChart>
-		</div>
-		</div>
-		
 	</div>
 	<p v-else="status == 'error'">{{ error }}</p>
 </template>
 
 <script setup lang="ts">
+import DateRangePicker from "@/components/ui/custom/DateRangePicker.vue";
+import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 import type { ApexOptions } from "apexcharts";
+import type { DateRange } from "reka-ui";
 
 // Interfaces
 interface Proportions {
@@ -105,8 +128,13 @@ const fetchMonitoringData = async () => {
 				headers: {
 					Authorization: `Bearer ${authStore.accessToken}`,
 				},
+				params: {
+					start: dateRange.value.start?.toString(),
+					end: dateRange.value.end?.toString(),
+				},
 			}
 		);
+
 		status.value = "success";
 	} catch (err: any) {
 		status.value = "error";
@@ -193,12 +221,61 @@ watchEffect(() => {
 		data.value.outcome_proportions.data
 	);
 });
+const end = today(getLocalTimeZone());
+const start = end.subtract({ months: 1 });
+
+const dateRange = ref({
+	start: start,
+	end: end,
+}) as Ref<DateRange>;
+
+const timeFrame = ref<string>("last-1-month");
+
+// Handle Timeframe Dropdown
+watch(timeFrame, (newTimeFrame) => {
+	let start = new CalendarDate(2025, 1, 1);
+	let end = new CalendarDate(2025, 1, 1);
+
+	if (newTimeFrame == "today") {
+		end = today(getLocalTimeZone());
+		start = today(getLocalTimeZone());
+	} else if (newTimeFrame == "last-week") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ weeks: 1 });
+	} else if (newTimeFrame == "last-1-month") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ months: 1 });
+	} else if (newTimeFrame == "last-3-months") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ months: 3 });
+	} else if (newTimeFrame == "last-6-months") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ months: 6 });
+	} else if (newTimeFrame == "last-1-year") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ years: 1 });
+	} else if (newTimeFrame == "last-2-years") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ years: 2 });
+	} else if (newTimeFrame == "last-5-years") {
+		end = today(getLocalTimeZone());
+		start = end.subtract({ years: 5 });
+	}
+
+	dateRange.value.start = start;
+	dateRange.value.end = end;
+});
+
+// Resend to API when
+watchEffect(async () => {
+	if (dateRange.value) {
+		await fetchMonitoringData();
+	}
+});
 </script>
 
 <style scoped>
 .chart-wrapper {
-	width: 100%;
-	max-width: 600px;
-	/* height: 400px; */
+	@apply w-full max-w-[600px] border rounded-md;
 }
 </style>

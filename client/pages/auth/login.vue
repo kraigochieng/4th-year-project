@@ -1,7 +1,7 @@
 <template>
-	<form @submit.prevent="onSubmit">
+	<form @submit.prevent="onSubmit" class="my-16 mx-auto w-96">
 		<Card>
-			<CardHeader> Login </CardHeader>
+			<CardHeader><CardTitle>Login</CardTitle></CardHeader>
 			<CardContent>
 				<FormInput
 					type="text"
@@ -57,6 +57,6 @@ const onSubmit = handleSubmit(async (values) => {
 });
 
 definePageMeta({
-	layout: false
-})
+	layout: "auth",
+});
 </script>

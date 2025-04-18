@@ -1,9 +1,11 @@
 <template>
-	<div class="container py-8">
-		<h1 class="text-2xl font-bold mb-6">ADR Management</h1>
+	<div class="page-wrapper">
+		<h1 class="page-title">ADR Management</h1>
 
-		<ADRDataTable
+		<DataTable
+			title="ADR Management"
 			:data="data?.items"
+			:columns="columns"
 			:isLoading="status === 'pending'"
 			:currentPage="currentPage"
 			:pageSize="pageSize"
@@ -23,19 +25,16 @@
 import { useAuthStore } from "@/stores/auth";
 import { ref } from "vue";
 import ADRDataTable from "@/components/ADRDataTable.vue";
+import { TableActionsAdr } from "#components";
+import {
+	FlexRender,
+	getCoreRowModel,
+	useVueTable,
+	type ColumnDef,
+} from "@tanstack/vue-table";
+import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 
 // Define the ADR & Review interfaces
-interface ADRReview {
-	id: string;
-	adr_id: string;
-	user_id: string;
-	approved: boolean;
-	proposed_causality_level?: string | null;
-	reason?: string | null;
-	created_at: string;
-	updated_at: string;
-}
-
 interface Review {
 	id: string;
 	user_id: string;
@@ -86,6 +85,7 @@ const currentPage = ref(1);
 const pageSize = ref(20);
 
 const totalCount = computed(() => data.value?.total || 0);
+
 // Fetch data when component is mounted
 onMounted(async () => {
 	await fetchADRData();
@@ -135,4 +135,63 @@ const handlePageSizeChange = (size: number) => {
 	pageSize.value = size;
 	currentPage.value = 1;
 };
+
+const columns: ColumnDef<ADRReviewFull>[] = [
+	{
+		id: "select",
+		header: ({ table }) =>
+			h(Checkbox, {
+				modelValue:
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && "indeterminate"),
+				"onUpdate:modelValue": (value) =>
+					table.toggleAllPageRowsSelected(!!value),
+				ariaLabel: "Select all",
+			}),
+		cell: ({ row }) =>
+			h(Checkbox, {
+				modelValue: row.getIsSelected(),
+				"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+				ariaLabel: "Select row",
+			}),
+		enableSorting: false,
+		enableHiding: false,
+	},
+	{
+		id: "patient_id",
+		accessorKey: "patient_id",
+		header: "Patient ID",
+		cell: ({ row }) => h("div", {}, row.getValue("patient_id")),
+		enableSorting: false,
+	},
+	{
+		id: "gender",
+		accessorKey: "gender",
+		header: "Gender",
+		cell: ({ row }) => h("div", {}, row.getValue("gender")),
+	},
+	// {
+	// 	accessorKey:
+	// 		"causality_assessment_levels.causality_assessment_level_value",
+	// 	header: "Causality Assessment Level",
+	// 	cell: ({ row }) =>
+	// 		h(
+	// 			"div",
+	// 			{},
+	// 			row.getValue(
+	// 				"causality_assessment_levels"
+	// 			)
+	// 		),
+	// },
+	{
+		id: "actions",
+		enableHiding: false,
+		cell: ({ row }) => {
+			return h(TableActionsAdr, {
+				row: row.original,
+				onExpand: row.toggleExpanded,
+			});
+		},
+	},
+];
 </script>
