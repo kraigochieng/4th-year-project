@@ -7,6 +7,27 @@
 					
 				</AccordionContent>
 			</AccordionItem> -->
+			<Card>
+				<CardHeader> Personal Details </CardHeader>
+				<CardContent>
+					<FormRadio
+						name="gender"
+						label="Gender"
+						:options="adrFormCategoricalValues['gender']"
+					/>
+					<FormRadio
+						name="pregnancyStatus"
+						label="Pregnancy Status"
+						:options="adrFormCategoricalValues['pregnancyStatus']"
+						class="form-field-wrapper"
+					/>
+					<FormRadio
+						name="knownAllergy"
+						label="Known Allergy"
+						:options="adrFormCategoricalValues['knownAllergy']"
+					/>
+				</CardContent>
+			</Card>
 			<AccordionItem value="personal-details">
 				<AccordionTrigger>Personal Details</AccordionTrigger>
 				<AccordionContent>
@@ -88,7 +109,7 @@
 			</AccordionItem>
 		</Accordion>
 
-		<Button type="submit">Submit</Button>
+		<Button type="submit">Add ADR</Button>
 	</form>
 	<!-- <div>
 		<p>Values {{ values }}</p>

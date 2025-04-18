@@ -1,61 +1,71 @@
 <template>
-	<div class="rounded-md border">
-		<Table>
-			<TableHeader>
-				<TableRow
-					v-for="headerGroup in table.getHeaderGroups()"
-					:key="headerGroup.id"
-				>
-					<TableHead
-						v-for="header in headerGroup.headers"
-						:key="header.id"
+	<div class="flex items-center justify-between content-end py-4">
+		<p>ADR Management</p>
+		<Select v-model="selectedPageSize">
+			<SelectTrigger class="w-max">
+				<SelectValue placeholder="Show number of pages" />
+			</SelectTrigger>
+			<SelectContent>
+				<SelectGroup>
+					<SelectItem
+						v-for="pageOption in numOfPagesOptions"
+						:key="pageOption"
+						:value="pageOption"
 					>
-						<FlexRender
-							v-if="!header.isPlaceholder"
-							:render="header.column.columnDef.header"
-							:props="header.getContext()"
-						/>
-					</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				<template v-if="table.getRowModel().rows?.length">
-					<template
-						v-for="row in table.getRowModel().rows"
-						:key="row.id"
-					>
-						<TableRow
-							:data-state="row.getIsSelected() && 'selected'"
-						>
-							<TableCell
-								v-for="cell in row.getVisibleCells()"
-								:key="cell.id"
-							>
-								<FlexRender
-									:render="cell.column.columnDef.cell"
-									:props="cell.getContext()"
-								/>
-							</TableCell>
-						</TableRow>
-						<TableRow v-if="row.getIsExpanded()">
-							<TableCell :colspan="row.getAllCells().length">
-								{{ JSON.stringify(row.original) }}
-							</TableCell>
-						</TableRow>
-					</template>
-				</template>
-
-				<TableRow v-else>
-					<TableCell
-						:colspan="columns.length"
-						class="h-24 text-center"
-					>
-						No results.
-					</TableCell>
-				</TableRow>
-			</TableBody>
-		</Table>
+						Show {{ pageOption }} rows
+					</SelectItem>
+				</SelectGroup>
+			</SelectContent>
+		</Select>
 	</div>
+
+	<Table class="rounded-md border">
+		<TableHeader>
+			<TableRow
+				v-for="headerGroup in table.getHeaderGroups()"
+				:key="headerGroup.id"
+			>
+				<TableHead
+					v-for="header in headerGroup.headers"
+					:key="header.id"
+				>
+					<FlexRender
+						v-if="!header.isPlaceholder"
+						:render="header.column.columnDef.header"
+						:props="header.getContext()"
+					/>
+				</TableHead>
+			</TableRow>
+		</TableHeader>
+		<TableBody>
+			<template v-if="table.getRowModel().rows?.length">
+				<template v-for="row in table.getRowModel().rows" :key="row.id">
+					<TableRow :data-state="row.getIsSelected() && 'selected'">
+						<TableCell
+							v-for="cell in row.getVisibleCells()"
+							:key="cell.id"
+						>
+							<FlexRender
+								:render="cell.column.columnDef.cell"
+								:props="cell.getContext()"
+							/>
+						</TableCell>
+					</TableRow>
+					<TableRow v-if="row.getIsExpanded()">
+						<TableCell :colspan="row.getAllCells().length">
+							{{ JSON.stringify(row.original) }}
+						</TableCell>
+					</TableRow>
+				</template>
+			</template>
+
+			<TableRow v-else>
+				<TableCell :colspan="columns.length" class="h-24 text-center">
+					No results.
+				</TableCell>
+			</TableRow>
+		</TableBody>
+	</Table>
 	<Pagination
 		v-slot="{ page }"
 		:items-per-page="pageSize"
@@ -63,6 +73,7 @@
 		:sibling-count="1"
 		show-edges
 		:default-page="1"
+		class="py-4 w-max m-auto"
 	>
 		<PaginationList v-slot="{ items }" class="flex items-center gap-1">
 			<PaginationFirst />
@@ -90,42 +101,17 @@
 			<PaginationLast />
 		</PaginationList>
 	</Pagination>
-	<Select v-model="selectedPageSize">
-		<SelectTrigger>
-			<SelectValue placeholder="Show number of pages" />
-		</SelectTrigger>
-		<SelectContent>
-			<SelectGroup>
-				<SelectItem
-					v-for="pageOption in numOfPagesOptions"
-					:key="pageOption"
-					:value="pageOption"
-				>
-					Show {{ pageOption }} rows
-				</SelectItem>
-			</SelectGroup>
-		</SelectContent>
-	</Select>
 </template>
 
 <script setup lang="ts">
-import { useToast } from "@/components/ui/toast";
 
-
+import { TableActionsAdr } from "#components";
 import {
-	Eye,
-	Plus,
-	Download,
-	MoreHorizontal,
-	RefreshCcw,
-} from "lucide-vue-next";
-import {
+	FlexRender,
 	getCoreRowModel,
 	useVueTable,
-	FlexRender,
 	type ColumnDef,
 } from "@tanstack/vue-table";
-import { TableActionsAdr } from "#components";
 import Checkbox from "./ui/checkbox/Checkbox.vue";
 
 const numOfPagesOptions = ["10", "20", "50"];
