@@ -16,6 +16,13 @@ export default defineNuxtConfig({
 			serverApi: "http://localhost:8000/api/v1",
 		},
 	},
+	app: {
+		head: {
+			link: [
+				{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+			],
+		},
+	},
 	modules: [
 		"@vee-validate/nuxt",
 		"@nuxtjs/google-fonts",
@@ -36,6 +43,7 @@ export default defineNuxtConfig({
 	googleFonts: {
 		families: {
 			Lexend: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+			Inter: [100, 200, 300, 400, 500, 600, 700, 800, 900],
 		},
 	},
 	shadcn: {
