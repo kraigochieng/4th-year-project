@@ -1,0 +1,15 @@
+ causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .options(
+            joinedload(CausalityAssessmentLevelModel.reviews)
+            .joinedload(ReviewModel.user)
+            .load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )

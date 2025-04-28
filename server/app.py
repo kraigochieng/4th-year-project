@@ -4,7 +4,7 @@ import os
 import random
 import shutil
 from contextlib import asynccontextmanager
-from typing import List
+from typing import List, Tuple
 from uuid import uuid4
 
 import boto3
@@ -36,6 +36,10 @@ from basemodels import (
     GenderEnum,
     IsSeriousEnum,
     KnownAllergyEnum,
+    MedicalInstitutionGetResponse,
+    MedicalInstitutionPostRequest,
+    MedicalInstitutionTelephoneGetResponse,
+    MedicalInstitutionTelephonePostRequest,
     OutcomeEnum,
     PregnancyStatusEnum,
     RechallengeEnum,
@@ -49,18 +53,27 @@ from basemodels import (
 from config import settings
 from dependencies import get_db
 from engines import engine
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Path, Query, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 from mlflow.tracking import MlflowClient
-from models import ADRModel, Base, CausalityAssessmentLevelModel, ReviewModel, UserModel
+from models import (
+    ADRModel,
+    Base,
+    CausalityAssessmentLevelModel,
+    MedicalInstitutionModel,
+    MedicalInstitutionTelephoneModel,
+    ReviewModel,
+    UserModel,
+)
+from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sqlalchemy import desc, func
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, load_only
 from typing_extensions import Annotated
 
 DB_PATH = "db.sqlite"
@@ -68,6 +81,7 @@ ADR_CSV_PATH = "data.csv"  # Path to the CSV file
 USERS_CSV_PATH = "users.csv"
 REVIEWS_CSV_PATH = "reviews.csv"
 ARTIFACTS_DIR = f"./{settings.mlflow_model_artifacts_path}"
+MEDICAL_INSTITUTION_CSV_PATH = "medical_institutions.csv"
 
 logging.basicConfig(level=logging.INFO)
 
@@ -82,6 +96,56 @@ async def lifespan(app: FastAPI):
 
     session = Session(bind=engine)
 
+    # Add institutions
+    institution_count = session.query(MedicalInstitutionModel).count()
+
+    if institution_count == 0 and os.path.exists(MEDICAL_INSTITUTION_CSV_PATH):
+        institution_df = pd.read_csv(MEDICAL_INSTITUTION_CSV_PATH)
+
+        institution_entries = []
+        for record in institution_df.to_dict(orient="records"):
+            institution_entry = MedicalInstitutionModel(
+                mfl_code=record["MFL Code"],
+                dhis_code=record["DHIS Code"],
+                name=record["Name"],
+                county=record["County"],
+                sub_county=record["Subcounty"],
+            )
+
+            institution_entries.append(institution_entry)
+
+        session.add_all(institution_entries)
+        session.commit()
+        logging.info("Medical Institutions inserted")
+    else:
+        logging.info("Medical Institutions already inserted")
+
+    # Add telelphones to the institutions
+    institution_telephones_count = session.query(
+        MedicalInstitutionTelephoneModel
+    ).count()
+
+    if institution_telephones_count == 0:
+        institutions = session.query(MedicalInstitutionModel).all()
+
+        institution_telephone_entries = []
+
+        for institution in institutions:
+            if not institution.telephones:  # If no telephone entries yet
+                institution_telephone_entry = MedicalInstitutionTelephoneModel(
+                    medical_institution_id=institution.id, telephone="+2547775292595"
+                )
+
+                institution_telephone_entries.append(institution_telephone_entry)
+
+        session.add_all(institution_telephone_entries)
+        session.commit()
+
+        logging.info("Medical Institution Telephones inserted")
+    else:
+        logging.info("Medical Institution Telephones already inserted")
+
+    # Add users
     user_count = session.query(UserModel).count()
 
     if user_count == 0 and os.path.exists(USERS_CSV_PATH):
@@ -103,6 +167,7 @@ async def lifespan(app: FastAPI):
 
     user_a_id = user_a.id  # Get user ID
 
+    # Add ADRs using current user
     adr_count = session.query(ADRModel).count()
 
     if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
@@ -111,9 +176,26 @@ async def lifespan(app: FastAPI):
         adr_entries = []
         causality_entries = []
 
+        facility_ids = session.query(MedicalInstitutionModel.id).limit(20).all()
+        facility_ids = [id_tuple[0] for id_tuple in facility_ids]
+
         for record in adr_df.to_dict(orient="records"):
             adr_entry = ADRModel(
-                patient_id=record["patient_id"],
+                medical_institution_id=random.choice(facility_ids),
+                patient_name=record["patient_name"],
+                patient_address=record["patient_address"],
+                patient_age=record["patient_age"]
+                if pd.notna(record["patient_age"])
+                else None,
+                patient_date_of_birth=datetime.datetime.strptime(
+                    record["patient_date_of_birth"], "%Y-%m-%d"
+                ).date()
+                if pd.notna(record["patient_date_of_birth"])
+                else None,
+                patient_weight_kg=record["patient_weight_kg"],
+                patient_height_cm=record["patient_height_cm"],
+                ward_or_clinic=record["ward_or_clinic"],
+                inpatient_or_outpatient_number=record["inpatient_or_outpatient_number"],
                 user_id=user_a_id,
                 gender=GenderEnum(record["gender"]),
                 pregnancy_status=PregnancyStatusEnum(record["pregnancy_status"]),
@@ -151,8 +233,9 @@ async def lifespan(app: FastAPI):
 
         logging.info("Causality Assessment inserted successfully.")
     else:
-        logging.info("ADR data already exists. Skipping CSV insertion.")
+        logging.info("ADR and Causality data already exists. Skipping CSV insertion.")
 
+    # Add reviews
     review_count = session.query(ReviewModel).count()
 
     if review_count == 0:
@@ -197,7 +280,8 @@ async def lifespan(app: FastAPI):
 
         session.commit()
         logging.info("Random reviews for first 20 causality assessments inserted.")
-
+    else:
+        logging.info("Review data already inserted")
     # if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
     #     adr_df = pd.read_csv(ADR_CSV_PATH)
     #     adr_records = adr_df.to_dict(orient="records")
@@ -304,13 +388,13 @@ app.add_middleware(
 add_pagination(app)
 
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 def root():
     # lhreje
     return "test"
 
 
-@app.post("/api/v1/signup")
+@app.post("/api/v1/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserSignupBaseModel, db: Session = Depends(get_db)):
     existing_user = (
         db.query(UserModel).filter(UserModel.username == user.username).first()
@@ -343,7 +427,7 @@ async def signup(user: UserSignupBaseModel, db: Session = Depends(get_db)):
     )
 
 
-@app.post("/api/v1/token")
+@app.post("/api/v1/token", status_code=status.HTTP_201_CREATED)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
@@ -394,7 +478,7 @@ async def login_for_access_token(
     )
 
 
-@app.post("/api/v1/token/refresh")
+@app.post("/api/v1/token/refresh", status_code=status.HTTP_201_CREATED)
 async def refresh_access_token(refresh_token: str):
     try:
         payload = jwt.decode(
@@ -428,35 +512,46 @@ async def refresh_access_token(refresh_token: str):
         )
 
 
-@app.get("/api/v1/users/me")
+@app.get("/api/v1/users/me", status_code=status.HTTP_201_CREATED)
 async def read_users_me(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
 ):
-    return current_user
+    db_user = (
+        db.query(UserModel)
+        .options(
+            load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
+        .filter(UserModel.username == current_user.username)
+        .first()
+    )
+
+    return db_user
 
 
-@app.get("/api/v1/adr", response_model=Page[ADRGetResponse])
+@app.get(
+    "/api/v1/adr", response_model=Page[ADRGetResponse], status_code=status.HTTP_200_OK
+)
 def get_adrs(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
-    content = db.query(ADRModel).options(
-        joinedload(ADRModel.causality_assessment_levels).joinedload(
-            CausalityAssessmentLevelModel.reviews
-        )
-    )
+    content = db.query(ADRModel)
 
     return paginate(content)
 
 
-@app.get("/api/v1/adr/{adr_id}")
-def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
-    adr = (
-        db.query(ADRModel)
-        .options(joinedload(ADRModel.causality_assessment_levels))
-        .filter(ADRModel.id == adr_id)
-        .first()
-    )
+@app.get("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
+def get_adr_by_id(
+    adr_id: str = Path(..., description="ID of ADR to read"),
+    db: Session = Depends(get_db),
+):
+    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
 
     if not adr:
         raise HTTPException(
@@ -465,37 +560,22 @@ def get_adr_by_id(adr_id: str, db: Session = Depends(get_db)):
     return JSONResponse(content=jsonable_encoder(adr), status_code=status.HTTP_200_OK)
 
 
-@app.post("/api/v1/adr")
+@app.post("/api/v1/adr", status_code=status.HTTP_201_CREATED)
 async def post_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     adr: ADRBaseModelCreate,
     db: Session = Depends(get_db),
 ):
     # Get ML Model
-    ml_model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
-    ml_model = joblib.load(ml_model_path)
+    ml_model = get_ml_model()
 
     # Get encoders
-    encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
-    one_hot_encoder: OneHotEncoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
-    ordinal_encoder: OrdinalEncoder = joblib.load(
-        f"{encoders_path}/ordinal_encoder.pkl"
-    )
+    one_hot_encoder, ordinal_encoder = get_encoders()
 
     # Save data as temp df
     temp_df = pd.DataFrame([adr.model_dump()])
-    categorical_columns = [
-        "gender",
-        "pregnancy_status",
-        "known_allergy",
-        "rechallenge",
-        "dechallenge",
-        "severity",
-        "is_serious",
-        "criteria_for_seriousness",
-        "action_taken",
-        "outcome",
-    ]
+
+    categorical_columns = get_categorical_columns()
 
     # Encode df
     cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
@@ -504,19 +584,8 @@ async def post_adr(
         columns=one_hot_encoder.get_feature_names_out(categorical_columns),
     )
 
-    # Preprocess Background data (To be done by you GPT, do the encoding)
-
     # Define columns for prediction
-    prediction_columns = [
-        "rechallenge_yes",
-        "rechallenge_no",
-        "rechallenge_unknown",
-        "rechallenge_na",
-        "dechallenge_yes",
-        "dechallenge_no",
-        "dechallenge_unknown",
-        "dechallenge_na",
-    ]
+    prediction_columns = get_prediction_columns()
 
     # Extract prediction input
     prediction_input = cat_encoded[prediction_columns]
@@ -535,29 +604,29 @@ async def post_adr(
         columns=one_hot_encoder.get_feature_names_out(categorical_columns),
     )
 
-    background_data_for_prediction = cat_encoded_background[prediction_columns]
+    # background_data_for_prediction = cat_encoded_background[prediction_columns]
 
-    # Explain with SHAP
-    explainer = shap.KernelExplainer(
-        ml_model.predict_proba, background_data_for_prediction
-    )
-    shap_values = explainer.shap_values(prediction_input)
+    # # Explain with SHAP
+    # explainer = shap.KernelExplainer(
+    #     ml_model.predict_proba, background_data_for_prediction
+    # )
+    # shap_values = explainer.shap_values(prediction_input)
 
-    print(shap_values)
-    # Convert SHAP explanation to a more understandable format
-    feature_names = prediction_input.columns
-    shap_summary = []
+    # print(shap_values)
+    # # Convert SHAP explanation to a more understandable format
+    # feature_names = prediction_input.columns
+    # shap_summary = []
 
-    # Loop through each class and its corresponding SHAP values
-    for class_index, shap_class_values in enumerate(shap_values):
-        class_explanation = {
-            "class": class_index,
-            "shap_values": [
-                {"feature": feature, "shap_value": value.item()}
-                for feature, value in zip(feature_names, shap_class_values)
-            ],
-        }
-        shap_summary.append(class_explanation)
+    # # Loop through each class and its corresponding SHAP values
+    # for class_index, shap_class_values in enumerate(shap_values):
+    #     class_explanation = {
+    #         "class": class_index,
+    #         "shap_values": [
+    #             {"feature": feature, "shap_value": value.item()}
+    #             for feature, value in zip(feature_names, shap_class_values)
+    #         ],
+    #     }
+    #     shap_summary.append(class_explanation)
 
     # Decode prediction using ordinal encoder
     decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
@@ -572,6 +641,7 @@ async def post_adr(
     #     causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
     # )
 
+    # Get user id
     db_user = (
         db.query(UserModel).filter(UserModel.username == current_user.username).first()
     )
@@ -586,6 +656,7 @@ async def post_adr(
     db.commit()
     db.refresh(adr_model)
 
+    # Add causality assessment level
     casuality_assessment_level_model = CausalityAssessmentLevelModel(
         adr_id=adr_model.id,
         causality_assessment_level_value=CausalityAssessmentLevelEnum(
@@ -598,37 +669,123 @@ async def post_adr(
     db.refresh(casuality_assessment_level_model)
 
     # To load the causality assessment levels
-    content = (
-        db.query(ADRModel)
-        .options(joinedload(ADRModel.causality_assessment_levels))
-        .filter(ADRModel.id == adr_model.id)
-        .first()
-    )
+    content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
 
     return JSONResponse(
-        content={"model": jsonable_encoder(content), "shap": shap_summary},
+        # content={"model": jsonable_encoder(content), "shap": shap_summary},
+        content=jsonable_encoder(content),
         status_code=status.HTTP_201_CREATED,
     )
 
 
-@app.get("/api/v1/causality_assessment_level/{causality_assessment_level_id}")
-async def get_causality_assessment_level(
-    causality_assessment_level_id: str,
+@app.put("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
+async def update_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    updated_adr: ADRBaseModelCreate,
+    adr_id: str = Path(..., description="ID of the ADR record to update"),
+    db: Session = Depends(get_db),
+):
+    # Step 1: Get existing ADR record
+    adr_model = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+    if not adr_model:
+        raise HTTPException(status_code=404, detail="ADR record not found")
+
+    # Step 2: Update ADR fields
+    for key, value in updated_adr.model_dump().items():
+        setattr(adr_model, key, value)
+
+    db.commit()
+    db.refresh(adr_model)
+
+    # Step 3: Load ML model and encoders
+    ml_model = get_ml_model()
+
+    one_hot_encoder, ordinal_encoder = get_encoders()
+
+    # Step 4: Create dataframe from updated data
+    categorical_columns = get_categorical_columns()
+
+    temp_df = pd.DataFrame([updated_adr.model_dump()])
+
+    # Step 5: Encode data
+    cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
+    cat_encoded = pd.DataFrame(
+        cat_encoded, columns=one_hot_encoder.get_feature_names_out(categorical_columns)
+    )
+
+    prediction_columns = get_prediction_columns()
+    prediction_input = cat_encoded[prediction_columns]
+
+    # Step 6: Predict and decode
+    prediction = ml_model.predict(prediction_input)
+    decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
+        0
+    ][0]
+
+    # Step 7: Update causality assessment model
+    causality_record = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.adr_id == adr_model.id)
+        .first()
+    )
+
+    if causality_record:
+        causality_record.causality_assessment_level_value = (
+            CausalityAssessmentLevelEnum(decoded_prediction)
+        )
+        db.commit()
+        db.refresh(causality_record)
+    else:
+        new_causality = CausalityAssessmentLevelModel(
+            adr_id=adr_model.id,
+            causality_assessment_level_value=CausalityAssessmentLevelEnum(
+                decoded_prediction
+            ),
+        )
+        db.add(new_causality)
+        db.commit()
+        db.refresh(new_causality)
+
+    # Step 8: Return updated record with causality details
+    content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
+
+    return JSONResponse(
+        content=jsonable_encoder(content),
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.delete("/api/v1/adr/{adr_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_adr_by_id(
+    adr_id: str = Path(..., description="ID of ADR to delete"),
+    db: Session = Depends(get_db),
+):
+    adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+
+    if not adr:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="ADR record not found"
+        )
+
+    db.delete(adr)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def get_causality_assessment_level_by_id(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    causality_assessment_level_id: str = Path(
+        ..., description="ID of Causality Assessment to read"
+    ),
     db: Session = Depends(get_db),
 ):
     causality_assessment_level = (
         db.query(CausalityAssessmentLevelModel)
-        .options(
-            joinedload(CausalityAssessmentLevelModel.reviews)
-            .joinedload(ReviewModel.user)
-            .load_only(
-                UserModel.id,
-                UserModel.username,
-                UserModel.first_name,
-                UserModel.last_name,
-            )
-        )
         .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
         .first()
     )
@@ -658,8 +815,12 @@ async def get_causality_assessment_level(
 @app.get(
     "/api/v1/adr/{adr_id}/causality_assessment_level",
     response_model=Page[CausalityAssessmentLevelGetResponse2],
+    status_code=status.HTTP_200_OK,
 )
-def get_causality_assessment_levels_for_adr(adr_id: str, db: Session = Depends(get_db)):
+def get_causality_assessment_levels_for_adr(
+    adr_id: str = Path(..., description="ID of ADR to read"),
+    db: Session = Depends(get_db),
+):
     adr = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
 
     if not adr:
@@ -674,11 +835,127 @@ def get_causality_assessment_levels_for_adr(adr_id: str, db: Session = Depends(g
     return paginate(content)
 
 
-@app.post("/api/v1/causality_assessment_level/{causality_assessment_level_id}/review")
-async def post_causality_assessment_level_review(
-    causality_assessment_level_id: str,
+@app.delete(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_causality_assessment_level_by_id(
+    causality_assessment_level_id: str = Path(..., description="ID of CAL to delete"),
+    db: Session = Depends(get_db),
+):
+    cal = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
+
+    if not cal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="CAL record not found"
+        )
+
+    db.delete(cal)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get(
+    "/api/v1/review",
+    response_model=Page[ReviewGetResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def get_reviews(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    content = db.query(ReviewModel)
+
+    return paginate(content)
+
+
+@app.get(
+    "/api/v1/review_for_specific_user_and_causality_assessment_level",
+    status_code=status.HTTP_200_OK,
+)
+async def get_review_for_specific_user_and_causality_assessment_level(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    causality_assessment_level_id: str = Query(
+        ..., description="ID of Causality Assessment to read"
+    ),
+    db: Session = Depends(get_db),
+):
+    db_user = (
+        db.query(UserModel).filter(UserModel.username == current_user.username).first()
+    )
+
+    review = (
+        db.query(ReviewModel)
+        .filter(
+            ReviewModel.causality_assessment_level_id == causality_assessment_level_id,
+            ReviewModel.user_id == db_user.id,
+        )
+        .first()
+    )
+
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    return review
+
+
+@app.get(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
+    response_model=Page[ReviewGetResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def get_reviews_for_causality_assessment_level(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    causality_assessment_level_id: str = Path(
+        ..., description="ID of Causality Assessment to read"
+    ),
+    db: Session = Depends(get_db),
+):
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
+
+    if not causality_assessment_level:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Causality Assessment Level record not found",
+        )
+
+    content = (
+        db.query(ReviewModel)
+        .options(
+            joinedload(ReviewModel.user).load_only(
+                UserModel.id,
+                UserModel.username,
+                UserModel.first_name,
+                UserModel.last_name,
+            )
+        )
+        .filter(
+            ReviewModel.causality_assessment_level_id == causality_assessment_level_id
+        )
+    )
+
+    return paginate(content)
+
+
+@app.post(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_review(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     review: ADRReviewCreateRequest,
+    causality_assessment_level_id: str = Path(
+        ..., description="ID of Causality Assessment to read"
+    ),
     db: Session = Depends(get_db),
 ):
     causality_assessment_level = (
@@ -712,79 +989,57 @@ async def post_causality_assessment_level_review(
     )
 
 
-@app.get("/api/v1/review")
-async def get_adr_reviews(
+@app.put("/api/v1/review/{review_id}", status_code=status.HTTP_200_OK)
+async def update_review_by_id(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    skip: int = Query(default=0, alias="offset", ge=0),
-    limit: int = Query(default=10, alias="limit", ge=1),
+    review_update: ADRReviewCreateRequest,
+    review_id: str = Path(..., description="ID of review to update"),
     db: Session = Depends(get_db),
 ):
-    logging.info("Fetching ADRs with reviews...")
+    # Step 1: Get the existing review
+    review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
 
-    content = (
-        db.query(ADRModel)
-        .options(
-            joinedload(ADRModel.causality_assessment_levels).joinedload(
-                CausalityAssessmentLevelModel.reviews
-            )
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Review not found",
         )
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
 
-    # content = db.query(ReviewModel).all()
-    logging.info(f"Fetched ADR records: {len(content)}")
+    # Step 2: Update the fields
+    for key, value in review_update.model_dump().items():
+        setattr(review, key, value)
 
-    if not content:
-        logging.warning("No ADR records found.")
-        return []
+    db.commit()
+    db.refresh(review)
 
     return JSONResponse(
-        content=jsonable_encoder(content), status_code=status.HTTP_200_OK
+        content=jsonable_encoder(review),
+        status_code=status.HTTP_200_OK,
     )
 
 
-@app.get(
-    "/api/v1/causality_assessment_level/{causality_assessment_level_id}/review",
-    response_model=Page[ReviewGetResponse],
+@app.delete(
+    "/api/v1/review/{review_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
 )
-async def get_reviews_for_causality_assessment_level(
-    causality_assessment_level_id: str,
-    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+def delete_review_by_id(
+    review_id: str = Path(..., description="ID of review to delete"),
     db: Session = Depends(get_db),
 ):
-    causality_assessment_level = (
-        db.query(CausalityAssessmentLevelModel)
-        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
-        .first()
-    )
+    review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
 
-    if not causality_assessment_level:
+    if not review:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Causality Assessment Level record not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Review record not found"
         )
 
-    content = (
-        db.query(ReviewModel)
-        .options(
-            joinedload(ReviewModel.user).load_only(
-                UserModel.id,
-                UserModel.username,
-                UserModel.first_name,
-                UserModel.last_name,
-            )
-        )
-        .filter(
-            ReviewModel.causality_assessment_level_id == causality_assessment_level_id
-        )
-    )
+    db.delete(review)
+    db.commit()
 
-    return paginate(content)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.get("/api/v1/monitoring")
+@app.get("/api/v1/monitoring", status_code=status.HTTP_200_OK)
 def get_monitoring(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     start: str = Query(...),
@@ -887,3 +1142,257 @@ def get_monitoring(
         content=jsonable_encoder(content),
         status_code=status.HTTP_200_OK,
     )
+
+
+@app.get(
+    "/api/v1/medical_insitutiion",
+    response_model=Page[MedicalInstitutionGetResponse],
+)
+async def get_medical_institution(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    content = db.query(MedicalInstitutionModel)
+
+    return paginate(content)
+
+
+@app.post("/api/v1/medical_institution", status_code=status.HTTP_201_CREATED)
+async def post_medical_institution(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    institution: MedicalInstitutionPostRequest,
+    db: Session = Depends(get_db),
+):
+    new_institution = MedicalInstitutionModel(**institution.model_dump())
+
+    db.add(new_institution)
+    db.commit()
+    db.refresh(new_institution)
+
+    return JSONResponse(
+        content=jsonable_encoder(new_institution),
+        status_code=status.HTTP_201_CREATED,
+    )
+
+
+@app.put("/api/v1/medical_institution/{institution_id}", status_code=status.HTTP_200_OK)
+async def update_medical_institution(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    institution: MedicalInstitutionGetResponse,
+    institution_id: str = Path(..., description="ID of Medical Institution to update"),
+    db: Session = Depends(get_db),
+):
+    db_institution = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == institution_id)
+        .first()
+    )
+
+    if not db_institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical Institution not found",
+        )
+
+    for key, value in institution.model_dump().items():
+        setattr(db_institution, key, value)
+
+    db.commit()
+    db.refresh(db_institution)
+
+    return JSONResponse(
+        content=jsonable_encoder(db_institution),
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.delete(
+    "/api/v1/medical_institution/{institution_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_medical_institution(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    institution_id: str = Path(..., description="ID of Medical Institution to delete"),
+    db: Session = Depends(get_db),
+):
+    db_institution = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == institution_id)
+        .first()
+    )
+
+    if not db_institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical Institution not found",
+        )
+
+    db.delete(db_institution)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get(
+    "/api/v1/medical_institution/{institution_id}/telephone",
+    response_model=Page[MedicalInstitutionTelephoneGetResponse],
+)
+async def get_telephones_for_medical_institution(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    institution_id: str = Path(..., description="ID of the Medical Institution"),
+    db: Session = Depends(get_db),
+):
+    # Check if the medical institution exists first (optional but good)
+    institution = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == institution_id)
+        .first()
+    )
+
+    if not institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical Institution not found",
+        )
+
+    # Query all telephone numbers for the given institution
+    telephones = db.query(MedicalInstitutionTelephoneModel).filter(
+        MedicalInstitutionTelephoneModel.medical_institution_id == institution_id
+    )
+
+    return paginate(telephones)
+
+
+@app.get(
+    "/api/v1/medical_institution_telephone",
+    response_model=Page[MedicalInstitutionTelephoneGetResponse],
+)
+async def get_medical_institution_telephones(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    content = db.query(MedicalInstitutionTelephoneModel)
+    return paginate(content)
+
+
+@app.post("/api/v1/medical_institution_telephone", status_code=status.HTTP_201_CREATED)
+async def create_medical_institution_telephone(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    telephone: MedicalInstitutionTelephonePostRequest,
+    db: Session = Depends(get_db),
+):
+    new_telephone = MedicalInstitutionTelephoneModel(**telephone.model_dump())
+
+    db.add(new_telephone)
+    db.commit()
+    db.refresh(new_telephone)
+
+    return JSONResponse(
+        content=jsonable_encoder(new_telephone),
+        status_code=status.HTTP_201_CREATED,
+    )
+
+
+@app.put(
+    "/api/v1/medical_institution_telephone/{telephone_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def update_medical_institution_telephone(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    telephone_update: MedicalInstitutionTelephonePostRequest,
+    telephone_id: str = Path(..., description="ID of Telephone record to update"),
+    db: Session = Depends(get_db),
+):
+    db_telephone = (
+        db.query(MedicalInstitutionTelephoneModel)
+        .filter(MedicalInstitutionTelephoneModel.id == telephone_id)
+        .first()
+    )
+
+    if not db_telephone:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Telephone record not found",
+        )
+
+    for key, value in telephone_update.model_dump().items():
+        setattr(db_telephone, key, value)
+
+    db.commit()
+    db.refresh(db_telephone)
+
+    return JSONResponse(
+        content=jsonable_encoder(db_telephone),
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.delete(
+    "/api/v1/medical_institution_telephone/{telephone_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_medical_institution_telephone(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    telephone_id: str = Path(..., description="ID of Telephone record to delete"),
+    db: Session = Depends(get_db),
+):
+    db_telephone = (
+        db.query(MedicalInstitutionTelephoneModel)
+        .filter(MedicalInstitutionTelephoneModel.id == telephone_id)
+        .first()
+    )
+
+    if not db_telephone:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Telephone record not found",
+        )
+
+    db.delete(db_telephone)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+def get_ml_model() -> BaseEstimator:
+    """Load the trained ML model."""
+    model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
+    return joblib.load(model_path)
+
+
+def get_encoders() -> Tuple[OneHotEncoder, OrdinalEncoder]:
+    """Load the one-hot and ordinal encoders."""
+    encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
+    one_hot_encoder = joblib.load(f"{encoders_path}/one_hot_encoder.pkl")
+    ordinal_encoder = joblib.load(f"{encoders_path}/ordinal_encoder.pkl")
+    return one_hot_encoder, ordinal_encoder
+
+
+def get_categorical_columns() -> List[str]:
+    """Return list of categorical fields used for encoding."""
+    return [
+        "gender",
+        "pregnancy_status",
+        "known_allergy",
+        "rechallenge",
+        "dechallenge",
+        "severity",
+        "is_serious",
+        "criteria_for_seriousness",
+        "action_taken",
+        "outcome",
+    ]
+
+
+def get_prediction_columns() -> List[str]:
+    """Return list of columns used as prediction features after encoding."""
+    return [
+        "rechallenge_yes",
+        "rechallenge_no",
+        "rechallenge_unknown",
+        "rechallenge_na",
+        "dechallenge_yes",
+        "dechallenge_no",
+        "dechallenge_unknown",
+        "dechallenge_na",
+    ]

@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 from uuid import UUID
 
@@ -93,107 +93,7 @@ class ReviewEnum(str, enum.Enum):
     denied = "denied"
 
 
-class ADRBaseModelCreate(BaseModel):
-    patient_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-
-
-class ADRCreateResponse(BaseModel):
-    patient_id: str
-    user_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-
-
-class ADRCreateRequest(BaseModel):
-    patient_id: str
-    user_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-
-
-class CausalityAssessmentLevelGetResponse2(BaseModel):
-    id: str
-    adr_id: str
-    ml_model_id: str
-    causality_assessment_level_value: CausalityAssessmentLevelEnum
-    prediction_reason: str | None = None
-
-class UserGetResponse(BaseModel):
-    id: str
-    username: str
-    first_name: str
-    last_name: str
-    
-class ReviewGetResponse(BaseModel):
-    id: str
-    causality_assessment_level_id: str
-    user_id: str
-    user: UserGetResponse
-    approved: bool
-    proposed_causality_level: CausalityAssessmentLevelEnum | None = None
-    reason: str | None
-
-
-
-
-class CausalityAssessmentLevelGetResponse(BaseModel):
-    id: str
-    adr_id: str
-    ml_model_id: str
-    causality_assessment_level_value: CausalityAssessmentLevelEnum
-    prediction_reason: str | None = None
-    reviews: List[ReviewGetResponse] = []
-
-
-class ADRGetResponse(BaseModel):
-    id: str
-    patient_id: str
-    user_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-    causality_assessment_levels: List[CausalityAssessmentLevelGetResponse] = []
-
-
-class ADRBaseModel(ADRBaseModelCreate):
-    id: str | None = None
-    causality_assessment_level: CausalityAssessmentLevelEnum | None = None
-    # prediction_reason: str | None = None
-
-
+# Users
 class User(BaseModel):
     username: str
     email: str | None = None
@@ -233,6 +133,152 @@ class UserLoginBaseModel(BaseModel):
     password: str
 
 
+class UserGetResponse(BaseModel):
+    id: str
+    username: str
+    first_name: str
+    last_name: str
+
+
+# Review
+class ReviewGetResponse(BaseModel):
+    id: str
+    causality_assessment_level_id: str
+    user_id: str
+    user: UserGetResponse
+    approved: bool
+    proposed_causality_level: CausalityAssessmentLevelEnum | None = None
+    reason: str | None
+
+
+# class ReviewGetResponse(BaseModel):
+#     causality_assessment_level_id: str
+#     # causality_assessment_level: model
+#     user_id = str
+#     # user: model
+#     approved: bool
+#     proposed_causality_level = CausalityAssessmentLevelEnum
+#     reason: str | None = None
+
+
+# CAL
+class CausalityAssessmentLevelGetResponse2(BaseModel):
+    id: str
+    adr_id: str
+    ml_model_id: str
+    causality_assessment_level_value: CausalityAssessmentLevelEnum
+    prediction_reason: str | None = None
+
+
+class CausalityAssessmentLevelGetResponse(BaseModel):
+    id: str
+    adr_id: str
+    ml_model_id: str
+    causality_assessment_level_value: CausalityAssessmentLevelEnum
+    prediction_reason: str | None = None
+    reviews: List[ReviewGetResponse] = []
+
+
+# ADR
+class ADRBaseModelCreate(BaseModel):
+    # Institution Details
+    medical_institution_id: str | None = None
+    # Personal Details
+    patient_name: str
+    inpatient_or_outpatient_number: str
+    patient_age: int | None = None
+    patient_date_of_birth: date | None = None
+    patient_address: str | None = None
+    patient_weight_kg: float
+    patient_height_cm: float
+    ward_or_clinic: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    # Suspected Adverse Reaction
+    date_of_onset_of_reaction: date | None = None
+    description_of_reaction: str | None = None
+    # Rechallenge/Dechallenge
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    # Grading of Reaction/Event
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+    comments: str | None = None
+
+
+class ADRCreateResponse(BaseModel):
+    user_id: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+
+
+class ADRCreateRequest(BaseModel):
+    user_id: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+
+
+class ADRGetResponse(BaseModel):
+    id: str
+    # User
+    user_id: str
+    # Institution Details
+    medical_institution_id: str | None = None
+    # Personal Details
+    patient_name: str
+    inpatient_or_outpatient_number: str
+    patient_age: int | None = None
+    patient_date_of_birth: date | None = None
+    patient_address: str | None = None
+    patient_weight_kg: float
+    patient_height_cm: float
+    ward_or_clinic: str
+    gender: GenderEnum
+    pregnancy_status: PregnancyStatusEnum
+    known_allergy: KnownAllergyEnum
+    # Suspected Adverse Reaction
+    date_of_onset_of_reaction: date | None = None
+    description_of_reaction: str | None = None
+    # Rechallenge/Dechallenge
+    rechallenge: RechallengeEnum
+    dechallenge: DechallengeEnum
+    # Grading of Reaction/Event
+    severity: SeverityEnum
+    is_serious: IsSeriousEnum
+    criteria_for_seriousness: CriteriaForSeriousnessEnum
+    action_taken: ActionTakenEnum
+    outcome: OutcomeEnum
+    comments: str | None = None
+
+    # causality_assessment_levels: List[CausalityAssessmentLevelGetResponse] = []
+
+
+class ADRBaseModel(ADRBaseModelCreate):
+    id: str | None = None
+    causality_assessment_level: CausalityAssessmentLevelEnum | None = None
+    # prediction_reason: str | None = None
+
+
 class ADRReviewCreateRequest(BaseModel):
     approved: bool
     proposed_causality_level: CausalityAssessmentLevelEnum | None = None
@@ -264,3 +310,32 @@ class ADRReviewGetResponse(BaseModel):
     outcome: str
     causality_assessment_level: str | None = None
     reviews: List[ADRReviewSchema] = []
+
+
+# Medical Institution
+class MedicalInstitutionGetResponse(BaseModel):
+    id: str
+    name: str
+    mfl_code: str
+    dhis_code: str
+    county: str
+    sub_county: str
+
+
+class MedicalInstitutionPostRequest(BaseModel):
+    name: str
+    mfl_code: str
+    dhis_code: str
+    county: str
+    sub_county: str
+
+
+# Medical Institution Telephone
+class MedicalInstitutionTelephoneGetResponse(BaseModel):
+    medical_institution_id: str
+    telephone: str
+
+
+class MedicalInstitutionTelephonePostRequest(BaseModel):
+    medical_institution_id: str
+    telephone: str
