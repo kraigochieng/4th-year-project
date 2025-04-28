@@ -129,7 +129,6 @@ const props = withDefaults(
 		columns: ColumnDef<T>[];
 		numOfPagesOptions?: string[];
 		title?: string;
-		isLoading: boolean;
 		currentPage: number;
 		pageSize: number;
 		totalCount: number;

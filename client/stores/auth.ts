@@ -48,9 +48,17 @@ export const useAuthStore = defineStore("auth", () => {
 
 		if (status.value == "success") {
 			console.log("Login successful, setting tokens...");
-			const response = await getCurrentUser();
+			// const response = await getCurrentUser();
 
-			user.value = humps.camelizeKeys(response?.data.value) ?? null;
+			// user.value = humps.camelizeKeys(response?.data.value) ?? null;
+			// const {
+			// 	data: userData,
+			// 	status: userStatus,
+			// 	error: userError,
+			// } = await getCurrentUser();
+			// if (userStatus.value == "success") {
+			// 	user.value = userData.value;
+			// }
 			// isAuthenticated.value = true;
 			navigateTo("/adr");
 		}
@@ -89,6 +97,16 @@ export const useAuthStore = defineStore("auth", () => {
 			// console.log("data.value", data.value);
 			// console.log("data.value.accessToken", data.value.access_token);
 			navigateTo("/adr");
+
+			// const {
+			// 	data: userData,
+			// 	status: userStatus,
+			// 	error: userError,
+			// } = await getCurrentUser();
+			// if (userStatus.value == "success") {
+			// 	user.value = userData.value;
+			// 	console.log("user in store", user.value);
+			// }
 		}
 
 		if (status.value == "error") {

@@ -20,6 +20,10 @@ const router = useRouter();
 function handleView() {
 	router.push(`/adr/${props.row.id}`);
 }
+
+function handleEdit() {
+	router.push(`/adr/${props.row.id}/edit`);
+}
 const isOpen = ref(false);
 </script>
 
@@ -33,7 +37,8 @@ const isOpen = ref(false);
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end">
 			<DropdownMenuLabel>Actions</DropdownMenuLabel>
-			<DropdownMenuItem @click="handleView">View</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleView">View</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleEdit">Edit</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>
 </template>

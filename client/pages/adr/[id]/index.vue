@@ -1,165 +1,40 @@
 <template>
 	<div class="page-wrapper">
-		
 		<p v-if="adrStatus == 'pending'">Loading ADR...</p>
 		<p v-else-if="adrStatus == 'error'">Error {{ adrError }}</p>
 		<div v-else-if="adrStatus == 'success'">
-			<!-- <p
-			v-for="causality_assessment_level in data?.causality_assessment_levels"
-		>
-			<Card>
-				<CardHeader>
-					<CardTitle>Causality Assessment Level</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{{
-						causality_assessment_level.causality_assessment_level_value
-					}}
-				</CardContent>
-			</Card>
-		</p> -->
-			<Card>
-				<CardHeader> <CardTitle>Specific ADR</CardTitle> </CardHeader>
-				<CardContent>
-					<Accordion
-						type="multiple"
-						class="w-full"
-						:default-value="defaultValue"
+			<Tabs default-value="adr">
+				<TabsList>
+					<TabsTrigger value="adr">ADR Details</TabsTrigger>
+					<TabsTrigger value="causality-assessment"
+						>Causality Assessment Table</TabsTrigger
 					>
-						<AccordionItem value="personal-details">
-							<AccordionTrigger
-								>Personal Details</AccordionTrigger
-							>
-							<AccordionContent :class="accordionContentClass">
-								<Card>
-									<CardHeader>
-										<CardTitle>Gender</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.gender }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Pregnancy Status</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.pregnancy_status }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Known Allergy</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.known_allergy }}
-									</CardContent>
-								</Card>
-							</AccordionContent>
-						</AccordionItem>
-						<AccordionItem value="rechallenge-dechallenge">
-							<AccordionTrigger
-								>Rechallenge/Dechallenge</AccordionTrigger
-							>
-							<AccordionContent :class="accordionContentClass">
-								<Card>
-									<CardHeader>
-										<CardTitle>Rechallenge</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.rechallenge }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Dechallenge</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.dechallenge }}
-									</CardContent>
-								</Card>
-							</AccordionContent>
-						</AccordionItem>
-						<AccordionItem value="grading-of-the-event">
-							<AccordionTrigger
-								>Grading of the Event</AccordionTrigger
-							>
-							<AccordionContent :class="accordionContentClass">
-								<Card>
-									<CardHeader>
-										<CardTitle>Severity</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.severity }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Is Serious</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.is_serious }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle
-											>Criteria For Seriousness</CardTitle
-										>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.criteria_for_seriousness }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Action Taken</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.action_taken }}
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Outcome</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{{ adrData?.outcome }}
-									</CardContent>
-								</Card>
-							</AccordionContent>
-						</AccordionItem>
-						<!-- <AccordionItem value="review">
-				<AccordionTrigger>Review</AccordionTrigger>
-				<AccordionContent>
-					<ADRReviewForm
-						:causality_assessment_level_id="
-							data?.causality_assessment_levels[0].id
+				</TabsList>
+				<TabsContent value="adr">
+					<ADRDetails v-if="adrData" :data="adrData"
+				/></TabsContent>
+				<TabsContent value="causality-assessment"
+					><DataTable
+						title="Causality Assessments"
+						:data="causalityAssessmentLevelData?.items"
+						:columns="columns"
+						:isLoading="
+							causalityAssessmentLevelStatus === 'pending'
 						"
-					/>
-				</AccordionContent>
-			</AccordionItem> -->
-					</Accordion>
-				</CardContent>
-			</Card>
-
-			<DataTable
-				title="Causality Assessments"
-				:data="causalityAssessmentLevelData?.items"
-				:columns="columns"
-				:isLoading="causalityAssessmentLevelStatus === 'pending'"
-				:currentPage="currentPage"
-				:pageSize="pageSize"
-				:totalCount="totalCount"
-				@pageChange="handlePageChange"
-				@pageSizeChange="handlePageSizeChange"
-			/>
+						:currentPage="currentPage"
+						:pageSize="pageSize"
+						:totalCount="totalCount"
+						@pageChange="handlePageChange"
+						@pageSizeChange="handlePageSizeChange"
+				/></TabsContent>
+			</Tabs>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { TableActionsCausalityAssessmentLevel } from "#components";
+import TableActionsCausalityAssessmentLevel from "@/components/table/actions/CausalityAssessmentLevel.vue";
+
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import { type ColumnDef } from "@tanstack/vue-table";
 
@@ -394,4 +269,6 @@ const columns: ColumnDef<CausalityAssessmentLevel>[] = [
 		},
 	},
 ];
+
+useHead({ title: "View an ADR | MediLinda" });
 </script>

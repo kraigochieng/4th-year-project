@@ -63,4 +63,6 @@ const onSubmit = handleSubmit((values) => {
 definePageMeta({
 	layout: "auth",
 });
+
+useHead({ title: "Signup | MediLinda" });
 </script>

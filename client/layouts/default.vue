@@ -26,7 +26,7 @@
 	</SidebarProvider> -->
 
 	<div
-		class="flex items-center justify-between sticky top-0 z-50 border-b bg-background"
+		class="flex items-center justify-between sticky top-0 z-50 bg-background page-responsive-width py-4"
 	>
 		<NuxtLink href="/"><Logo /></NuxtLink>
 
@@ -66,7 +66,7 @@
 					>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<Button @click="useAuthStore().logout()">Logout</Button>
+					<Button @mouseup="useAuthStore().logout()">Logout</Button>
 				</NavigationMenuItem>
 			</NavigationMenuList>
 		</NavigationMenu>
@@ -77,3 +77,9 @@
 	<slot></slot>
 </template>
 <script setup lang="ts"></script>
+
+<style scoped>
+.glass-bg {
+	@apply backdrop-filter backdrop-blur-md bg-opacity-50;
+}
+</style>

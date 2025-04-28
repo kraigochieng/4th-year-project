@@ -1,7 +1,9 @@
 <template>
 	<div class="page-wrapper">
-		<ADRForm />
+		<ADRForm mode="create" />
 	</div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+useHead({ title: "Add ADR | MediLinda" });
+</script>

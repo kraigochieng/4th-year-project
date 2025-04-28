@@ -104,7 +104,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { TableActionsAdr } from "#components";
 import {
 	FlexRender,

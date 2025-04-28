@@ -1,5 +1,5 @@
 <template>
-	<FormField name="dob">
+	<FormField :name="name">
 		<FormItem class="flex flex-col">
 			<FormLabel>{{ label }}</FormLabel>
 			<Popover>
@@ -19,7 +19,10 @@
 									? df.format(toDate(computedValue))
 									: "Pick a date"
 							}}</span>
-							<CalendarIcon class="ms-auto h-4 w-4 opacity-50" />
+							<Icon
+								name="lucide:calendar"
+								class="ms-auto h-4 w-4 opacity-50"
+							/>
 						</Button>
 						<input hidden />
 					</FormControl>
@@ -44,9 +47,9 @@
 					/>
 				</PopoverContent>
 			</Popover>
-			<!-- <FormDescription>
-				Your date of birth is used to calculate your age.
-			</FormDescription> -->
+			<FormDescription>
+				{{ props.description }}
+			</FormDescription>
 			<FormMessage />
 		</FormItem>
 	</FormField>
@@ -67,6 +70,7 @@ const props = defineProps<{
 	name: string;
 	label: string;
 	value?: string;
+	description?: string;
 	setFieldValue: any;
 }>();
 
@@ -74,7 +78,7 @@ const df = new DateFormatter("en-US", {
 	dateStyle: "long",
 });
 
-const placeholder = ref()
+const placeholder = ref();
 
 const computedValue = computed({
 	get: () => (props.value ? parseDate(props.value) : undefined),

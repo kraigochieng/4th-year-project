@@ -33,7 +33,7 @@ function handleView() {
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end">
 			<DropdownMenuLabel>Actions</DropdownMenuLabel>
-			<DropdownMenuItem @click="handleView">View</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleView">View</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>
 </template>

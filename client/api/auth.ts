@@ -1,12 +1,12 @@
 import humps from "humps";
-import type { ADRBaseModel } from "~/types/adr";
+import type { ADRBaseModel } from "@/types/adr";
 import type {
 	TokenResponse,
 	TokenRefreshResponse,
 	LoginCredentials,
 	SignUpDetails,
-} from "~/types/auth";
-import type { UserDetails } from "~/types/user";
+} from "@/types/auth";
+import type { UserDetails } from "@/types/user";
 
 function getServerApi() {
 	const runtimeConfig = useRuntimeConfig();
@@ -46,7 +46,7 @@ export async function postSignup(user: SignUpDetails) {
 }
 
 export async function getCurrentUser() {
-	return await useServerFetch<UserDetails>(`/users/me`, {
+	return await useFetch<UserDetails>(`${getServerApi()}/users/me`, {
 		method: "GET",
 	});
 }

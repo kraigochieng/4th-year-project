@@ -69,19 +69,31 @@ export type ADRBaseModel = {
 
 export interface ADRInterface {
 	id: string;
-	patientId: string;
+	medical_institution_id: string;
+	// Personal Details
+	patient_name: string;
+	inpatient_or_outpatient_number?: string;
+	patient_date_of_birth?: string;
+	patient_age?: number;
+	patient_weight_kg?: number;
+	patient_height_cm?: number;
+	ward_or_clinic?: string;
 	gender: GenderEnum;
-	pregnancyStatus: PregnancyStatusEnum;
-	knownAllergy: KnownAllergyEnum;
+	pregnancy_status: PregnancyStatusEnum;
+	known_allergy: KnownAllergyEnum;
+	// Suspected Adverse Reaction
+	date_of_onset_of_reaction?: string;
+	description_of_reaction?: string;
+	// Rechallenge/Dechallenge
 	rechallenge: RechallengeEnum;
 	dechallenge: DechallengeEnum;
+	// Grading of Reaction/Event
 	severity: SeverityEnum;
-	isSerious: IsSeriousEnum;
-	criteriaForSeriousness: CriteriaForSeriousnessEnum;
-	actionTaken: ActionTakenEnum;
+	is_serious: IsSeriousEnum;
+	criteria_for_seriousness: CriteriaForSeriousnessEnum;
+	action_taken: ActionTakenEnum;
 	outcome: OutcomeEnum;
-	causalityAssessmentLevel?: CausalityAssessmentLevelEnum;
-	predictionReason?: string;
+	comments?: string;
 }
 
 export interface ADRCreateResponse {
@@ -115,10 +127,10 @@ interface ADRReview {
 interface Review {
 	id: string;
 	user_id: string;
-	causality_assessment_level?: CausalityAssessmentLevelEnum
-	approved: boolean
-	proposed_causality_level?: CausalityAssessmentLevelEnum
-	reason?: string
+	causality_assessment_level?: CausalityAssessmentLevelEnum;
+	approved: boolean;
+	proposed_causality_level?: CausalityAssessmentLevelEnum;
+	reason?: string;
 	created_at: string;
 	updated_at: string;
 }

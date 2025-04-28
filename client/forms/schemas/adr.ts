@@ -2,9 +2,16 @@ import { X } from "lucide-vue-next";
 import * as z from "zod";
 
 export const adrFormValidationSchema = z.object({
-	// patientName: z.string(),
-	// dateOfBirth: z.string(),
-	patientId: z.string().default("a3ae9b3c-19e2-44a7-b992-5f9f7d341e40"),
+	// Personal Details
+	medicalInstitutionId: z.string().default("uuid"),
+	patientName: z.string().default("Kraig Ochieng"),
+	inpatientOrOutpatientNumber: z.string().default("IP-123456"),
+	patientDateOfBirth: z.string(),
+	patientAge: z.number(),
+	patientAddress: z.string().default("Kileleshwa, Nairobi"),
+	patientWeightKg: z.number().default(60),
+	patientHeightCm: z.number().default(178),
+	wardOrClinic: z.string().default("Main Clinic"),
 	gender: z
 		.enum(
 			adrFormCategoricalValues["gender"].map((x) => x.value) as [
@@ -29,6 +36,10 @@ export const adrFormValidationSchema = z.object({
 			]
 		)
 		.default("no"),
+	// SuspeCted Adverse Reaction
+	dateOfOnsetOfReaction: z.string(),
+	descriptionOfReaction: z.string().default("Very disturbing. Vomiting"),
+	// Rechallenge/Dechallenge
 	rechallenge: z
 		.enum(
 			adrFormCategoricalValues["rechallenge"].map((x) => x.value) as [
@@ -45,6 +56,7 @@ export const adrFormValidationSchema = z.object({
 			]
 		)
 		.default("yes"),
+	// Grading od Reaction/Event
 	severity: z
 		.enum(
 			adrFormCategoricalValues["severity"].map((x) => x.value) as [
@@ -84,6 +96,9 @@ export const adrFormValidationSchema = z.object({
 			]
 		)
 		.default("recovered"),
+	comments: z.string().default("Will be looked into"),
 });
 
-export type adrFormTypeValidationSchema = z.infer<typeof adrFormValidationSchema>;
+export type adrFormTypeValidationSchema = z.infer<
+	typeof adrFormValidationSchema
+>;

@@ -28,16 +28,48 @@
 		filter: invert(0%) brightness(100%);
 	}
 }
+html {
+	scroll-behavior: smooth;
+}
+.page-responsive-width {
+	@apply px-8 lg:px-32;
+}
 
 .page-wrapper {
-	@apply p-8 lg:px-32;
+	@apply page-responsive-width py-8;
+}
+
+.page-title {
+	@apply text-2xl font-bold mb-6;
+}
+
+.form-section {
+}
+
+.form-section-header {
+	@apply font-semibold text-lg scroll-mt-20 my-4;
 }
 
 .form-field-wrapper {
 	@apply my-8;
 }
 
-.page-title {
-	@apply text-2xl font-bold mb-6;
+.view-details-wrapper {
+	@apply flex justify-between;
+}
+
+/* Transitions  */
+.v-enter-active,
+.v-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+	opacity: 0;
+}
+
+.badge {
+	@apply text-xs font-semibold py-1 px-2 text-white rounded-full
 }
 </style>

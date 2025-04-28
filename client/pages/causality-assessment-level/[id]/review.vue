@@ -1,8 +1,29 @@
 <template>
-	<p v-if="status == 'pending'">Loading ADR...</p>
-	<p v-else-if="status == 'error'">Error {{ error }}</p>
-	<div v-else-if="status == 'success'">
-		<p
+	<p v-if="calStatus == 'pending'">Loading CAL...</p>
+	<p v-else-if="calStatus == 'error'">{{ calError }}</p>
+	<div v-else-if="calStatus == 'success'" class="page-wrapper">
+		<CausalityAssessmentLevelComparison
+			:value="calData?.causality_assessment_level_value"
+		/>
+		<Tabs default-value="review">
+			<div class="w-max mx-auto">
+				<TabsList>
+					<TabsTrigger value="adr">ADR Details</TabsTrigger>
+					<TabsTrigger value="review">Review</TabsTrigger>
+				</TabsList>
+			</div>
+
+			<TabsContent value="adr">
+				<ADRDetails v-if="adrData" :data="adrData" />
+			</TabsContent>
+			<TabsContent value="review">
+				<ADRReviewForm
+					:causality_assessment_level_id="calData?.id"
+					:mode="mode"
+				/>
+			</TabsContent>
+		</Tabs>
+		<!-- <p
 			v-for="causality_assessment_level in data?.causality_assessment_levels"
 		>
 			<Card>
@@ -15,152 +36,31 @@
 					}}
 				</CardContent>
 			</Card>
-		</p>
-
-		<Accordion type="multiple" class="w-full" :default-value="defaultValue">
-			<AccordionItem value="personal-details">
-				<AccordionTrigger>Personal Details</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Gender</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.gender }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Pregnancy Status</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.pregnancy_status }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Known Allergy</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.known_allergy }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<AccordionItem value="rechallenge-dechallenge">
-				<AccordionTrigger>Rechallenge/Dechallenge</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Rechallenge</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.rechallenge }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Dechallenge</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.dechallenge }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<AccordionItem value="grading-of-the-event">
-				<AccordionTrigger>Grading of the Event</AccordionTrigger>
-				<AccordionContent :class="accordionContentClass">
-					<Card>
-						<CardHeader>
-							<CardTitle>Severity</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.severity }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Is Serious</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.is_serious }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Criteria For Seriousness</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.criteria_for_seriousness }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Action Taken</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.action_taken }}
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Outcome</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{{ data?.outcome }}
-						</CardContent>
-					</Card>
-				</AccordionContent>
-			</AccordionItem>
-			<AccordionItem value="review">
-				<AccordionTrigger>Review</AccordionTrigger>
-				<AccordionContent>
-					<ADRReviewForm
-						:causality_assessment_level_id="
-							data?.causality_assessment_levels[0].id
-						"
-					/>
-				</AccordionContent>
-			</AccordionItem>
-		</Accordion>
+		</p> -->
 	</div>
 </template>
 
 <script setup lang="ts">
+import type { CausalityAssessmentLevelEnum } from "@/types/adr";
+
 const route = useRoute();
 const id = route.params.id as string;
+
+type ModeType = "create" | "update";
+const mode: ModeType = (route.query.mode as ModeType) || "create"; // If the mode is not set, then the default is create
 // Store
 const authStore = useAuthStore();
-const defaultValue = [
-	"personal-details",
-	"rechallenge-dechallenge",
-	"grading-of-the-event",
-	"review",
-];
-
-const accordionContentClass = "flex gap-4";
-
-interface Review {
-	id: string;
-	user_id: string;
-	causality_assessment_level?: CausalityAssessmentLevelEnum;
-	approved: boolean;
-	proposed_causality_level?: CausalityAssessmentLevelEnum;
-	reason?: string;
-	created_at: string;
-	updated_at: string;
-}
 
 interface CausalityAssessmentLevel {
 	id: string;
 	adr_id: string;
 	ml_model_id: string;
 	causality_assessment_level_value: CausalityAssessmentLevelEnum;
-	prediction_reason: string;
+	prediction_reason?: string;
 	created_at: string;
 	updated_at: string;
 }
+
 interface ADRFull {
 	id: string;
 	patient_id: string;
@@ -175,24 +75,77 @@ interface ADRFull {
 	criteria_for_seriousness: CriteriaForSeriousnessEnum;
 	action_taken: ActionTakenEnum;
 	outcome: OutcomeEnum;
-	causality_assessment_levels: CausalityAssessmentLevel[]; // Array of reviews
 	created_at: string; // ISO 8601 timestamp
 	updated_at: string; // ISO 8601 timestamp
 }
 
-// const { data, isLoading, isError, error, isSuccess } = useQuery({
+// const { data, isLoading, isadrError, adrError, isSuccess } = useQuery({
 // 	queryKey: ["adr", id],
 // 	queryFn: () => fetchAdrById(id),
 // 	enabled: !!id, // Ensures query runs only if ID is present
 // });
 
-const { data, status, error } = useFetch<ADRFull>(
-	`${useRuntimeConfig().public.serverApi}/adr/${id}`,
-	{
-		method: "GET",
-		headers: {
-			Authorization: `Bearer ${authStore.accessToken}`,
-		},
+const calData = ref<CausalityAssessmentLevel | null>(null);
+const calError = ref<unknown | null>(null);
+const calStatus = ref<"idle" | "pending" | "success" | "error">("idle");
+
+const adrData = ref<ADRFull | null>(null);
+const adrError = ref<unknown | null>(null);
+const adrStatus = ref<"idle" | "pending" | "success" | "error">("idle");
+
+onMounted(async () => {
+	calStatus.value = "pending";
+	try {
+		const data = await $fetch<CausalityAssessmentLevel>(
+			`${
+				useRuntimeConfig().public.serverApi
+			}/causality_assessment_level/${id}`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+			}
+		);
+
+		if (!data) throw new Error("No causality data received");
+
+		calData.value = data;
+		console.log(calData.value.causality_assessment_level_value);
+		calStatus.value = "success";
+	} catch (error) {
+		calError.value = error;
+		calStatus.value = "error";
 	}
-);
+});
+
+// Now separately fetch ADR after calData is set
+watchEffect(async () => {
+	if (calData.value?.adr_id) {
+		adrStatus.value = "pending";
+		try {
+			const data = await $fetch<ADRFull>(
+				`${useRuntimeConfig().public.serverApi}/adr/${
+					calData.value.adr_id
+				}`,
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authStore.accessToken}`,
+					},
+				}
+			);
+
+			if (!data) throw new Error("No ADR data received");
+
+			adrData.value = data;
+			adrStatus.value = "success";
+		} catch (error) {
+			adrError.value = error;
+			adrStatus.value = "error";
+		}
+	}
+});
+
+useHead({ title: "Review a Causality Assessment Level | MediLinda" });
 </script>

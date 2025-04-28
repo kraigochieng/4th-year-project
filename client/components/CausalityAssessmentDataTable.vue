@@ -150,7 +150,6 @@ import {
 	TableActionsCausalityAssessmentLevel,
 } from "#components";
 
-
 import Checkbox from "./ui/checkbox/Checkbox.vue";
 
 // Types
@@ -170,10 +169,6 @@ const props = defineProps<{
 	pageSize: number;
 	totalCount: number;
 }>();
-
-
-
-
 
 console.log(props.data);
 // Table creation
@@ -242,7 +237,7 @@ const columns: ColumnDef<ADRCausality>[] = [
 
 const table = useVueTable({
 	get data() {
-		return tableData.value
+		return tableData.value;
 	},
 	columns: columns,
 	getCoreRowModel: getCoreRowModel(),

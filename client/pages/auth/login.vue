@@ -8,6 +8,7 @@
 					name="username"
 					label="Username"
 					placeholder="Enter Username"
+					ref="usernameInputRef"
 				/>
 				<FormInput
 					type="password"
@@ -29,6 +30,7 @@
 </template>
 <script setup lang="ts">
 import FormInput from "@/components/ui/custom/FormInput.vue";
+import type { ComponentPublicInstance } from "vue";
 
 // Stores
 const authStore = useAuthStore();
@@ -59,4 +61,16 @@ const onSubmit = handleSubmit(async (values) => {
 definePageMeta({
 	layout: "auth",
 });
+
+// const usernameInputRef = ref<ComponentPublicInstance | null>(null);
+const usernameInputRef = ref<{ focus: () => void } | null>(null);
+onMounted(() => {
+	console.log(usernameInputRef.value);
+	// Focus the inner input element
+	// const nativeInput = usernameInputRef.value?.$el?.querySelector("input");
+	// nativeInput?.focus();
+	usernameInputRef.value?.focus();
+});
+
+useHead({ title: "Login | MediLinda" });
 </script>

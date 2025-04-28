@@ -1,48 +1,119 @@
 <template>
 	<div class="page-wrapper">
 		<h1 class="text-2xl font-bold mb-6">Specific Causality Assessment</h1>
-		<Card>
-			<CardHeader>
-				<CardTitle>ML Model ID</CardTitle>
-			</CardHeader>
-			<CardContent>
-				{{ causalityAssessmentLevelData?.ml_model_id }}
-			</CardContent>
-		</Card>
-		<Card>
-			<CardHeader>
-				<CardTitle>Prediction Reason</CardTitle>
-			</CardHeader>
-			<CardContent>
-				{{ causalityAssessmentLevelData?.prediction_reason }}
-			</CardContent>
-		</Card>
-		<p>Approved: {{ causalityAssessmentLevelData?.approved_count }}</p>
-		<p>
-			Not Approved: {{ causalityAssessmentLevelData?.not_approved_count }}
-		</p>
-		<DataTable
-			title="Reviews"
-			:data="reviewData?.items"
-			:columns="columns"
-			:isLoading="reviewStatus === 'pending'"
-			:currentPage="currentPage"
-			:pageSize="pageSize"
-			:totalCount="totalCount"
-			@pageChange="handlePageChange"
-			@pageSizeChange="handlePageSizeChange"
-		/>
+		<Tabs defaultValue="review">
+			<TabsList>
+				<TabsTrigger value="cal"
+					>Causality Assessment Level Details</TabsTrigger
+				>
+				<TabsTrigger value="review">Review</TabsTrigger>
+			</TabsList>
+			<TabsContent value="cal">
+				<Card class="my-4">
+					<CardHeader>
+						<CardTitle>ML Model ID</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{{ causalityAssessmentLevelData?.ml_model_id }}
+					</CardContent>
+				</Card>
+				<!-- <Card class="my-4">
+					<CardHeader>
+						<CardTitle>Prediction Reason</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{{ causalityAssessmentLevelData?.prediction_reason }}
+					</CardContent>
+				</Card> -->
+				<CausalityAssessmentLevelComparison
+					:value="
+						causalityAssessmentLevelData?.causality_assessment_level_value
+					"
+				/>
+			</TabsContent>
+			<TabsContent value="review">
+				<Card :class="[isApproved ? 'bg-green-50' : 'bg-red-50']">
+					<CardHeader>
+						<CardTitle>Approved Count</CardTitle>
+						<CardDescription>The tally of votes</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div class="flex w-max mx-auto">
+							<div class="text-center">
+								<p>Approved</p>
+								<p class="big-number">
+									{{
+										causalityAssessmentLevelData?.approved_count
+									}}
+								</p>
+							</div>
+
+							<div
+								class="w-[1px] mx-4 bg-slate-200 dark:bg-slate-800"
+							></div>
+
+							<div class="text-center">
+								<p>Not Approved</p>
+								<p class="big-number">
+									{{
+										causalityAssessmentLevelData?.not_approved_count
+									}}
+								</p>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+				<ReviewDetails
+					v-if="currentReviewData"
+					:data="currentReviewData"
+					:causality_assessment_level_id="id"
+				/>
+				<div v-if="!currentReviewData">
+					<Button
+						class="my-4 w-full mx-auto"
+						@mouseup="
+							router.push(
+								`/causality-assessment-level/${id}/review`
+							)
+						"
+						>Add Review</Button
+					>
+				</div>
+				<DataTable
+					title="Reviews"
+					:data="reviewData?.items"
+					:columns="columns"
+					:isLoading="reviewStatus === 'pending'"
+					:currentPage="currentPage"
+					:pageSize="pageSize"
+					:totalCount="totalCount"
+					@pageChange="handlePageChange"
+					@pageSizeChange="handlePageSizeChange"
+				/>
+			</TabsContent>
+		</Tabs>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { type ColumnDef } from "@tanstack/vue-table";
-import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import { TableActionsReview } from "#components";
+import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
+import { type ColumnDef } from "@tanstack/vue-table";
 
 const route = useRoute();
+const router = useRouter();
 const id = route.params.id as string;
-
+const isApproved = computed<boolean>(() => {
+	if (
+		causalityAssessmentLevelData.value &&
+		causalityAssessmentLevelData.value.approved_count >
+			causalityAssessmentLevelData.value.not_approved_count
+	) {
+		return true;
+	} else {
+		return false;
+	}
+});
 // Types
 interface Review {
 	id: string;
@@ -103,6 +174,10 @@ const reviewData = ref<PaginatedReview | null>(null);
 const reviewStatus = ref<"pending" | "success" | "error">("pending");
 const reviewError = ref<string | null>(null);
 
+const currentReviewData = ref<Review | null>(null);
+const currentReviewStatus = ref<"pending" | "success" | "error">("pending");
+const currentReviewError = ref<string | null>(null);
+
 async function fetchCausalityAssessmentLevelData() {
 	try {
 		causalityAssessmentLevelStatus.value = "pending";
@@ -154,6 +229,32 @@ async function fetchReviewData() {
 	}
 }
 
+async function fetchCurrentReviewData() {
+	try {
+		currentReviewStatus.value = "pending";
+		// Using $fetch for API call
+		currentReviewData.value = await $fetch(
+			`${
+				useRuntimeConfig().public.serverApi
+			}/review_for_specific_user_and_causality_assessment_level`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+				params: {
+					causality_assessment_level_id: id,
+				},
+			}
+		);
+
+		currentReviewStatus.value = "success";
+	} catch (err: any) {
+		currentReviewStatus.value = "error";
+		currentReviewError.value = err.message || "Something went wrong";
+	}
+}
+
 const currentPage = ref(1);
 const pageSize = ref(20);
 
@@ -162,6 +263,7 @@ const totalCount = computed(() => reviewData.value?.total || 0);
 onMounted(async () => {
 	await fetchCausalityAssessmentLevelData();
 	await fetchReviewData();
+	await fetchCurrentReviewData();
 });
 
 watch([currentPage, pageSize], () => {
@@ -254,4 +356,12 @@ const columns: ColumnDef<Review>[] = [
 		},
 	},
 ];
+
+useHead({ title: "View a Causality Assessment Level | MediLinda" });
 </script>
+
+<style scoped>
+.big-number {
+	@apply text-6xl p-4;
+}
+</style>

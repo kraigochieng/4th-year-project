@@ -1,16 +1,15 @@
 <template>
 	<div class="page-wrapper">
-		<h1 class="page-title">ADR Management</h1>
-
+		<Button><NuxtLink to="/adr/add">Add Adr</NuxtLink></Button>
+		<LoadingMedilinda label="Loading ADRs" v-if="status == 'pending'" />
 		<DataTable
+			v-if="status == 'success'"
 			title="ADR Management"
 			:data="data?.items"
 			:columns="columns"
-			:isLoading="status === 'pending'"
 			:currentPage="currentPage"
 			:pageSize="pageSize"
 			:totalCount="totalCount"
-			@viewDetails="handleViewDetails"
 			@pageChange="handlePageChange"
 			@pageSizeChange="handlePageSizeChange"
 		/>
@@ -22,62 +21,19 @@
 </template>
 
 <script setup lang="ts">
+import TableActionsAdr from "@/components/table/actions/Adr.vue";
 import { useAuthStore } from "@/stores/auth";
-import { ref } from "vue";
-import ADRDataTable from "@/components/ADRDataTable.vue";
-import { TableActionsAdr } from "#components";
-import {
-	FlexRender,
-	getCoreRowModel,
-	useVueTable,
-	type ColumnDef,
-} from "@tanstack/vue-table";
+
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
-
-// Define the ADR & Review interfaces
-interface Review {
-	id: string;
-	user_id: string;
-	causality_assessment_level?: CausalityAssessmentLevelEnum;
-	approved: boolean;
-	proposed_causality_level?: CausalityAssessmentLevelEnum;
-	reason?: string;
-	created_at: string;
-	updated_at: string;
-}
-
-interface ADRReviewFull {
-	id: string;
-	patient_id: string;
-	user_id: string;
-	gender: string;
-	pregnancy_status: string;
-	known_allergy: string;
-	rechallenge: string;
-	dechallenge: string;
-	severity: string;
-	is_serious: string;
-	criteria_for_seriousness: string;
-	action_taken: string;
-	outcome: string;
-	created_at: string;
-	updated_at: string;
-	reviews?: Review[]; // Array of reviews
-}
-
-interface PaginatedADR {
-	items?: ADRReviewFull[];
-	total: number;
-	page: number;
-	size: number;
-	pages: number;
-}
+import type { ADRInterface } from "@/types/adr";
+import type { PaginatedResponseInterface } from "@/types/pagination";
+import { type ColumnDef } from "@tanstack/vue-table";
 
 // Fetch ADR Data
 const authStore = useAuthStore();
 
 // Create reactive variables for data, status, and error
-const data = ref<PaginatedADR | null>(null);
+const data = ref<PaginatedResponseInterface<ADRInterface> | null>(null);
 const status = ref<"pending" | "success" | "error">("pending");
 const error = ref<string | null>(null);
 
@@ -120,13 +76,6 @@ watch([currentPage, pageSize], () => {
 	fetchADRData();
 });
 
-// Function to handle viewing details of an ADR
-const handleViewDetails = (adr: ADRReviewFull) => {
-	// Navigate to details page or open a modal
-	console.log("View details for ADR:", adr);
-	// You could use router.push(`/adr/${adr.id}`) to navigate to a detail page
-};
-
 function handlePageChange(page: number) {
 	currentPage.value = page;
 }
@@ -136,7 +85,7 @@ const handlePageSizeChange = (size: number) => {
 	currentPage.value = 1;
 };
 
-const columns: ColumnDef<ADRReviewFull>[] = [
+const columns: ColumnDef<ADRInterface>[] = [
 	{
 		id: "select",
 		header: ({ table }) =>
@@ -158,10 +107,10 @@ const columns: ColumnDef<ADRReviewFull>[] = [
 		enableHiding: false,
 	},
 	{
-		id: "patient_id",
-		accessorKey: "patient_id",
-		header: "Patient ID",
-		cell: ({ row }) => h("div", {}, row.getValue("patient_id")),
+		id: "patient_name",
+		accessorKey: "patient_name",
+		header: "Patient Name",
+		cell: ({ row }) => h("div", {}, row.getValue("patient_name")),
 		enableSorting: false,
 	},
 	{
@@ -194,4 +143,6 @@ const columns: ColumnDef<ADRReviewFull>[] = [
 		},
 	},
 ];
+
+useHead({ title: "ADR | MediLinda" });
 </script>

@@ -272,6 +272,8 @@ watchEffect(async () => {
 		await fetchMonitoringData();
 	}
 });
+
+useHead({ title: "Monitoring | MediLinda" });
 </script>
 
 <style scoped>

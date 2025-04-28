@@ -5,14 +5,14 @@
 		>
 			<div class="space-y-0.5">
 				<FormLabel class="text-base">{{ label }}</FormLabel>
-				<FormDescription>
+				<FormDescription v-if="description">
 					{{ description }}
 				</FormDescription>
 			</div>
 			<FormControl>
 				<Switch
 					:model-value="value"
-                    :disabled="disabled"
+					:disabled="disabled"
 					@update:model-value="handleChange"
 				/>
 			</FormControl>
@@ -26,6 +26,6 @@ defineProps<{
 	name: string;
 	fieldAttrs?: any; // Attributes passed from defineField()
 	description?: string;
-    disabled?: boolean;
+	disabled?: boolean;
 }>();
 </script>
