@@ -7,10 +7,12 @@ from contextlib import asynccontextmanager
 from typing import List, Tuple
 from uuid import uuid4
 
+import africastalking
 import boto3
 import joblib
 import jwt
 import mlflow
+import numpy as np
 import pandas as pd
 import shap
 from auth import (
@@ -40,11 +42,14 @@ from basemodels import (
     MedicalInstitutionPostRequest,
     MedicalInstitutionTelephoneGetResponse,
     MedicalInstitutionTelephonePostRequest,
+    MultipleMedicalInstitutionTelephonePostRequest,
     OutcomeEnum,
     PregnancyStatusEnum,
     RechallengeEnum,
     ReviewGetResponse,
     SeverityEnum,
+    SMSMessageGetResponse,
+    SMSMessageTypeEnum,
     Token,
     UserDetailsBaseModel,
     UserGetResponse,
@@ -68,13 +73,16 @@ from models import (
     MedicalInstitutionModel,
     MedicalInstitutionTelephoneModel,
     ReviewModel,
+    SMSMessageModel,
     UserModel,
 )
+from shap import Explanation, KernelExplainer
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sqlalchemy import desc, func
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session, joinedload, load_only
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Dict
 
 DB_PATH = "db.sqlite"
 ADR_CSV_PATH = "data.csv"  # Path to the CSV file
@@ -84,6 +92,8 @@ ARTIFACTS_DIR = f"./{settings.mlflow_model_artifacts_path}"
 MEDICAL_INSTITUTION_CSV_PATH = "medical_institutions.csv"
 
 logging.basicConfig(level=logging.INFO)
+
+explainer: KernelExplainer = None
 
 
 @asynccontextmanager
@@ -235,6 +245,32 @@ async def lifespan(app: FastAPI):
     else:
         logging.info("ADR and Causality data already exists. Skipping CSV insertion.")
 
+    # Add SMS messages for each ADR
+    sms_message_count = session.query(SMSMessageModel).count()
+
+    if sms_message_count == 0:
+        sms_messages = []
+        for adr in session.query(ADRModel).all():
+            for sms_type in SMSMessageTypeEnum:
+                for _ in range(2):
+                    sms_message = SMSMessageModel(
+                        message_id=f"ATXid_{uuid4()}",
+                        sms_type=sms_type,
+                        number="+254777529295",
+                        content=f"{adr.medical_institution.name} - {sms_type.value} - {adr.patient_name}",
+                        cost="KES 0.8000",
+                        status="Success",
+                        status_code=100,
+                        adr_id=adr.id,
+                    )
+                    sms_messages.append(sms_message)
+
+        session.add_all(sms_messages)
+        session.commit()
+        logging.info("SMS messages inserted successfully.")
+    else:
+        logging.info("SMS messages already successfully.")
+
     # Add reviews
     review_count = session.query(ReviewModel).count()
 
@@ -356,6 +392,41 @@ async def lifespan(app: FastAPI):
 
     else:
         logging.info("Skipping artifact download")
+
+    # Explain with SHAP
+    logging.info("SHAP Explainer Setup Started...")
+
+    number_of_rows = 100
+
+    ml_model = get_ml_model()
+
+    one_hot_encoder, _ = get_encoders()
+
+    categorical_columns = get_categorical_columns()
+
+    prediction_columns = get_prediction_columns()
+
+    # Get Background Data
+    background_data_csv = "data.csv"
+    background_data_df = pd.read_csv(background_data_csv)
+    background_data_df = background_data_df[categorical_columns]
+
+    cat_encoded_background = one_hot_encoder.transform(background_data_df)
+    cat_encoded_background = pd.DataFrame(
+        cat_encoded_background,
+        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
+    )
+
+    background_data_for_prediction = cat_encoded_background[prediction_columns]
+    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+
+    global explainer
+    explainer = shap.KernelExplainer(
+        ml_model.predict_proba,
+        shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
+    )
+    logging.info("SHAP Explainer Setup Finished...")
+
     yield
 
     # Delete the SQLite database after shutdown
@@ -539,9 +610,18 @@ async def read_users_me(
 )
 def get_adrs(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    query: str = Query("", description="Search query(optional)"),
     db: Session = Depends(get_db),
 ):
-    content = db.query(ADRModel)
+    if query:
+        content = db.query(ADRModel).filter(
+            ADRModel.patient_name.ilike(f"%{query}%")
+            | ADRModel.patient_address.ilike(f"%{query}%")
+            | ADRModel.inpatient_or_outpatient_number.ilike(f"%{query}%")
+            | ADRModel.ward_or_clinic.ilike(f"%{query}%")
+        )
+    else:
+        content = db.query(ADRModel)
 
     return paginate(content)
 
@@ -604,42 +684,9 @@ async def post_adr(
         columns=one_hot_encoder.get_feature_names_out(categorical_columns),
     )
 
-    # background_data_for_prediction = cat_encoded_background[prediction_columns]
-
-    # # Explain with SHAP
-    # explainer = shap.KernelExplainer(
-    #     ml_model.predict_proba, background_data_for_prediction
-    # )
-    # shap_values = explainer.shap_values(prediction_input)
-
-    # print(shap_values)
-    # # Convert SHAP explanation to a more understandable format
-    # feature_names = prediction_input.columns
-    # shap_summary = []
-
-    # # Loop through each class and its corresponding SHAP values
-    # for class_index, shap_class_values in enumerate(shap_values):
-    #     class_explanation = {
-    #         "class": class_index,
-    #         "shap_values": [
-    #             {"feature": feature, "shap_value": value.item()}
-    #             for feature, value in zip(feature_names, shap_class_values)
-    #         ],
-    #     }
-    #     shap_summary.append(class_explanation)
-
-    # Decode prediction using ordinal encoder
     decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
         0
     ][0]
-
-    # Add prediction to ADRModel instance
-    # adr.causality_assessment_level = CausalityAssessmentLevelEnum(decoded_prediction)
-    # Create an ADRBaseModel object using ADRBaseModelCreate fields
-    # adr_full = ADRBaseModel(
-    #     **adr.model_dump(),
-    #     causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
-    # )
 
     # Get user id
     db_user = (
@@ -650,8 +697,7 @@ async def post_adr(
         **adr.model_dump(),
         user_id=db_user.id,
     )
-    # adr_model.user = current_user
-    # adr_model.user_id = current_user.id
+
     db.add(adr_model)
     db.commit()
     db.refresh(adr_model)
@@ -668,12 +714,116 @@ async def post_adr(
     db.commit()
     db.refresh(casuality_assessment_level_model)
 
+    background_data_for_prediction = cat_encoded_background[prediction_columns]
+    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+
+    global explainer
+
+    shap_values = explainer(prediction_input)
+
+    expected_values = list(shap_values.base_values[0])
+
+    shap_values_per_class = np.sum(shap_values.values[0], axis=0).tolist()
+
+    predicted_shap_values = list(
+        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
+    )
+    # Send individual alert when certain
+    if CausalityAssessmentLevelEnum(decoded_prediction).value in [
+        CausalityAssessmentLevelEnum.certain.value,
+        CausalityAssessmentLevelEnum.unclassified.value,
+    ]:
+        # Check Whether data needs to be sent or not
+        try:
+            africastalking.initialize(
+                settings.africas_talking_username, settings.africas_talking_api_key
+            )
+        except Exception as e:
+            print("Error initialising AT: ", e)
+
+        sms = africastalking.SMS
+
+        medical_institution_model = (
+            db.query(MedicalInstitutionModel)
+            .filter(MedicalInstitutionModel.id == adr_model.medical_institution_id)
+            .first()
+        )
+
+        telephone_number_model = (
+            db.query(MedicalInstitutionTelephoneModel)
+            .filter(
+                MedicalInstitutionTelephoneModel.medical_institution_id
+                == adr_model.medical_institution_id
+            )
+            .first()
+        )
+
+        if medical_institution_model and telephone_number_model:
+            message_content = None
+            message_type = None
+            # Compose message here
+            if (
+                CausalityAssessmentLevelEnum(decoded_prediction).value
+                == CausalityAssessmentLevelEnum.certain.value
+            ):
+                message_content = f"Individual Alert from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+                message_type = SMSMessageTypeEnum.individual_alert
+
+            if (
+                CausalityAssessmentLevelEnum(decoded_prediction).value
+                == CausalityAssessmentLevelEnum.unclassifiable.value
+            ):
+                message_content = f"Addditional Info from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+                message_type = SMSMessageTypeEnum.additional_info
+
+            if message_content and message_type:
+                recipients = [telephone_number_model.telephone]
+
+                response: Dict = sms.send(message_content, recipients)
+
+                for message in response.get("SMSMessageData").get("Recipients"):
+                    sms_message = SMSMessageModel(
+                        adr_id=adr_model.id,
+                        content=message_content,
+                        sms_type=message_type,
+                        cost=message.get("cost", None),
+                        message_id=message.get("messageId", None),
+                        message_parts=message.get("messageParts", None),
+                        number=message.get("number", None),
+                        status=message.get("status"),
+                        status_code=message.get("statusCode"),
+                    )
+
+                    db.add(sms_message)
+                    db.commit()
+                    db.refresh(sms_message)
+
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="Medical institution or telephone number not found for this ADR entry.",
+            )
+
     # To load the causality assessment levels
     content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
 
+    # return JSONResponse(
+    #     content=jsonable_encoder(content),
+    #     status_code=status.HTTP_201_CREATED,
+    # )
+
     return JSONResponse(
-        # content={"model": jsonable_encoder(content), "shap": shap_summary},
-        content=jsonable_encoder(content),
+        content=jsonable_encoder(
+            {
+                "adr_record": content,
+                "shap_explanation": {
+                    "expected_values": expected_values,
+                    "shap_values_per_class": shap_values_per_class,
+                    "predicted_shap_values": predicted_shap_values,
+                    "shap_value_matrix": shap_values.values[0].tolist(),
+                },
+            }
+        ),
         status_code=status.HTTP_201_CREATED,
     )
 
@@ -867,9 +1017,13 @@ def delete_causality_assessment_level_by_id(
 )
 async def get_reviews(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    query: str = Query("", description="Search query(optional)"),
     db: Session = Depends(get_db),
 ):
-    content = db.query(ReviewModel)
+    if query:
+        content = db.query(ReviewModel)
+    else:
+        content = db.query(ReviewModel)
 
     return paginate(content)
 
@@ -1145,16 +1299,48 @@ def get_monitoring(
 
 
 @app.get(
-    "/api/v1/medical_insitutiion",
+    "/api/v1/medical_institution",
     response_model=Page[MedicalInstitutionGetResponse],
 )
 async def get_medical_institution(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    query: str = Query("", description="Search query(optional)"),
     db: Session = Depends(get_db),
 ):
-    content = db.query(MedicalInstitutionModel)
+    if query:
+        content = db.query(MedicalInstitutionModel).filter(
+            MedicalInstitutionModel.name.ilike(f"%{query}%")
+            | MedicalInstitutionModel.county.ilike(f"%{query}%")
+            | MedicalInstitutionModel.sub_county.ilike(f"%{query}%")
+        )
+    else:
+        content = db.query(MedicalInstitutionModel)
 
     return paginate(content)
+
+
+@app.get("/api/v1/medical_institution/{institution_id}", status_code=status.HTTP_200_OK)
+async def get_medical_institution_by_id(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    institution_id: str = Path(..., description="ID of Medical Institution to delete"),
+    query: str = Query("", description="Search query(optional)"),
+    db: Session = Depends(get_db),
+):
+    db_institution = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == institution_id)
+        .first()
+    )
+
+    if not db_institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Medical Institution not found",
+        )
+
+    return JSONResponse(
+        content=jsonable_encoder(db_institution), status_code=status.HTTP_200_OK
+    )
 
 
 @app.post("/api/v1/medical_institution", status_code=status.HTTP_201_CREATED)
@@ -1278,17 +1464,26 @@ async def get_medical_institution_telephones(
 @app.post("/api/v1/medical_institution_telephone", status_code=status.HTTP_201_CREATED)
 async def create_medical_institution_telephone(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    telephone: MedicalInstitutionTelephonePostRequest,
+    data: MultipleMedicalInstitutionTelephonePostRequest,
     db: Session = Depends(get_db),
 ):
-    new_telephone = MedicalInstitutionTelephoneModel(**telephone.model_dump())
+    # Create a list of MedicalInstitutionTelephoneModel instances
+    new_telephones = [
+        MedicalInstitutionTelephoneModel(
+            medical_institution_id=telephone.medical_institution_id,
+            telephone=telephone.telephone,
+        )
+        for telephone in data.telephones
+    ]
 
-    db.add(new_telephone)
-    db.commit()
-    db.refresh(new_telephone)
+    db.add_all(new_telephones)  # Add all telephones to the session
+    db.commit()  # Commit the changes
+
+    for telephone in new_telephones:
+        db.refresh(telephone)
 
     return JSONResponse(
-        content=jsonable_encoder(new_telephone),
+        content=jsonable_encoder(new_telephones),
         status_code=status.HTTP_201_CREATED,
     )
 
@@ -1352,6 +1547,250 @@ async def delete_medical_institution_telephone(
     db.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get(
+    "/api/v1/sms_message",
+    response_model=Page[SMSMessageGetResponse],
+)
+async def get_sms_messages(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    sms_type: SMSMessageTypeEnum | None = Query(None, description="Filter by SMS type"),
+    adr_id: str | None = Query(None, description="Filter by ADR ID"),
+    db: Session = Depends(get_db),
+):
+    if sms_type:
+        content = db.query(SMSMessageModel).filter(SMSMessageModel.sms_type == sms_type)
+    elif adr_id:
+        content = db.query(SMSMessageModel).filter(SMSMessageModel.adr_id == adr_id)
+    else:
+        content = db.query(SMSMessageModel)
+
+    return paginate(content)
+
+
+@app.get("/api/v1/sms_message/{sms_message_id}", status_code=status.HTTP_200_OK)
+async def get_sms_message_by_id(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    sms_message_id: str = Path(..., description="ID of Medical Institution to delete"),
+    db: Session = Depends(get_db),
+):
+    db_sms_message = (
+        db.query(SMSMessageModel).filter(SMSMessageModel.id == sms_message_id).first()
+    )
+
+    if not db_sms_message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="SMS Message not found",
+        )
+
+    return JSONResponse(
+        content=jsonable_encoder(db_sms_message), status_code=status.HTTP_200_OK
+    )
+
+
+@app.get("/api/v1/sms_message_count", response_model=Page[dict])
+async def get_sms_message_count(
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    sms_type: SMSMessageTypeEnum | None = Query(None, description="Filter by SMS type"),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    # Query to count rows grouped by adr_id, sms_type, and include medical institution name
+    if sms_type:
+        query = (
+            db.query(
+                SMSMessageModel.adr_id,
+                SMSMessageModel.sms_type,
+                MedicalInstitutionModel.mfl_code.label("medical_institution_mfl_code"),
+                MedicalInstitutionModel.name.label("medical_institution_name"),
+                ADRModel.patient_name.label("patient_name"),
+                func.count().label("sms_count"),
+            )
+            .filter(SMSMessageModel.sms_type == sms_type)
+            .join(
+                ADRModel,
+                ADRModel.id == SMSMessageModel.adr_id,
+            )
+            .join(
+                MedicalInstitutionModel,
+                MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+            )
+            .group_by(
+                SMSMessageModel.adr_id,
+                SMSMessageModel.sms_type,
+                MedicalInstitutionModel.name,
+                MedicalInstitutionModel.mfl_code,
+                ADRModel.patient_name,
+            )
+            .offset(offset)
+            .limit(limit)
+        )
+    else:
+        query = (
+            db.query(
+                SMSMessageModel.adr_id,
+                SMSMessageModel.sms_type,
+                MedicalInstitutionModel.mfl_code.label("medical_institution_mfl_code"),
+                MedicalInstitutionModel.name.label("medical_institution_name"),
+                ADRModel.patient_name.label("patient_name"),
+                func.count().label("sms_count"),
+            )
+            .join(
+                ADRModel,
+                ADRModel.id == SMSMessageModel.adr_id,
+            )
+            .join(
+                MedicalInstitutionModel,
+                MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+            )
+            .group_by(
+                SMSMessageModel.adr_id,
+                SMSMessageModel.sms_type,
+                MedicalInstitutionModel.name,
+                MedicalInstitutionModel.mfl_code,
+                ADRModel.patient_name,
+            )
+            .offset(offset)
+            .limit(limit)
+        )
+
+    # Query to get the total count of records
+    if sms_type:
+        total_query = (
+            db.query(func.count().label("total"))
+            .select_from(SMSMessageModel)
+            .filter(SMSMessageModel.sms_type == sms_type)
+            .join(
+                ADRModel,
+                ADRModel.id == SMSMessageModel.adr_id,
+            )
+            .join(
+                MedicalInstitutionModel,
+                MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+            )
+        )
+    else:
+        total_query = (
+            db.query(func.count().label("total"))
+            .select_from(SMSMessageModel)
+            .join(
+                ADRModel,
+                ADRModel.id == SMSMessageModel.adr_id,
+            )
+            .join(
+                MedicalInstitutionModel,
+                MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+            )
+        )
+    # Get total count
+    total_result = (
+        total_query.scalar()
+    )  # Executes the query and gets the scalar value (total count)
+
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    # Execute the query and get the results
+    result = query.all()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "sms_type": row.sms_type,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "patient_name": row.patient_name,
+            "sms_count": row.sms_count,
+        }
+        for row in result
+    ]
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.post("api/v1/send_sms_message")
+def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
+    # Check Whether data needs to be sent or not
+    try:
+        africastalking.initialize(
+            settings.africas_talking_username, settings.africas_talking_api_key
+        )
+    except Exception as e:
+        print("Error initialising AT: ", e)
+
+    sms = africastalking.SMS
+
+    adr_model = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+
+    medical_institution_model = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == adr_model.medical_institution_id)
+        .first()
+    )
+
+    telephone_number_model = (
+        db.query(MedicalInstitutionTelephoneModel)
+        .filter(
+            MedicalInstitutionTelephoneModel.medical_institution_id
+            == adr_model.medical_institution_id
+        )
+        .first()
+    )
+
+    causality_assessment_model = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.adr_id == adr_id)
+        .first()
+    )
+
+    if (
+        causality_assessment_model.causality_assessment_level_value
+        == CausalityAssessmentLevelEnum.certain.value
+    ):
+        message_content = f"Individual Alert from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+        message_type = SMSMessageTypeEnum.individual_alert
+
+    if (
+        causality_assessment_model.causality_assessment_level_value
+        == CausalityAssessmentLevelEnum.unclassifiable.value
+    ):
+        message_content = f"Additional Info from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+        message_type = SMSMessageTypeEnum.additional_info
+
+    recipients = [telephone_number_model.telephone]
+
+    response: Dict = sms.send(message_content, recipients)
+
+    for message in response.get("SMSMessageData").get("Recipients"):
+        sms_message = SMSMessageModel(
+            adr_id=adr_model.id,
+            content=message_content,
+            sms_type=message_type,
+            cost=message.get("cost", None),
+            message_id=message.get("messageId", None),
+            message_parts=message.get("messageParts", None),
+            number=message.get("number", None),
+            status=message.get("status"),
+            status_code=message.get("statusCode"),
+        )
+
+        db.add(sms_message)
+        db.commit()
+        db.refresh(sms_message)
+
+    return JSONResponse(content="Messages sent", status_code=status.HTTP_200_OK)
 
 
 def get_ml_model() -> BaseEstimator:

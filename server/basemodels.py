@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -91,6 +91,12 @@ class CausalityAssessmentLevelEnum(str, enum.Enum):
 class ReviewEnum(str, enum.Enum):
     approved = "approved"
     denied = "denied"
+
+
+class SMSMessageTypeEnum(str, enum.Enum):
+    individual_alert = "individual alert"
+    bulk_alert = "bulk alert"
+    additional_info = "additional info"
 
 
 # Users
@@ -185,13 +191,13 @@ class ADRBaseModelCreate(BaseModel):
     medical_institution_id: str | None = None
     # Personal Details
     patient_name: str
-    inpatient_or_outpatient_number: str
+    inpatient_or_outpatient_number: str | None = None
     patient_age: int | None = None
     patient_date_of_birth: date | None = None
     patient_address: str | None = None
-    patient_weight_kg: float
-    patient_height_cm: float
-    ward_or_clinic: str
+    patient_weight_kg: float | None = None
+    patient_height_cm: float | None = None
+    ward_or_clinic: str | None = None
     gender: GenderEnum
     pregnancy_status: PregnancyStatusEnum
     known_allergy: KnownAllergyEnum
@@ -250,9 +256,9 @@ class ADRGetResponse(BaseModel):
     patient_age: int | None = None
     patient_date_of_birth: date | None = None
     patient_address: str | None = None
-    patient_weight_kg: float
-    patient_height_cm: float
-    ward_or_clinic: str
+    patient_weight_kg: float | None = None
+    patient_height_cm: float | None = None
+    ward_or_clinic: str | None = None
     gender: GenderEnum
     pregnancy_status: PregnancyStatusEnum
     known_allergy: KnownAllergyEnum
@@ -316,18 +322,18 @@ class ADRReviewGetResponse(BaseModel):
 class MedicalInstitutionGetResponse(BaseModel):
     id: str
     name: str
-    mfl_code: str
-    dhis_code: str
-    county: str
-    sub_county: str
+    mfl_code: str | None = None
+    dhis_code: str | None = None
+    county: str | None = None
+    sub_county: str | None = None
 
 
 class MedicalInstitutionPostRequest(BaseModel):
     name: str
-    mfl_code: str
-    dhis_code: str
-    county: str
-    sub_county: str
+    mfl_code: str | None = None
+    dhis_code: str | None = None
+    county: str | None = None
+    sub_county: str | None = None
 
 
 # Medical Institution Telephone
@@ -339,3 +345,22 @@ class MedicalInstitutionTelephoneGetResponse(BaseModel):
 class MedicalInstitutionTelephonePostRequest(BaseModel):
     medical_institution_id: str
     telephone: str
+
+
+class MultipleMedicalInstitutionTelephonePostRequest(BaseModel):
+    telephones: List[MedicalInstitutionTelephonePostRequest]
+
+
+# SMS Message
+class SMSMessageGetResponse(BaseModel):
+    id: str
+    adr_id: str
+    content: str
+    sms_type: SMSMessageTypeEnum
+    cost: str | None = None
+    message_id: str | None = None
+    message_parts: int | None = None
+    number: str | None = None
+    status: str
+    status_code: int
+    created_at: datetime

@@ -15,6 +15,7 @@ from basemodels import (
     RechallengeEnum,
     ReviewEnum,
     SeverityEnum,
+    SMSMessageTypeEnum,
 )
 from mixins import IDMixin, TimestampMixin
 from sqlalchemy import (
@@ -22,6 +23,7 @@ from sqlalchemy import (
     Column,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     LargeBinary,
@@ -40,8 +42,8 @@ class MedicalInstitutionModel(Base, IDMixin, TimestampMixin):
     name = Column(String, nullable=False)
     mfl_code = Column(String, nullable=True)
     dhis_code = Column(String, nullable=True)
-    county = Column(String, nullable=False)
-    sub_county = Column(String, nullable=False)
+    county = Column(String, nullable=True)
+    sub_county = Column(String, nullable=True)
 
     telephones = relationship(
         "MedicalInstitutionTelephoneModel",
@@ -65,6 +67,22 @@ class MedicalInstitutionTelephoneModel(Base, IDMixin, TimestampMixin):
     telephone = Column(String, nullable=False)
 
 
+class SMSMessageModel(Base, IDMixin, TimestampMixin):
+    __tablename__ = "sms_message"
+
+    message_id = Column(String, nullable=True)
+    sms_type = Column(SQLAlchemyEnum(SMSMessageTypeEnum), nullable=False)
+    number = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    cost = Column(String, nullable=False)
+    message_parts = Column(Integer, nullable=True)
+    status = Column(String, nullable=False)
+    status_code = Column(Integer, nullable=False)
+
+    adr_id = Column(String, ForeignKey("adr.id"), nullable=True)
+    adr = relationship("ADRModel", back_populates="sms_messages")
+
+
 class ADRModel(Base, IDMixin, TimestampMixin):
     __tablename__ = "adr"
     # Institution Details
@@ -72,7 +90,7 @@ class ADRModel(Base, IDMixin, TimestampMixin):
         String, ForeignKey("medical_institution.id"), nullable=False
     )
     medical_institution = relationship("MedicalInstitutionModel", back_populates="adrs")
-    
+
     # Personal Details
     patient_name = Column(String, nullable=False)
     inpatient_or_outpatient_number = Column(String, nullable=True)
@@ -109,6 +127,11 @@ class ADRModel(Base, IDMixin, TimestampMixin):
         "CausalityAssessmentLevelModel",
         back_populates="adr",
         cascade="all, delete-orphan",
+    )
+
+    sms_messages = relationship(
+        "SMSMessageModel",
+        back_populates="adr",
     )
 
     # User Tracking

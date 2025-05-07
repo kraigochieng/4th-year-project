@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     minio_access_key: str
     minio_secret_access_key: str
     aws_region: str
+    africas_talking_username: str
+    africas_talking_api_key: str
     model_config = SettingsConfigDict(env_file="../.env", extra="allow")
 
     # model_config = SettingsConfigDict(env_file=".env")
