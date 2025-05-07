@@ -3,7 +3,7 @@ import humps from "humps";
 import type { ADRBaseModel } from "~/types/adr";
 
 export async function fetchAdrs(params = { offset: 0, limit: 10 }) {
-	return await useServerFetch<ADRInterface[]>(`/${path}`, {
+	return await useServerFetch<ADRGetResponseInterface[]>(`/${path}`, {
 		method: "GET",
 		query: params,
 	});

@@ -1,5 +1,3 @@
-import * as z from "zod";
-
 export type GenderEnum = "male" | "female";
 
 export type PregnancyStatusEnum =
@@ -67,7 +65,7 @@ export type ADRBaseModel = {
 	predictionReason?: string;
 };
 
-export interface ADRInterface {
+export interface ADRGetResponseInterface {
 	id: string;
 	medical_institution_id: string;
 	// Personal Details

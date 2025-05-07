@@ -1,43 +1,10 @@
 <template>
-	<div class="fixed top-24 right-4 border rounded-sm bg-white p-2">
-		<Popover>
-			<PopoverTrigger>
-				<Icon name="lucide:menu" />
-			</PopoverTrigger>
-			<PopoverContent>
-				<div>
-					<p class="font-semibold">Form Sections</p>
-					<p>
-						<a href="#institution-details">
-							1. Institution Details
-						</a>
-					</p>
-					<p><a href="#patient-details">2. Patient Details</a></p>
-					<p>
-						<a href="#suspected-adverse-reaction">
-							1. Suspected Adverse Reaction
-						</a>
-					</p>
-					<p><a href="#rechallenge">3. Rechallenge/Dechallenge</a></p>
-					<p><a href="#grading">3. Grading of the Event</a></p>
-					<p>
-						<a href="#submit"
-							>4.
-							{{
-								props.mode == "create" ? "Add Adr" : "Edit ADR"
-							}}
-							Button</a
-						>
-					</p>
-				</div>
-			</PopoverContent>
-		</Popover>
-	</div>
 	<form @submit.prevent="onSubmit">
 		<Card>
 			<CardHeader>
 				<CardTitle>
-					Add an Adverse Drug Reaction Report (ADR)
+					{{ props.mode == "create" ? "Add" : "Edit" }} an Adverse
+					Drug Reaction Report (ADR)
 				</CardTitle>
 				<CardDescription
 					>Add an Adverse Drug Reaction Report so that the ML Model
@@ -45,11 +12,139 @@
 				>
 			</CardHeader>
 			<CardContent>
-				<div class="form-section">
-					<p id="institution-details" class="form-section-header">
-						1. Institution Details
-					</p>
+				<div
+					class="fixed top-24 right-4 border rounded-sm bg-white p-2"
+				>
+					<Popover>
+						<PopoverTrigger>
+							<Icon name="lucide:menu" />
+						</PopoverTrigger>
+						<PopoverContent>
+							<div>
+								<p class="font-semibold">Form Sections</p>
+								<p>
+									<a href="#institution-details">
+										1. Institution Details
+									</a>
+								</p>
+								<p>
+									<a href="#patient-details"
+										>2. Patient Details</a
+									>
+								</p>
+								<p>
+									<a href="#suspected-adverse-reaction">
+										1. Suspected Adverse Reaction
+									</a>
+								</p>
+								<p>
+									<a href="#rechallenge"
+										>3. Rechallenge/Dechallenge</a
+									>
+								</p>
+								<p>
+									<a href="#grading"
+										>3. Grading of the Event</a
+									>
+								</p>
+								<p>
+									<a href="#submit"
+										>4.
+										{{
+											props.mode == "create"
+												? "Add Adr"
+												: "Edit ADR"
+										}}
+										Button</a
+									>
+								</p>
+							</div>
+						</PopoverContent>
+					</Popover>
 				</div>
+				<div class="form-section">
+					<div class="flex items-center justify-between space-x-2">
+						<p id="institution-details" class="form-section-header">
+							1. Institution Details
+						</p>
+						<div class="flex space-x-1">
+							<Dialog
+								v-model:open="
+									isCreateMedicalInstitutionDialogOpen
+								"
+							>
+								<DialogTrigger as-child>
+									<span class="underline hover:cursor-pointer"
+										>Create</span
+									>
+								</DialogTrigger>
+								<DialogScrollContent>
+									<MedicalInstitutionForm
+										mode="create"
+										:is-in-dialog="true"
+										@submitted="
+											handleMedicalInstitutionFormSubmitted
+										"
+									/>
+								</DialogScrollContent>
+							</Dialog>
+							<span>or</span>
+							<Dialog>
+								<DialogTrigger as-child>
+									<span class="underline hover:cursor-pointer"
+										>find</span
+									>
+								</DialogTrigger>
+								<DialogContent>
+									<DialogHeader>
+										<DialogTitle>
+											Choose an existing Medical
+											Institution
+										</DialogTitle>
+										<DialogDescription>
+											Search for a medical institution
+										</DialogDescription>
+									</DialogHeader>
+								</DialogContent>
+							</Dialog>
+							<span>a Medical Institution</span>
+						</div>
+					</div>
+
+					<div v-if="medicalInstitutionData">
+						<div class="view-details-wrapper">
+							<p>Name</p>
+							<p>{{ medicalInstitutionData.name }}</p>
+						</div>
+						<Separator class="my-2" />
+						<div class="view-details-wrapper">
+							<p>MFL Code</p>
+							<p>{{ medicalInstitutionData.mfl_code }}</p>
+						</div>
+						<Separator class="my-2" />
+						<div class="view-details-wrapper">
+							<p>DHIS Code</p>
+							<p>
+								{{ medicalInstitutionData.dhis_code ?? "None" }}
+							</p>
+						</div>
+						<Separator class="my-2" />
+						<div class="view-details-wrapper">
+							<p>County</p>
+							<p>{{ medicalInstitutionData.county ?? "None" }}</p>
+						</div>
+						<Separator class="my-2" />
+						<div class="view-details-wrapper">
+							<p>Sub County</p>
+							<p>
+								{{
+									medicalInstitutionData.sub_county ?? "None"
+								}}
+							</p>
+						</div>
+					</div>
+				</div>
+				<Separator class="my-4" />
 				<div class="form-section">
 					<p id="patient-details" class="form-section-header">
 						2. Patient Details
@@ -106,21 +201,21 @@
 						type="text"
 						name="inpatientOrOutpatientNumber"
 						label="Inpatient/Outpatient Number"
-						placeholder="inpatientOrOutpatientNumber"
+						placeholder="e.g IN-123456, OUT-654321"
 						description="The inpatient or outpatient number of the patient"
 					/>
 					<FormInput
 						type="text"
 						name="patientAddress"
 						label="Patient Address"
-						placeholder="Patient Address"
+						placeholder="e.g Madaraka, Nairobi West, Nairobi"
 						description="The address of the patient"
 					/>
 					<FormInput
 						type="text"
 						name="wardOrClinic"
 						label="Ward/Clinic"
-						placeholder="Ward or Clinic"
+						placeholder="e.g Main Ward"
 						description="The ward or clinic the patient was in"
 					/>
 					<FormRadio
@@ -238,31 +333,54 @@
 
 <script setup lang="ts">
 import humps from "humps";
-import * as z from "zod";
 
+import type { CausalityAssessmentLevelGetResponseInterface } from "@/types/cal";
+import type { MedicalInstitutionGetResponseInterface } from "@/types/medical_institution";
+import type { PaginatedResponseInterface } from "@/types/pagination";
 import FormInput from "./ui/custom/FormInput.vue";
+import FormNumberField from "./ui/custom/FormNumberField.vue";
 import FormRadio from "./ui/custom/FormRadio.vue";
 import FormSelectDatePicker from "./ui/custom/FormSelectDatePicker.vue";
-import FormNumberField from "./ui/custom/FormNumberField.vue";
 import FormTextArea from "./ui/custom/FormTextArea.vue";
 
-interface CausalityAssessmentLevel {
-	id: string;
-	adr_id: string;
-	ml_model_id: string;
-	causality_assessment_level_value: CausalityAssessmentLevelEnum;
-	prediction_reason: string;
-	created_at: string;
-	updated_at: string;
+const medicalInstitutionData =
+	ref<MedicalInstitutionGetResponseInterface | null>();
+const medicalInstitutionId = ref<string | undefined>();
+const isCreateMedicalInstitutionDialogOpen = ref(false);
+
+function handleMedicalInstitutionFormSubmitted(
+	success: boolean,
+	medicalInstitutionIdFromForm?: string
+) {
+	if (success) {
+		isCreateMedicalInstitutionDialogOpen.value = false; // ✅ Close the dialog only if successful
+		medicalInstitutionId.value = medicalInstitutionIdFromForm;
+		setFieldValue("medicalInstitutionId", medicalInstitutionId.value);
+	} else {
+		isCreateMedicalInstitutionDialogOpen.value = true;
+	}
 }
 
-interface PaginatedCausalityAssessmentLevel {
-	items?: CausalityAssessmentLevel[];
-	total: number;
-	page: number;
-	size: number;
-	pages: number;
-}
+watchEffect(async () => {
+	const runtimeConfig = useRuntimeConfig();
+	const serverApi = runtimeConfig.public.serverApi;
+	const authStore = useAuthStore();
+
+	if (medicalInstitutionId.value) {
+		const { data, status, error } =
+			await useFetch<MedicalInstitutionGetResponseInterface>(
+				`${serverApi}/medical_institution/${medicalInstitutionId.value}`,
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authStore.accessToken}`,
+					},
+				}
+			);
+
+		medicalInstitutionData.value = data.value;
+	}
+});
 
 // Lifecycle hooks
 onMounted(async () => {
@@ -273,7 +391,7 @@ onMounted(async () => {
 	// If there is an id
 	if (props.id) {
 		// Get existing data
-		const response = await $fetch<typeValidationSchema>(
+		const response = await $fetch<adrFormTypeValidationSchema>(
 			`${serverApi}/adr/${props.id}`,
 			{
 				method: "GET",
@@ -284,17 +402,17 @@ onMounted(async () => {
 		);
 
 		// Pre-fill form
-		const camel = humps.camelizeKeys(response) as typeValidationSchema;
+		const camel = humps.camelizeKeys(
+			response
+		) as adrFormTypeValidationSchema;
 
 		for (const key of Object.keys(camel) as Array<
-			keyof typeValidationSchema
+			keyof adrFormTypeValidationSchema
 		>) {
 			setFieldValue(key, camel[key]);
 		}
 	}
 });
-
-type typeValidationSchema = z.infer<typeof adrFormValidationSchema>;
 
 const {
 	values,
@@ -421,19 +539,18 @@ const onSubmit = handleSubmit(async (values) => {
 				data: calData,
 				status: calStatus,
 				error,
-			} = await useFetch<PaginatedCausalityAssessmentLevel>(
-				`${serverApi}/adr/${data.value.id}/causality_assessment_level`,
-				{
-					method: "GET",
-					headers: {
-						Authorization: `Bearer ${authStore.accessToken}`,
-					},
-					params: {
-						page: 1,
-						size: 50,
-					},
-				}
-			);
+			} = await useFetch<
+				PaginatedResponseInterface<CausalityAssessmentLevelGetResponseInterface>
+			>(`${serverApi}/adr/${data.value.id}/causality_assessment_level`, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+				params: {
+					page: 1,
+					size: 50,
+				},
+			});
 
 			if (calStatus.value == "success" && calData.value?.items) {
 				navigateTo(
@@ -458,19 +575,18 @@ const onSubmit = handleSubmit(async (values) => {
 				data: calData,
 				status: calStatus,
 				error,
-			} = await useFetch<PaginatedCausalityAssessmentLevel>(
-				`${serverApi}/adr/${data.value.id}/causality_assessment_level`,
-				{
-					method: "GET",
-					headers: {
-						Authorization: `Bearer ${authStore.accessToken}`,
-					},
-					params: {
-						page: 1,
-						size: 50,
-					},
-				}
-			);
+			} = await useFetch<
+				PaginatedResponseInterface<CausalityAssessmentLevelGetResponseInterface>
+			>(`${serverApi}/adr/${data.value.id}/causality_assessment_level`, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+				params: {
+					page: 1,
+					size: 50,
+				},
+			});
 
 			if (calStatus.value == "success" && calData.value?.items) {
 				navigateTo(

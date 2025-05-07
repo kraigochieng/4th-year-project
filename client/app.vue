@@ -8,6 +8,17 @@
 	</div>
 </template>
 
+<script setup lang="ts">
+useHead({
+	meta: [
+		{
+			name: "viewport",
+			content: "width=device-width, initial-scale=1.0",
+		},
+	],
+});
+</script>
+
 <style lang="css">
 * {
 	font-family: "Inter";
@@ -70,6 +81,6 @@ html {
 }
 
 .badge {
-	@apply text-xs font-semibold py-1 px-2 text-white rounded-full
+	@apply text-xs font-semibold py-1 px-2 text-white rounded-full;
 }
 </style>

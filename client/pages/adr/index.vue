@@ -25,7 +25,7 @@ import TableActionsAdr from "@/components/table/actions/Adr.vue";
 import { useAuthStore } from "@/stores/auth";
 
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
-import type { ADRInterface } from "@/types/adr";
+import type { ADRGetResponseInterface } from "@/types/adr";
 import type { PaginatedResponseInterface } from "@/types/pagination";
 import { type ColumnDef } from "@tanstack/vue-table";
 
@@ -33,7 +33,9 @@ import { type ColumnDef } from "@tanstack/vue-table";
 const authStore = useAuthStore();
 
 // Create reactive variables for data, status, and error
-const data = ref<PaginatedResponseInterface<ADRInterface> | null>(null);
+const data = ref<PaginatedResponseInterface<ADRGetResponseInterface> | null>(
+	null
+);
 const status = ref<"pending" | "success" | "error">("pending");
 const error = ref<string | null>(null);
 
@@ -85,7 +87,7 @@ const handlePageSizeChange = (size: number) => {
 	currentPage.value = 1;
 };
 
-const columns: ColumnDef<ADRInterface>[] = [
+const columns: ColumnDef<ADRGetResponseInterface>[] = [
 	{
 		id: "select",
 		header: ({ table }) =>

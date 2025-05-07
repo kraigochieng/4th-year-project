@@ -95,26 +95,9 @@
 </template>
 
 <script setup lang="ts">
-// Types
-interface ADRFull {
-	id: string;
-	patient_id: string;
-	user_id: string;
-	gender: GenderEnum;
-	pregnancy_status: PregnancyStatusEnum;
-	known_allergy: KnownAllergyEnum;
-	rechallenge: RechallengeEnum;
-	dechallenge: DechallengeEnum;
-	severity: SeverityEnum;
-	is_serious: IsSeriousEnum;
-	criteria_for_seriousness: CriteriaForSeriousnessEnum;
-	action_taken: ActionTakenEnum;
-	outcome: OutcomeEnum;
-	created_at: string; // ISO 8601 timestamp
-	updated_at: string; // ISO 8601 timestamp
-}
+import type { ADRGetResponseInterface } from "@/types/adr";
 
-const props = defineProps<{ data?: ADRFull }>();
+const props = defineProps<{ data?: ADRGetResponseInterface }>();
 const router = useRouter();
 const authStore = useAuthStore();
 
