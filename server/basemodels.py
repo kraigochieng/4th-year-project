@@ -1,6 +1,6 @@
 import enum
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Optional, Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -168,21 +168,35 @@ class ReviewGetResponse(BaseModel):
 
 
 # CAL
-class CausalityAssessmentLevelGetResponse2(BaseModel):
-    id: str
-    adr_id: str
-    ml_model_id: str
-    causality_assessment_level_value: CausalityAssessmentLevelEnum
-    prediction_reason: str | None = None
+# class CausalityAssessmentLevelGetResponse2(BaseModel):
+#     id: str
+#     adr_id: str
+#     ml_model_id: str
+#     causality_assessment_level_value: CausalityAssessmentLevelEnum
+#     prediction_reason: str | None = None
+
+
+# class CausalityAssessmentLevelGetResponse(BaseModel):
+#     id: str
+#     adr_id: str
+#     ml_model_id: str
+#     causality_assessment_level_value: CausalityAssessmentLevelEnum
+#     prediction_reason: str | None = None
+#     reviews: List[ReviewGetResponse] = []
 
 
 class CausalityAssessmentLevelGetResponse(BaseModel):
     id: str
     adr_id: str
-    ml_model_id: str
+    ml_model_id: str = "final_ml_model@champion"
     causality_assessment_level_value: CausalityAssessmentLevelEnum
-    prediction_reason: str | None = None
-    reviews: List[ReviewGetResponse] = []
+
+    base_values: Optional[List[float]] = None
+    shap_values_matrix: Optional[List[List[float]]] = None
+    shap_values_sum_per_class: Optional[List[float]] = None
+    shap_values_and_base_values_sum_per_class: Optional[List[float]] = None
+    feature_names: Optional[List[str]] = None
+    feature_values: Optional[List[Any]] = None
 
 
 # ADR

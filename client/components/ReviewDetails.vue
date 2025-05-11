@@ -5,7 +5,7 @@
 		</CardHeader>
 		<CardContent>
 			<div class="view-details-wrapper">
-				<p>Vote</p>
+				<p>My Vote</p>
 				<p><ApprovedBadge :is-approved="data?.approved" /></p>
 			</div>
 		</CardContent>

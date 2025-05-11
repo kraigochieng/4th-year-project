@@ -32,7 +32,7 @@ from basemodels import (
     ADRReviewCreateRequest,
     ADRReviewGetResponse,
     CausalityAssessmentLevelEnum,
-    CausalityAssessmentLevelGetResponse2,
+    CausalityAssessmentLevelGetResponse,
     CriteriaForSeriousnessEnum,
     DechallengeEnum,
     GenderEnum,
@@ -92,12 +92,108 @@ ARTIFACTS_DIR = f"./{settings.mlflow_model_artifacts_path}"
 MEDICAL_INSTITUTION_CSV_PATH = "medical_institutions.csv"
 
 logging.basicConfig(level=logging.INFO)
-
+logging.getLogger("shap").setLevel(logging.WARNING)
 explainer: KernelExplainer = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # ML Model Artifacts
+    if not os.path.exists(ARTIFACTS_DIR):
+        try:
+            logging.info("Downloading ML Model Artifacts")
+
+            # Tracking URI
+            mlflow.set_tracking_uri(
+                f"http://{settings.mlflow_tracking_server_host}:{settings.mlflow_tracking_server_port}"
+            )
+
+            # Credentials
+            # Set MinIO Credentials
+            os.environ["AWS_ACCESS_KEY_ID"] = settings.minio_access_key
+            os.environ["AWS_SECRET_ACCESS_KEY"] = settings.minio_secret_access_key
+            os.environ["AWS_DEFAULT_REGION"] = settings.aws_region
+
+            os.environ["MLFLOW_S3_ENDPOINT_URL"] = (
+                f"http://{settings.minio_host}:{settings.minio_api_port}"
+            )
+
+            # Test if credentials are set correctly
+            boto3.client(
+                "s3",
+                endpoint_url=os.getenv("MLFLOW_S3_ENDPOINT_URL"),
+            )
+
+            mlflow_client = MlflowClient()
+
+            ml_model_version = mlflow_client.get_model_version_by_alias(
+                settings.mlflow_model_name, settings.mlflow_model_alias
+            )
+
+            ml_model_run_id = ml_model_version.run_id
+
+            logging.info(
+                f"✅ Retrieved model version {ml_model_version.version} (run_id: {ml_model_run_id})"
+            )
+
+            # 2️⃣ List available artifacts
+            artifacts = mlflow_client.list_artifacts(ml_model_run_id)
+            if not artifacts:
+                logging.warning("No artifacts found for this model.")
+            else:
+                logging.info(
+                    f"Available artifacts: {[artifact.path for artifact in artifacts]}"
+                )
+
+            # 3️⃣ Ensure local artifacts directory exists
+            os.makedirs(ARTIFACTS_DIR, exist_ok=True)
+            mlflow_client.download_artifacts(
+                ml_model_run_id,
+                "",
+                dst_path=ARTIFACTS_DIR,
+            )
+            logging.info("Downloaded ML Model Artifacts")
+
+        except Exception as e:
+            logging.error(f"Error during ML model retrieval: {e}")
+
+    else:
+        logging.info("Skipping artifact download")
+
+    # Explain with SHAP
+    logging.info("SHAP Explainer Setup Started...")
+
+    number_of_rows = 100
+
+    ml_model = get_ml_model()
+
+    one_hot_encoder, _ = get_encoders()
+
+    categorical_columns = get_categorical_columns()
+
+    prediction_columns = get_prediction_columns()
+
+    # Get Background Data
+    background_data_csv = "data.csv"
+    background_data_df = pd.read_csv(background_data_csv)
+    background_data_df = background_data_df[categorical_columns]
+
+    cat_encoded_background = one_hot_encoder.transform(background_data_df)
+    cat_encoded_background = pd.DataFrame(
+        cat_encoded_background,
+        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
+    )
+
+    background_data_for_prediction = cat_encoded_background[prediction_columns]
+    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+
+    global explainer
+    explainer = shap.KernelExplainer(
+        ml_model.predict_proba,
+        shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
+    )
+    logging.info("SHAP Explainer Setup Finished...")
+
     # Create tables once before the app starts
     try:
         Base.metadata.create_all(engine)
@@ -228,13 +324,39 @@ async def lifespan(app: FastAPI):
         logging.info("ADR inserted successfully.")
         # Now that adr_entries have IDs, link them to causality entries
         for adr_entry, record in zip(adr_entries, adr_df.to_dict(orient="records")):
+            # Prepare prediction input
+            temp_df = pd.DataFrame([record])
+            cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
+            cat_encoded = pd.DataFrame(
+                cat_encoded,
+                columns=one_hot_encoder.get_feature_names_out(categorical_columns),
+            )
+            prediction_input = cat_encoded[prediction_columns]
+
+            # SHAP explanation
+            shap_values = explainer(prediction_input)
+            logging.info("Generating SHAP values for ADR values...")
+            base_values = list(shap_values.base_values[0])
+            shap_values_matrix = shap_values.values[0].tolist()
+            shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
+            shap_values_and_base_values_sum_per_class = list(
+                np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
+            )
+            feature_names = prediction_input.columns.tolist()
+            feature_values = prediction_input.iloc[0].tolist()
+
             causality_entry = CausalityAssessmentLevelModel(
                 adr_id=adr_entry.id,
                 ml_model_id="final_ml_model@champion",
                 causality_assessment_level_value=CausalityAssessmentLevelEnum(
                     record["causality_assessment_level"]
                 ),
-                prediction_reason=None,
+                base_values=base_values,
+                shap_values_matrix=shap_values_matrix,
+                shap_values_sum_per_class=shap_values_sum_per_class,
+                shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
+                feature_names=feature_names,
+                feature_values=feature_values,
             )
             causality_entries.append(causality_entry)
 
@@ -331,101 +453,6 @@ async def lifespan(app: FastAPI):
     #     logging.info("ADR data already exists. Skipping CSV insertion.")
 
     session.close()
-
-    if not os.path.exists(ARTIFACTS_DIR):
-        try:
-            logging.info("Downloading ML Model Artifacts")
-
-            # Tracking URI
-            mlflow.set_tracking_uri(
-                f"http://{settings.mlflow_tracking_server_host}:{settings.mlflow_tracking_server_port}"
-            )
-
-            # Credentials
-            # Set MinIO Credentials
-            os.environ["AWS_ACCESS_KEY_ID"] = settings.minio_access_key
-            os.environ["AWS_SECRET_ACCESS_KEY"] = settings.minio_secret_access_key
-            os.environ["AWS_DEFAULT_REGION"] = settings.aws_region
-
-            os.environ["MLFLOW_S3_ENDPOINT_URL"] = (
-                f"http://{settings.minio_host}:{settings.minio_api_port}"
-            )
-
-            # Test if credentials are set correctly
-            boto3.client(
-                "s3",
-                endpoint_url=os.getenv("MLFLOW_S3_ENDPOINT_URL"),
-            )
-
-            mlflow_client = MlflowClient()
-
-            ml_model_version = mlflow_client.get_model_version_by_alias(
-                settings.mlflow_model_name, settings.mlflow_model_alias
-            )
-
-            ml_model_run_id = ml_model_version.run_id
-
-            logging.info(
-                f"✅ Retrieved model version {ml_model_version.version} (run_id: {ml_model_run_id})"
-            )
-
-            # 2️⃣ List available artifacts
-            artifacts = mlflow_client.list_artifacts(ml_model_run_id)
-            if not artifacts:
-                logging.warning("No artifacts found for this model.")
-            else:
-                logging.info(
-                    f"Available artifacts: {[artifact.path for artifact in artifacts]}"
-                )
-
-            # 3️⃣ Ensure local artifacts directory exists
-            os.makedirs(ARTIFACTS_DIR, exist_ok=True)
-            mlflow_client.download_artifacts(
-                ml_model_run_id,
-                "",
-                dst_path=ARTIFACTS_DIR,
-            )
-            logging.info("Downloaded ML Model Artifacts")
-
-        except Exception as e:
-            logging.error(f"Error during ML model retrieval: {e}")
-
-    else:
-        logging.info("Skipping artifact download")
-
-    # Explain with SHAP
-    logging.info("SHAP Explainer Setup Started...")
-
-    number_of_rows = 100
-
-    ml_model = get_ml_model()
-
-    one_hot_encoder, _ = get_encoders()
-
-    categorical_columns = get_categorical_columns()
-
-    prediction_columns = get_prediction_columns()
-
-    # Get Background Data
-    background_data_csv = "data.csv"
-    background_data_df = pd.read_csv(background_data_csv)
-    background_data_df = background_data_df[categorical_columns]
-
-    cat_encoded_background = one_hot_encoder.transform(background_data_df)
-    cat_encoded_background = pd.DataFrame(
-        cat_encoded_background,
-        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
-    )
-
-    background_data_for_prediction = cat_encoded_background[prediction_columns]
-    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
-
-    global explainer
-    explainer = shap.KernelExplainer(
-        ml_model.predict_proba,
-        shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
-    )
-    logging.info("SHAP Explainer Setup Finished...")
 
     yield
 
@@ -702,32 +729,40 @@ async def post_adr(
     db.commit()
     db.refresh(adr_model)
 
+    # SHAP
+    # background_data_for_prediction = cat_encoded_background[prediction_columns]
+    # background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+
+    global explainer
+
+    shap_values = explainer(prediction_input)
+
+    base_values = list(shap_values.base_values[0])
+    shap_values_matrix = shap_values.values[0].tolist()
+    shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
+    shap_values_and_base_values_sum_per_class = list(
+        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
+    )
+    feature_names = prediction_input.columns.tolist()
+    feature_values = prediction_input.iloc[0].tolist()
+
     # Add causality assessment level
     casuality_assessment_level_model = CausalityAssessmentLevelModel(
         adr_id=adr_model.id,
         causality_assessment_level_value=CausalityAssessmentLevelEnum(
             decoded_prediction
         ),
+        base_values=base_values,
+        shap_values_matrix=shap_values_matrix,
+        shap_values_sum_per_class=shap_values_sum_per_class,
+        shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
+        feature_names=feature_names,
+        feature_values=feature_values,
     )
 
     db.add(casuality_assessment_level_model)
     db.commit()
     db.refresh(casuality_assessment_level_model)
-
-    background_data_for_prediction = cat_encoded_background[prediction_columns]
-    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
-
-    global explainer
-
-    shap_values = explainer(prediction_input)
-
-    expected_values = list(shap_values.base_values[0])
-
-    shap_values_per_class = np.sum(shap_values.values[0], axis=0).tolist()
-
-    predicted_shap_values = list(
-        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
-    )
     # Send individual alert when certain
     if CausalityAssessmentLevelEnum(decoded_prediction).value in [
         CausalityAssessmentLevelEnum.certain.value,
@@ -807,25 +842,25 @@ async def post_adr(
     # To load the causality assessment levels
     content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
 
-    # return JSONResponse(
-    #     content=jsonable_encoder(content),
-    #     status_code=status.HTTP_201_CREATED,
-    # )
-
     return JSONResponse(
-        content=jsonable_encoder(
-            {
-                "adr_record": content,
-                "shap_explanation": {
-                    "expected_values": expected_values,
-                    "shap_values_per_class": shap_values_per_class,
-                    "predicted_shap_values": predicted_shap_values,
-                    "shap_value_matrix": shap_values.values[0].tolist(),
-                },
-            }
-        ),
+        content=jsonable_encoder(content),
         status_code=status.HTTP_201_CREATED,
     )
+
+    # return JSONResponse(
+    #     content=jsonable_encoder(
+    #         {
+    #             "adr_record": content,
+    #             "shap_explanation": {
+    #                 "expected_values": base_values,
+    #                 "shap_values_per_class": shap_values_per_class,
+    #                 "predicted_shap_values": predicted_shap_values,
+    #                 "shap_value_matrix": shap_values.values[0].tolist(),
+    #             },
+    #         }
+    #     ),
+    #     status_code=status.HTTP_201_CREATED,
+    # )
 
 
 @app.put("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
@@ -879,10 +914,35 @@ async def update_adr(
         .first()
     )
 
+    # SHAP
+    # background_data_for_prediction = cat_encoded_background[prediction_columns]
+    # background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+
+    global explainer
+
+    shap_values = explainer(prediction_input)
+
+    base_values = list(shap_values.base_values[0])
+    shap_values_matrix = shap_values.values[0].tolist()
+    shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
+    shap_values_and_base_values_sum_per_class = list(
+        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
+    )
+    feature_names = prediction_input.columns.tolist()
+    feature_values = prediction_input.iloc[0].tolist()
+
     if causality_record:
         causality_record.causality_assessment_level_value = (
             CausalityAssessmentLevelEnum(decoded_prediction)
         )
+        causality_record.base_values = base_values
+        causality_record.shap_values_matrix = shap_values_matrix
+        causality_record.shap_values_sum_per_class = shap_values_sum_per_class
+        causality_record.shap_values_and_base_values_sum_per_class = (
+            shap_values_and_base_values_sum_per_class
+        )
+        causality_record.feature_names = feature_names
+        causality_record.feature_values = feature_values
         db.commit()
         db.refresh(causality_record)
     else:
@@ -891,6 +951,12 @@ async def update_adr(
             causality_assessment_level_value=CausalityAssessmentLevelEnum(
                 decoded_prediction
             ),
+            base_values=base_values,
+            shap_values_matrix=shap_values_matrix,
+            shap_values_sum_per_class=shap_values_sum_per_class,
+            shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
+            feature_names=feature_names,
+            feature_values=feature_values,
         )
         db.add(new_causality)
         db.commit()
@@ -964,7 +1030,7 @@ async def get_causality_assessment_level_by_id(
 
 @app.get(
     "/api/v1/adr/{adr_id}/causality_assessment_level",
-    response_model=Page[CausalityAssessmentLevelGetResponse2],
+    response_model=Page[CausalityAssessmentLevelGetResponse],
     status_code=status.HTTP_200_OK,
 )
 def get_causality_assessment_levels_for_adr(

@@ -29,6 +29,7 @@ from sqlalchemy import (
     LargeBinary,
     String,
     Uuid,
+    JSON,
 )
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import declarative_base, relationship
@@ -160,7 +161,13 @@ class CausalityAssessmentLevelModel(Base, IDMixin, TimestampMixin):
     causality_assessment_level_value = Column(
         SQLAlchemyEnum(CausalityAssessmentLevelEnum), nullable=False
     )
-    prediction_reason = Column(String, nullable=True)
+
+    base_values = Column(JSON, nullable=True)
+    shap_values_matrix = Column(JSON, nullable=True)
+    shap_values_sum_per_class = Column(JSON, nullable=True)
+    shap_values_and_base_values_sum_per_class = Column(JSON, nullable=True)
+    feature_names = Column(JSON, nullable=True)
+    feature_values = Column(JSON, nullable=True)
 
     reviews = relationship(
         "ReviewModel",
