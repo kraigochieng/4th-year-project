@@ -1,6 +1,14 @@
 <template>
+	<p class="font-bold text-lg">{{ props.title }}</p>
 	<div class="flex items-center justify-between content-end py-4">
-		<p>{{ props.title }}</p>
+		<div v-if="$slots.selectionActions" class="flex items-center space-x-2">
+			<slot
+				name="selectionActions"
+				:allSelected="table.getIsAllPageRowsSelected()"
+				:someSelected="table.getIsSomePageRowsSelected()"
+				:selectedRows="table.getSelectedRowModel().rows"
+			></slot>
+		</div>
 		<Select v-model="selectedPageSize">
 			<SelectTrigger class="w-max">
 				<SelectValue placeholder="Show number of pages" />

@@ -96,7 +96,7 @@
 									<NuxtLink
 										to="/communication/individual-alerts"
 									>
-										IndividualAlerts
+										Individual Alerts
 									</NuxtLink>
 								</NavigationMenuLink>
 							</li>

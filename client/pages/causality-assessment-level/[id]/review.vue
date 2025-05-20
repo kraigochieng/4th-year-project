@@ -9,8 +9,10 @@
 		<Tabs default-value="review">
 			<div class="w-max mx-auto">
 				<TabsList>
-					<TabsTrigger value="adr">ADR Details</TabsTrigger>
-					<TabsTrigger value="review">Review</TabsTrigger>
+					<TabsTrigger value="adr"
+						>Adverse Drug Reaction Report Details</TabsTrigger
+					>
+					<TabsTrigger value="review">Review Form</TabsTrigger>
 				</TabsList>
 			</div>
 
@@ -19,6 +21,9 @@
 			</TabsContent>
 			<TabsContent value="review">
 				<ADRReviewForm
+					:predicted_causality_assessment_level="
+						calData?.causality_assessment_level_value
+					"
 					:causality_assessment_level_id="calData?.id"
 					:mode="mode"
 				/>
@@ -151,12 +156,11 @@ watchEffect(async () => {
 
 			smsData.value.items?.map((sms) => {
 				toast({
-					title: sms.status,
-					description: sms.content,
+					title: `${sms.status} - `,
+					description: `Number: ${sms.number}\nMessage: ${sms.content}`,
 				});
 			});
 			smsStatus.value = "success";
-			
 		} catch (error) {
 			smsError.value = error;
 			smsStatus.value = "error";

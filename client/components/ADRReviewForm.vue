@@ -19,11 +19,7 @@
 						<FormRadio
 							name="proposedCausalityLevel"
 							label="Proposed Causality Level"
-							:options="
-								reviewFormCategoricalValues[
-									'proposedCausalityLevel'
-								]
-							"
+							:options="filteredCausalityOptions"
 							description="Proposed Level of Causality for you disapprove of the predicition"
 						/>
 						<FormTextArea
@@ -46,13 +42,16 @@
 
 <script setup lang="ts">
 // Imports
+import type { ReviewPostResponse } from "@/types/review";
 import humps from "humps";
 import * as z from "zod";
 import FormRadio from "./ui/custom/FormRadio.vue";
 import FormSwitch from "./ui/custom/FormSwitch.vue";
 import FormTextArea from "./ui/custom/FormTextArea.vue";
+import type { CausalityAssessmentLevelEnum } from "@/types/adr";
 
 const props = defineProps<{
+	predicted_causality_assessment_level?: CausalityAssessmentLevelEnum;
 	causality_assessment_level_id?: string;
 	mode: "create" | "update";
 }>();
@@ -82,7 +81,7 @@ const [reason, reasonAttrs] = defineField("reason");
 // Form Submission
 const onSubmit = handleSubmit(async (values) => {
 	try {
-		const response = await $fetch(
+		const response = await $fetch<ReviewPostResponse>(
 			`${
 				useRuntimeConfig().public.serverApi
 			}/causality_assessment_level/${
@@ -98,7 +97,7 @@ const onSubmit = handleSubmit(async (values) => {
 			}
 		);
 		console.log("Form submitted successfully:", response);
-		navigateTo("/review");
+		navigateTo(`/review/${response.id}`);
 	} catch (error) {
 		console.error("Error submitting form:", error);
 	}
@@ -136,4 +135,12 @@ onMounted(async () => {
 		}
 	}
 });
+
+const filteredCausalityOptions = computed(() => {
+	return reviewFormCategoricalValues.proposedCausalityLevel.filter(
+		(option) => option.value !== props.predicted_causality_assessment_level
+	);
+});
+
+console.log(filteredCausalityOptions)
 </script>

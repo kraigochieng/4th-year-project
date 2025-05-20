@@ -1,4 +1,7 @@
 <template>
+	<ClientOnly>
+		<Toaster />
+	</ClientOnly>
 	<div>
 		<NuxtLayout>
 			<NuxtPage />
@@ -82,5 +85,9 @@ html {
 
 .badge {
 	@apply text-xs font-semibold py-1 px-2 text-white rounded-full;
+}
+
+.form-section-header-icon {
+	@apply w-6 h-6 text-gray-300;
 }
 </style>

@@ -4,12 +4,12 @@
 			<CardHeader>
 				<CardTitle>
 					{{ props.mode == "create" ? "Add" : "Edit" }} an Adverse
-					Drug Reaction Report (ADR)
+					Drug Reaction (ADR) Report
 				</CardTitle>
-				<CardDescription
-					>Add an Adverse Drug Reaction Report so that the ML Model
-					can predict it</CardDescription
-				>
+				<CardDescription>
+					Add an Adverse Drug Reaction Report so that the ML Model can
+					predict it
+				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<div
@@ -34,39 +34,45 @@
 								</p>
 								<p>
 									<a href="#suspected-adverse-reaction">
-										1. Suspected Adverse Reaction
+										3. Suspected Adverse Reaction
 									</a>
 								</p>
 								<p>
-									<a href="#rechallenge"
-										>3. Rechallenge/Dechallenge</a
+									<a href="#rechallenge">
+										4. Rechallenge/Dechallenge
+									</a>
+								</p>
+								<p>
+									<a href="#grading">
+										5. Grading of the Event</a
 									>
 								</p>
 								<p>
-									<a href="#grading"
-										>3. Grading of the Event</a
-									>
-								</p>
-								<p>
-									<a href="#submit"
-										>4.
+									<a href="#submit">
+										6.
 										{{
 											props.mode == "create"
 												? "Add Adr"
 												: "Edit ADR"
 										}}
-										Button</a
-									>
+										Button
+									</a>
 								</p>
 							</div>
 						</PopoverContent>
 					</Popover>
 				</div>
 				<div class="form-section">
-					<div class="flex items-center justify-between space-x-2">
+					<div class="flex items-center gap-x-2">
+						<Icon
+							name="lucide:hospital"
+							class="form-section-header-icon"
+						/>
 						<p id="institution-details" class="form-section-header">
 							1. Institution Details
 						</p>
+					</div>
+					<div class="flex items-center justify-between space-x-2">
 						<div class="flex space-x-1">
 							<Dialog
 								v-model:open="
@@ -95,7 +101,7 @@
 										>find</span
 									>
 								</DialogTrigger>
-								<DialogContent>
+								<DialogScrollContent>
 									<DialogHeader>
 										<DialogTitle>
 											Choose an existing Medical
@@ -104,8 +110,64 @@
 										<DialogDescription>
 											Search for a medical institution
 										</DialogDescription>
+										<div>
+											<Input
+												type="text"
+												placeholder="Seach for a hospital, minimum 3 characters, by name, MFL Code or location"
+												v-model="
+													medicalInstitutionSearchInput
+												"
+											/>
+											<div
+												v-if="
+													medicalInstitutionList &&
+													medicalInstitutionList.length >
+														0
+												"
+											>
+												<RadioGroup
+													v-model="
+														medicalInstitutionId
+													"
+												>
+													<div
+														v-for="medicalInstitution in medicalInstitutionList"
+													>
+														<RadioGroupItem
+															:id="
+																medicalInstitution.id
+															"
+															:value="
+																medicalInstitution.id
+															"
+														/>
+														<Label
+															:for="
+																medicalInstitution.id
+															"
+														>
+															{{
+																medicalInstitution.name
+															}}
+															|
+															{{
+																medicalInstitution.mfl_code
+															}}</Label
+														>
+													</div>
+												</RadioGroup>
+											</div>
+											<div
+												v-if="
+													medicalInstitutionList?.length ==
+													0
+												"
+											>
+												No hospitals
+											</div>
+										</div>
 									</DialogHeader>
-								</DialogContent>
+								</DialogScrollContent>
 							</Dialog>
 							<span>a Medical Institution</span>
 						</div>
@@ -143,12 +205,25 @@
 							</p>
 						</div>
 					</div>
+					<p
+						v-if="!medicalInstitutionData"
+						class="italic text-gray-400 text-center my-4"
+					>
+						No medical institution created/chosen
+					</p>
 				</div>
 				<Separator class="my-4" />
 				<div class="form-section">
-					<p id="patient-details" class="form-section-header">
-						2. Patient Details
-					</p>
+					<div class="flex items-center gap-x-2">
+						<Icon
+							name="lucide:user-round"
+							class="form-section-header-icon"
+						/>
+						<p id="patient-details" class="form-section-header">
+							2. Patient Details
+						</p>
+					</div>
+
 					<FormInput
 						type="text"
 						name="patientName"
@@ -345,8 +420,38 @@ import FormTextArea from "./ui/custom/FormTextArea.vue";
 
 const medicalInstitutionData =
 	ref<MedicalInstitutionGetResponseInterface | null>();
+const medicalInstitutionList = ref<
+	MedicalInstitutionGetResponseInterface[] | null
+>();
 const medicalInstitutionId = ref<string | undefined>();
+const medicalInstitutionSearchInput = ref<string>("");
 const isCreateMedicalInstitutionDialogOpen = ref(false);
+const authStore = useAuthStore();
+
+watchEffect(async () => {
+	if (medicalInstitutionSearchInput.value.length >= 3) {
+		console.log(medicalInstitutionSearchInput.value);
+
+		const { data, status, error } = await useFetch<
+			PaginatedResponseInterface<MedicalInstitutionGetResponseInterface>
+		>(`${useRuntimeConfig().public.serverApi}/medical_institution`, {
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${authStore.accessToken}`,
+			},
+			params: {
+				query: medicalInstitutionSearchInput.value,
+				size: 10,
+			},
+		});
+
+		if (data.value?.items) {
+			medicalInstitutionList.value = data.value?.items;
+		} else {
+			medicalInstitutionList.value = [];
+		}
+	}
+});
 
 function handleMedicalInstitutionFormSubmitted(
 	success: boolean,
@@ -367,6 +472,8 @@ watchEffect(async () => {
 	const authStore = useAuthStore();
 
 	if (medicalInstitutionId.value) {
+		setFieldValue("medicalInstitutionId", medicalInstitutionId.value);
+
 		const { data, status, error } =
 			await useFetch<MedicalInstitutionGetResponseInterface>(
 				`${serverApi}/medical_institution/${medicalInstitutionId.value}`,

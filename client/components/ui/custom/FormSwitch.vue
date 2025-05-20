@@ -16,7 +16,9 @@
 					@update:model-value="handleChange"
 				/>
 			</FormControl>
+			
 		</FormItem>
+		<FormMessage />
 	</FormField>
 </template>
 

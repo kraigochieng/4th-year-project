@@ -1,6 +1,6 @@
 export type SMSMessageTypeEnum =
 	| "individual alert"
-	| "bulk alert"
+	// | "bulk alert"
 	| "additional info";
 
 export interface SMSMessageGetResponse {
@@ -18,9 +18,10 @@ export interface SMSMessageGetResponse {
 
 export interface SMSMessageCountGetResponse {
 	adr_id: string;
-	sms_type: SMSMessageTypeEnum;
 	medical_institution_mfl_code: string;
 	medical_institution_name: string;
 	patient_name: string;
 	sms_count: number;
+	created_at: string;
+	telephones: []
 }

@@ -1,72 +1,89 @@
 <template>
-	<div class="page-wrapper">
-		<p>ADRs</p>
-		<div>
-			<h1>Project Description</h1>
-			<p>Maybe use diagrams</p>
+	<section class="container mx-auto px-4 py-12">
+		<!-- Header -->
+		<div class="text-center mb-12">
+			<h1 class="text-4xl font-bold mb-4">
+				ML Driven Causality Assessment with Explainable Predictions
+			</h1>
+			<p class="text-muted-foreground text-lg max-w-2xl mx-auto">
+				Understand drug safety insights using AI-powered causality
+				assessments.
+			</p>
 		</div>
-		<div>
-			<h1>FAQs</h1>
-			<p>What is an ADR?</p>
-			<p>What is a Causality Assessment?</p>
-			<p>How is the ML Model Working?</p>
-			<p>What is the need for ?</p>
 
-			<div class="flex">
-				<div class="text-xl">
-					<p class="text-border">Border</p>
-					<p class="text-input">Input</p>
-					<p class="text-ring">Ring</p>
-					<p class="text-background">Background</p>
-					<p class="text-foreground">Foreground</p>
-					<p class="text-primary">Primary</p>
-					<p class="text-primary-foreground">Primary Foreground</p>
-					<p class="text-secondary">Secondary</p>
-					<p class="text-secondary-foreground">
-						Secondary Foreground
+		<!-- Hero Image -->
+		<!-- <div class="mb-16 flex justify-center">
+			<img
+				src="/images/microscope.jpg"
+				alt="Microscope close-up"
+				class="rounded-xl shadow-md w-full max-w-3xl object-cover"
+			/>
+		</div> -->
+
+		<!-- FAQs Section -->
+		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+			<Card>
+				<CardHeader class="flex items-center gap-4">
+					<Icon
+						name="lucide:octagon-alert"
+						class="w-6 h-6 text-destructive"
+					/>
+					<CardTitle>What is an ADR?</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="text-muted-foreground">
+						An ADR (Adverse Drug Reaction) is a harmful or
+						unintended response to a medication. It occurs even when
+						a drug is used correctly.
 					</p>
-					<p class="text-destructive">Destructive</p>
-					<p class="text-destructive-foreground">
-						Destructive Foreground
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader class="flex items-center gap-4">
+					<Icon name="lucide:brain" class="w-6 h-6 text-primary" />
+					<CardTitle>What is a Causality Assessment?</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="text-muted-foreground">
+						Causality Assessment helps determine the likelihood that
+						a drug caused a specific adverse reaction. It follows
+						structured medical criteria.
 					</p>
-					<p class="text-muted">Muted</p>
-					<p class="text-muted-foreground">Muted Foreground</p>
-					<p class="text-accent">Accent</p>
-					<p class="text-accent-foreground">Accent Foreground</p>
-					<p class="text-popover">Popover</p>
-					<p class="text-popover-foreground">Popover Foreground</p>
-					<p class="text-card">Card</p>
-					<p class="text-card-foreground">Card Foreground</p>
-				</div>
-				<div class="text-xl dark">
-					<p class="text-border">Border</p>
-					<p class="text-input">Input</p>
-					<p class="text-ring">Ring</p>
-					<p class="text-background">Background</p>
-					<p class="text-foreground">Foreground</p>
-					<p class="text-primary">Primary</p>
-					<p class="text-primary-foreground">Primary Foreground</p>
-					<p class="text-secondary">Secondary</p>
-					<p class="text-secondary-foreground">
-						Secondary Foreground
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader class="flex items-center gap-4">
+					<Icon name="lucide:cpu" class="w-6 h-6 text-secondary" />
+					<CardTitle>How is the ML Model Working?</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="text-muted-foreground">
+						Our machine learning model analyzes patient data and
+						symptoms to classify ADRs using explainable AI
+						techniques like SHAP.
 					</p>
-					<p class="text-destructive">Destructive</p>
-					<p class="text-destructive-foreground">
-						Destructive Foreground
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader class="flex items-center gap-4">
+					<Icon name="lucide:circle-help" class="w-6 h-6 text-accent" />
+					<CardTitle>What is the Need for This?</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="text-muted-foreground">
+						Timely ADR identification improves patient safety,
+						reduces drug-related harm, and supports regulatory
+						pharmacovigilance systems.
 					</p>
-					<p class="text-muted">Muted</p>
-					<p class="text-muted-foreground">Muted Foreground</p>
-					<p class="text-accent">Accent</p>
-					<p class="text-accent-foreground">Accent Foreground</p>
-					<p class="text-popover">Popover</p>
-					<p class="text-popover-foreground">Popover Foreground</p>
-					<p class="text-card">Card</p>
-					<p class="text-card-foreground">Card Foreground</p>
-				</div>
-			</div>
+				</CardContent>
+			</Card>
 		</div>
-	</div>
+	</section>
 </template>
 
 <script setup lang="ts">
-useHead({ title: "Home | MediLinda" });</script>
+useHead({ title: "Home | MediLinda" });
+</script>
