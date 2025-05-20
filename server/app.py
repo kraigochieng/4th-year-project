@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 import random
@@ -25,10 +26,10 @@ from auth import (
 from basemodels import (
     ActionTakenEnum,
     ADRBaseModel,
-    ADRBaseModelCreate,
     ADRCreateRequest,
     ADRCreateResponse,
     ADRGetResponse,
+    ADRPostRequest,
     ADRReviewCreateRequest,
     ADRReviewGetResponse,
     CausalityAssessmentLevelEnum,
@@ -36,6 +37,7 @@ from basemodels import (
     CriteriaForSeriousnessEnum,
     DechallengeEnum,
     GenderEnum,
+    IndividualAlertPostRequest,
     IsSeriousEnum,
     KnownAllergyEnum,
     MedicalInstitutionGetResponse,
@@ -79,7 +81,7 @@ from models import (
 from shap import Explanation, KernelExplainer
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
-from sqlalchemy import desc, func
+from sqlalchemy import case, desc, func, text
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session, joinedload, load_only
 from typing_extensions import Annotated, Dict
@@ -94,6 +96,17 @@ MEDICAL_INSTITUTION_CSV_PATH = "medical_institutions.csv"
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("shap").setLevel(logging.WARNING)
 explainer: KernelExplainer = None
+
+
+def safe_date_parse(value):
+    try:
+        if pd.isna(value):
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        return pd.to_datetime(value).date()
+    except Exception:
+        return None
 
 
 @asynccontextmanager
@@ -163,34 +176,102 @@ async def lifespan(app: FastAPI):
     # Explain with SHAP
     logging.info("SHAP Explainer Setup Started...")
 
-    number_of_rows = 100
-
     ml_model = get_ml_model()
 
     one_hot_encoder, _ = get_encoders()
 
-    categorical_columns = get_categorical_columns()
+    column_metadata = get_column_metadata()
 
-    prediction_columns = get_prediction_columns()
+    minmax_scaler = get_scalers()
 
-    # Get Background Data
-    background_data_csv = "data.csv"
-    background_data_df = pd.read_csv(background_data_csv)
-    background_data_df = background_data_df[categorical_columns]
+    categorical_columns = column_metadata["categorical_columns"]
+    numerical_columns = column_metadata["numerical_columns"]
+    date_columns = column_metadata["date_columns"]
+    boolean_columns = column_metadata["boolean_columns"]
+    prediction_columns = column_metadata["prediction_columns"]
 
-    cat_encoded_background = one_hot_encoder.transform(background_data_df)
-    cat_encoded_background = pd.DataFrame(
-        cat_encoded_background,
-        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
+    # Load and preprocess new data
+    new_data_df = pd.read_csv("data.csv")
+    # Feature engineered categorical columns
+    new_data_df["num_suspected_drugs"] = new_data_df[boolean_columns].sum(axis=1)
+
+    for column in categorical_columns:
+        new_data_df[column] = new_data_df[column].astype("category")
+
+    new_data_df["patient_bmi"] = new_data_df["patient_weight_kg"] / (
+        new_data_df["patient_height_cm"] * new_data_df["patient_height_cm"]
     )
 
-    background_data_for_prediction = cat_encoded_background[prediction_columns]
-    background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+    for column in date_columns:
+        new_data_df[column] = pd.to_datetime(new_data_df[column], errors="coerce")
+    # Feature engineered columns
 
+    # Current date for age calculation
+    today = pd.to_datetime("today")
+
+    # Calculate age only where it's missing and dob is available
+    missing_age_mask = (
+        new_data_df["patient_age"].isnull()
+        & new_data_df["patient_date_of_birth"].notnull()
+    )
+
+    new_data_df.loc[missing_age_mask, "patient_age"] = (
+        today - new_data_df.loc[missing_age_mask, "patient_date_of_birth"]
+    ).dt.days // 365
+
+    # Now fill any remaining missing ages (where dob was also missing) with median
+    new_data_df["patient_age"] = new_data_df["patient_age"].fillna(
+        new_data_df["patient_age"].median()
+    )
+
+    drug_names = ["rifampicin", "isoniazid", "pyrazinamide", "ethambutol"]
+    for drug in drug_names:
+        start_col = f"{drug}_start_to_onset_days"
+        stop_col = f"{drug}_stop_to_onset_days"
+        start_stop_col = f"{drug}_start_stop_difference"
+
+        new_data_df[start_col] = (
+            new_data_df["date_of_onset_of_reaction"] - new_data_df[f"{drug}_start_date"]
+        ).dt.days
+        new_data_df[stop_col] = (
+            new_data_df["date_of_onset_of_reaction"] - new_data_df[f"{drug}_stop_date"]
+        ).dt.days
+        new_data_df[start_stop_col] = (
+            new_data_df[f"{drug}_stop_date"] - new_data_df[f"{drug}_start_date"]
+        ).dt.days
+
+    new_data_df[numerical_columns] = new_data_df[numerical_columns].fillna(-1)
+    # One-hot encode categoricals
+    cat_encoded = one_hot_encoder.transform(new_data_df[categorical_columns])
+    cat_encoded_df = pd.DataFrame(
+        cat_encoded, columns=one_hot_encoder.get_feature_names_out(categorical_columns)
+    )
+
+    # Scale numericals
+    scaled_numericals = minmax_scaler.transform(new_data_df[numerical_columns])
+    scaled_numericals_df = pd.DataFrame(scaled_numericals, columns=numerical_columns)
+
+    # Merge all features
+    final_input_df = pd.concat(
+        [
+            cat_encoded_df,
+            new_data_df[boolean_columns].reset_index(drop=True),
+            scaled_numericals_df,
+        ],
+        axis=1,
+    )
+
+    # Reorder to match training time
+    final_input_df = final_input_df[prediction_columns]
+
+    print(final_input_df.info())
     global explainer
+    # explainer = shap.KernelExplainer(
+    #     ml_model.predict_proba,
+    #     shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
+    # )
     explainer = shap.KernelExplainer(
-        ml_model.predict_proba,
-        shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
+        ml_model.predict_proba, shap.kmeans(final_input_df, 10)
     )
     logging.info("SHAP Explainer Setup Finished...")
 
@@ -239,7 +320,7 @@ async def lifespan(app: FastAPI):
         for institution in institutions:
             if not institution.telephones:  # If no telephone entries yet
                 institution_telephone_entry = MedicalInstitutionTelephoneModel(
-                    medical_institution_id=institution.id, telephone="+2547775292595"
+                    medical_institution_id=institution.id, telephone="+254777529295"
                 )
 
                 institution_telephone_entries.append(institution_telephone_entry)
@@ -284,30 +365,77 @@ async def lifespan(app: FastAPI):
 
         facility_ids = session.query(MedicalInstitutionModel.id).limit(20).all()
         facility_ids = [id_tuple[0] for id_tuple in facility_ids]
+        from datetime import datetime
 
         for record in adr_df.to_dict(orient="records"):
             adr_entry = ADRModel(
+                # Institution Details
                 medical_institution_id=random.choice(facility_ids),
+                # Personal Details
                 patient_name=record["patient_name"],
-                patient_address=record["patient_address"],
+                inpatient_or_outpatient_number=record["inpatient_or_outpatient_number"],
+                # patient_date_of_birth=datetime.datetime.strptime(
+                #     record["patient_date_of_birth"], "%Y-%m-%d"
+                # ).date()
+                # if pd.notna(record["patient_date_of_birth"])
+                # else None,
+                patient_date_of_birth=safe_date_parse(record["patient_date_of_birth"]),
                 patient_age=record["patient_age"]
                 if pd.notna(record["patient_age"])
                 else None,
-                patient_date_of_birth=datetime.datetime.strptime(
-                    record["patient_date_of_birth"], "%Y-%m-%d"
-                ).date()
-                if pd.notna(record["patient_date_of_birth"])
-                else None,
+                patient_address=record["patient_address"],
+                ward_or_clinic=record["ward_or_clinic"],
+                patient_gender=GenderEnum(record["patient_gender"]),
+                known_allergy=KnownAllergyEnum(record["known_allergy"]),
+                pregnancy_status=PregnancyStatusEnum(record["pregnancy_status"]),
                 patient_weight_kg=record["patient_weight_kg"],
                 patient_height_cm=record["patient_height_cm"],
-                ward_or_clinic=record["ward_or_clinic"],
-                inpatient_or_outpatient_number=record["inpatient_or_outpatient_number"],
-                user_id=user_a_id,
-                gender=GenderEnum(record["gender"]),
-                pregnancy_status=PregnancyStatusEnum(record["pregnancy_status"]),
-                known_allergy=KnownAllergyEnum(record["known_allergy"]),
+                # Suspected Adverse Reaction
+                date_of_onset_of_reaction=safe_date_parse(
+                    record["date_of_onset_of_reaction"]
+                ),
+                description_of_reaction=record["description_of_reaction"],
+                # Medicine Columns
+                rifampicin_suspected=record["rifampicin_suspected"],
+                rifampicin_start_date=safe_date_parse(record["rifampicin_start_date"]),
+                rifampicin_stop_date=safe_date_parse(record["rifampicin_stop_date"]),
+                rifampicin_dose_amount=record["rifampicin_dose_amount"],
+                rifampicin_frequency_number=record["rifampicin_frequency_number"],
+                rifampicin_route=record["rifampicin_route"],
+                rifampicin_batch_no=record["rifampicin_batch_no"],
+                rifampicin_manufacturer=record["rifampicin_manufacturer"],
+                isoniazid_suspected=record["isoniazid_suspected"],
+                isoniazid_start_date=safe_date_parse(record["isoniazid_start_date"]),
+                isoniazid_stop_date=safe_date_parse(record["isoniazid_stop_date"]),
+                isoniazid_dose_amount=record["isoniazid_dose_amount"],
+                isoniazid_frequency_number=record["isoniazid_frequency_number"],
+                isoniazid_route=record["isoniazid_route"],
+                isoniazid_batch_no=record["isoniazid_batch_no"],
+                isoniazid_manufacturer=record["isoniazid_manufacturer"],
+                pyrazinamide_suspected=record["pyrazinamide_suspected"],
+                pyrazinamide_start_date=safe_date_parse(
+                    record["pyrazinamide_start_date"]
+                ),
+                pyrazinamide_stop_date=safe_date_parse(
+                    record["pyrazinamide_stop_date"]
+                ),
+                pyrazinamide_dose_amount=record["pyrazinamide_dose_amount"],
+                pyrazinamide_frequency_number=record["pyrazinamide_frequency_number"],
+                pyrazinamide_route=record["pyrazinamide_route"],
+                pyrazinamide_batch_no=record["pyrazinamide_batch_no"],
+                pyrazinamide_manufacturer=record["pyrazinamide_manufacturer"],
+                ethambutol_suspected=record["ethambutol_suspected"],
+                ethambutol_start_date=safe_date_parse(record["ethambutol_start_date"]),
+                ethambutol_stop_date=safe_date_parse(record["ethambutol_stop_date"]),
+                ethambutol_dose_amount=record["ethambutol_dose_amount"],
+                ethambutol_frequency_number=record["ethambutol_frequency_number"],
+                ethambutol_route=record["ethambutol_route"],
+                ethambutol_batch_no=record["ethambutol_batch_no"],
+                ethambutol_manufacturer=record["ethambutol_manufacturer"],
+                # Rechallenge/Dechallenge
                 rechallenge=RechallengeEnum(record["rechallenge"]),
                 dechallenge=DechallengeEnum(record["dechallenge"]),
+                # Grading of Reaction/Event
                 severity=SeverityEnum(record["severity"]),
                 is_serious=IsSeriousEnum(record["is_serious"]),
                 criteria_for_seriousness=CriteriaForSeriousnessEnum(
@@ -315,41 +443,92 @@ async def lifespan(app: FastAPI):
                 ),
                 action_taken=ActionTakenEnum(record["action_taken"]),
                 outcome=OutcomeEnum(record["outcome"]),
+                # Relationships
+                user_id=user_a_id,
             )
             adr_entries.append(adr_entry)
 
         session.add_all(adr_entries)
         session.commit()  # This assigns IDs via flush
+        for adr_entry in adr_entries:
+            session.refresh(adr_entry)
 
         logging.info("ADR inserted successfully.")
         # Now that adr_entries have IDs, link them to causality entries
-        for adr_entry, record in zip(adr_entries, adr_df.to_dict(orient="records")):
-            # Prepare prediction input
-            temp_df = pd.DataFrame([record])
-            cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
-            cat_encoded = pd.DataFrame(
+        for adr_entry, record in zip(
+            adr_entries, new_data_df.to_dict(orient="records")
+        ):
+            ml_model = get_ml_model()
+
+            one_hot_encoder, ordinal_encoder = get_encoders()
+
+            column_metadata = get_column_metadata()
+
+            minmax_scaler = get_scalers()
+
+            categorical_columns = column_metadata["categorical_columns"]
+            numerical_columns = column_metadata["numerical_columns"]
+            date_columns = column_metadata["date_columns"]
+            boolean_columns = column_metadata["boolean_columns"]
+            prediction_columns = column_metadata["prediction_columns"]
+
+            adr_basemodel = ADRPostRequest.model_construct(**adr_entry.__dict__)
+
+            # Load and preprocess new data
+            # adr_data_df = pd.DataFrame([adr_basemodel.model_dump()])
+            adr_data_df = pd.DataFrame([record])
+
+            # One-hot encode categoricals
+            cat_encoded = one_hot_encoder.transform(adr_data_df[categorical_columns])
+            cat_encoded_df = pd.DataFrame(
                 cat_encoded,
                 columns=one_hot_encoder.get_feature_names_out(categorical_columns),
             )
-            prediction_input = cat_encoded[prediction_columns]
 
-            # SHAP explanation
-            shap_values = explainer(prediction_input)
-            logging.info("Generating SHAP values for ADR values...")
+            # Scale numericals
+            scaled_numericals = minmax_scaler.transform(adr_data_df[numerical_columns])
+            scaled_numericals_df = pd.DataFrame(
+                scaled_numericals, columns=numerical_columns
+            )
+
+            # Merge all features
+            final_input_df = pd.concat(
+                [
+                    cat_encoded_df,
+                    adr_data_df[boolean_columns].reset_index(drop=True),
+                    scaled_numericals_df,
+                ],
+                axis=1,
+            )
+
+            # Reorder to match training time
+            final_input_df = final_input_df[prediction_columns]
+
+            print(final_input_df.info())
+            # Predict using the ML model
+            prediction = ml_model.predict(final_input_df)
+
+            decoded_prediction = ordinal_encoder.inverse_transform(
+                prediction.reshape(-1, 1)
+            )[0][0]
+
+            logging.info("Generation SHAP value...")
+            shap_values = explainer(final_input_df)
+
             base_values = list(shap_values.base_values[0])
             shap_values_matrix = shap_values.values[0].tolist()
             shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
             shap_values_and_base_values_sum_per_class = list(
                 np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
             )
-            feature_names = prediction_input.columns.tolist()
-            feature_values = prediction_input.iloc[0].tolist()
+            feature_names = final_input_df.columns.tolist()
+            feature_values = final_input_df.iloc[0].tolist()
 
+            # Add causality assessment level
             causality_entry = CausalityAssessmentLevelModel(
                 adr_id=adr_entry.id,
-                ml_model_id="final_ml_model@champion",
                 causality_assessment_level_value=CausalityAssessmentLevelEnum(
-                    record["causality_assessment_level"]
+                    decoded_prediction
                 ),
                 base_values=base_values,
                 shap_values_matrix=shap_values_matrix,
@@ -358,6 +537,7 @@ async def lifespan(app: FastAPI):
                 feature_names=feature_names,
                 feature_values=feature_values,
             )
+
             causality_entries.append(causality_entry)
 
         session.add_all(causality_entries)
@@ -367,43 +547,20 @@ async def lifespan(app: FastAPI):
     else:
         logging.info("ADR and Causality data already exists. Skipping CSV insertion.")
 
-    # Add SMS messages for each ADR
-    sms_message_count = session.query(SMSMessageModel).count()
-
-    if sms_message_count == 0:
-        sms_messages = []
-        for adr in session.query(ADRModel).all():
-            for sms_type in SMSMessageTypeEnum:
-                for _ in range(2):
-                    sms_message = SMSMessageModel(
-                        message_id=f"ATXid_{uuid4()}",
-                        sms_type=sms_type,
-                        number="+254777529295",
-                        content=f"{adr.medical_institution.name} - {sms_type.value} - {adr.patient_name}",
-                        cost="KES 0.8000",
-                        status="Success",
-                        status_code=100,
-                        adr_id=adr.id,
-                    )
-                    sms_messages.append(sms_message)
-
-        session.add_all(sms_messages)
-        session.commit()
-        logging.info("SMS messages inserted successfully.")
-    else:
-        logging.info("SMS messages already successfully.")
-
     # Add reviews
     review_count = session.query(ReviewModel).count()
 
     if review_count == 0:
-        causality_entries = session.query(CausalityAssessmentLevelModel).limit(20).all()
+        # causality_entries = session.query(CausalityAssessmentLevelModel).limit(20).all()
+
+        causality_entries = session.query(CausalityAssessmentLevelModel).all()
         users = session.query(UserModel).all()
         user_ids = [u.id for u in users]
 
         for causality_entry in causality_entries:
             # Ensure 20 unique users per causality assessment
-            selected_user_ids = random.sample(user_ids, min(20, len(user_ids)))
+            # selected_user_ids = random.sample(user_ids, min(20, len(user_ids)))
+            selected_user_ids = user_ids
 
             for user_id in selected_user_ids:
                 approved = random.choice([True, False])
@@ -437,20 +594,96 @@ async def lifespan(app: FastAPI):
                 session.add(review)
 
         session.commit()
-        logging.info("Random reviews for first 20 causality assessments inserted.")
+        logging.info("Reviews inserted.")
     else:
         logging.info("Review data already inserted")
-    # if adr_count == 0 and os.path.exists(ADR_CSV_PATH):
-    #     adr_df = pd.read_csv(ADR_CSV_PATH)
-    #     adr_records = adr_df.to_dict(orient="records")
-    #     for record in adr_records:
-    #         record["user_id"] = user_a_id  # Assign retrieved user_id
 
-    #     session.bulk_insert_mappings(ADRModel, adr_records)
+        # Add SMS messages for each ADR
+    sms_message_count = session.query(SMSMessageModel).count()
+
+    # if sms_message_count == 0:
+    #     sms_messages = []
+    #     for adr in session.query(ADRModel).all():
+    #         for sms_type in SMSMessageTypeEnum:
+    #             number_of_messages = random.randint(0, 5)
+
+    #             if (
+    #                 sms_type == SMSMessageTypeEnum.individual_alert
+    #                 and number_of_messages == 0
+    #             ):
+    #                 print(f"{adr.patient_name} - {sms_type} - {number_of_messages}")
+
+    #             for _ in range(number_of_messages):
+    #                 sms_message = SMSMessageModel(
+    #                     message_id=f"ATXid_{uuid4()}",
+    #                     sms_type=sms_type,
+    #                     number="+254777529295",
+    #                     content=f"{adr.medical_institution.name} - {sms_type.value} - {adr.patient_name}",
+    #                     cost="KES 0.8000",
+    #                     status="Success",
+    #                     status_code=100,
+    #                     adr_id=adr.id,
+    #                 )
+    #                 sms_messages.append(sms_message)
+
+    #     session.add_all(sms_messages)
     #     session.commit()
-    #     logging.info("ADR data inserted successfully.")
+    #     logging.info("SMS messages inserted successfully.")
     # else:
-    #     logging.info("ADR data already exists. Skipping CSV insertion.")
+    #     logging.info("SMS messages already successfully.")
+    if sms_message_count == 0:
+        sms_messages = []
+
+        # Get all causality assessments that are CERTAIN
+        certain_assessments = (
+            session.query(CausalityAssessmentLevelModel)
+            .filter(
+                CausalityAssessmentLevelModel.causality_assessment_level_value
+                == CausalityAssessmentLevelEnum.certain
+            )
+            .all()
+        )
+
+        for cal in certain_assessments:
+            adr = session.query(ADRModel).filter(ADRModel.id == cal.adr_id).first()
+            reviews = (
+                session.query(ReviewModel)
+                .filter(ReviewModel.causality_assessment_level_id == cal.id)
+                .all()
+            )
+
+            if not reviews:
+                continue
+
+            approvals = sum(1 for r in reviews if r.approved)
+            denials = len(reviews) - approvals
+
+            if approvals > denials:
+                # Add a random number of messages
+                for _ in range(random.randint(0, 3)):
+                    sms_message = SMSMessageModel(
+                        message_id=f"ATXid_{uuid4()}",
+                        sms_type=SMSMessageTypeEnum.individual_alert,
+                        number="+254777529295",
+                        content=f"{adr.medical_institution.name} - individual alert - {adr.patient_name}",
+                        cost="KES 0.8000",
+                        status="Success",
+                        status_code=100,
+                        adr_id=adr.id,
+                    )
+                    sms_messages.append(sms_message)
+                    logging.info(
+                        f"✅ SMS alert created for ADR {adr.id} ({adr.patient_name})"
+                    )
+
+        if sms_messages:
+            session.add_all(sms_messages)
+            session.commit()
+            logging.info("Filtered SMS messages inserted successfully.")
+        else:
+            logging.info("No ADRs met criteria for SMS message creation.")
+    else:
+        logging.info("SMS messages already exist. Skipping creation.")
 
     session.close()
 
@@ -647,8 +880,11 @@ def get_adrs(
             | ADRModel.inpatient_or_outpatient_number.ilike(f"%{query}%")
             | ADRModel.ward_or_clinic.ilike(f"%{query}%")
         )
+
     else:
         content = db.query(ADRModel)
+
+    content = content.order_by(desc(ADRModel.created_at))
 
     return paginate(content)
 
@@ -670,7 +906,7 @@ def get_adr_by_id(
 @app.post("/api/v1/adr", status_code=status.HTTP_201_CREATED)
 async def post_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    adr: ADRBaseModelCreate,
+    adr: ADRPostRequest,
     db: Session = Depends(get_db),
 ):
     # Get ML Model
@@ -765,7 +1001,7 @@ async def post_adr(
     db.refresh(casuality_assessment_level_model)
     # Send individual alert when certain
     if CausalityAssessmentLevelEnum(decoded_prediction).value in [
-        CausalityAssessmentLevelEnum.certain.value,
+        # CausalityAssessmentLevelEnum.certain.value,
         CausalityAssessmentLevelEnum.unclassified.value,
     ]:
         # Check Whether data needs to be sent or not
@@ -797,18 +1033,25 @@ async def post_adr(
             message_content = None
             message_type = None
             # Compose message here
-            if (
-                CausalityAssessmentLevelEnum(decoded_prediction).value
-                == CausalityAssessmentLevelEnum.certain.value
-            ):
-                message_content = f"Individual Alert from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
-                message_type = SMSMessageTypeEnum.individual_alert
+            # if (
+            #     CausalityAssessmentLevelEnum(decoded_prediction).value
+            #     == CausalityAssessmentLevelEnum.certain.value
+            # ):
+            #     message_content = (
+            #         f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
+            #         f"has a confirmed serious drug reaction. Please refer this case to the Pharmacy and Poisons Board (PPB) for further guidance."
+            #     )
+            #     message_type = SMSMessageTypeEnum.individual_alert
 
             if (
                 CausalityAssessmentLevelEnum(decoded_prediction).value
                 == CausalityAssessmentLevelEnum.unclassifiable.value
             ):
-                message_content = f"Addditional Info from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+                message_content = (
+                    f"ADR FOLLOW-UP: An ADR case involving {adr_model.patient_name} from {medical_institution_model.name} requires additional clinical details. "
+                    f"Kindly review and submit supporting information to the Pharmacy and Poisons Board (PPB)."
+                )
+
                 message_type = SMSMessageTypeEnum.additional_info
 
             if message_content and message_type:
@@ -847,26 +1090,11 @@ async def post_adr(
         status_code=status.HTTP_201_CREATED,
     )
 
-    # return JSONResponse(
-    #     content=jsonable_encoder(
-    #         {
-    #             "adr_record": content,
-    #             "shap_explanation": {
-    #                 "expected_values": base_values,
-    #                 "shap_values_per_class": shap_values_per_class,
-    #                 "predicted_shap_values": predicted_shap_values,
-    #                 "shap_value_matrix": shap_values.values[0].tolist(),
-    #             },
-    #         }
-    #     ),
-    #     status_code=status.HTTP_201_CREATED,
-    # )
-
 
 @app.put("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
 async def update_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    updated_adr: ADRBaseModelCreate,
+    updated_adr: ADRPostRequest,
     adr_id: str = Path(..., description="ID of the ADR record to update"),
     db: Session = Depends(get_db),
 ):
@@ -1044,8 +1272,10 @@ def get_causality_assessment_levels_for_adr(
             status_code=status.HTTP_400_BAD_REQUEST, detail="ADR record not found"
         )
 
-    content = db.query(CausalityAssessmentLevelModel).filter(
-        CausalityAssessmentLevelModel.adr_id == adr_id
+    content = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.adr_id == adr_id)
+        .order_by(desc(CausalityAssessmentLevelModel.created_at))
     )
 
     return paginate(content)
@@ -1087,11 +1317,32 @@ async def get_reviews(
     db: Session = Depends(get_db),
 ):
     if query:
-        content = db.query(ReviewModel)
+        content = db.query(ReviewModel).order_by(desc(ReviewModel.created_at))
     else:
-        content = db.query(ReviewModel)
+        content = db.query(ReviewModel).order_by(desc(ReviewModel.created_at))
 
     return paginate(content)
+
+
+@app.get(
+    "/api/v1/review/{review_id}",
+    response_model=Page[ReviewGetResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def get_reviews_by_id(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    review_id: str = Path(..., description="Review ID"),
+    db: Session = Depends(get_db),
+):
+    review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
+
+    if not review:
+        return HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Review not found"
+        )
+    content = jsonable_encoder(review)
+
+    return JSONResponse(content=content, status_code=status.HTTP_200_OK)
 
 
 @app.get(
@@ -1161,6 +1412,7 @@ async def get_reviews_for_causality_assessment_level(
         .filter(
             ReviewModel.causality_assessment_level_id == causality_assessment_level_id
         )
+        .order_by(desc(ReviewModel.created_at))
     )
 
     return paginate(content)
@@ -1374,13 +1626,19 @@ async def get_medical_institution(
     db: Session = Depends(get_db),
 ):
     if query:
-        content = db.query(MedicalInstitutionModel).filter(
-            MedicalInstitutionModel.name.ilike(f"%{query}%")
-            | MedicalInstitutionModel.county.ilike(f"%{query}%")
-            | MedicalInstitutionModel.sub_county.ilike(f"%{query}%")
+        content = (
+            db.query(MedicalInstitutionModel)
+            .filter(
+                MedicalInstitutionModel.name.ilike(f"%{query}%")
+                | MedicalInstitutionModel.county.ilike(f"%{query}%")
+                | MedicalInstitutionModel.sub_county.ilike(f"%{query}%")
+            )
+            .order_by(desc(MedicalInstitutionModel.created_at))
         )
     else:
-        content = db.query(MedicalInstitutionModel)
+        content = db.query(MedicalInstitutionModel).order_by(
+            desc(MedicalInstitutionModel.created_at)
+        )
 
     return paginate(content)
 
@@ -1523,7 +1781,9 @@ async def get_medical_institution_telephones(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
-    content = db.query(MedicalInstitutionTelephoneModel)
+    content = db.query(MedicalInstitutionTelephoneModel).order_by(
+        desc(MedicalInstitutionTelephoneModel.created_at)
+    )
     return paginate(content)
 
 
@@ -1632,6 +1892,8 @@ async def get_sms_messages(
     else:
         content = db.query(SMSMessageModel)
 
+    content = content.order_by(desc(SMSMessageModel.created_at))
+
     return paginate(content)
 
 
@@ -1657,7 +1919,7 @@ async def get_sms_message_by_id(
 
 
 @app.get("/api/v1/sms_message_count", response_model=Page[dict])
-async def get_sms_message_count(
+async def get_sms_message_with_adr_and_counts(
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=100),
     sms_type: SMSMessageTypeEnum | None = Query(None, description="Filter by SMS type"),
@@ -1786,7 +2048,322 @@ async def get_sms_message_count(
     }
 
 
-@app.post("api/v1/send_sms_message")
+@app.get("/api/v1/adrs_with_individual_alerts", response_model=Page[dict])
+async def get_adrs_with_individual_alerts(
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    # # Query to count rows grouped by adr_id, sms_type, and include medical institution name
+    # query = (
+    #     db.query(
+    #         SMSMessageModel.adr_id,
+    #         SMSMessageModel.sms_type,
+    #         MedicalInstitutionModel.mfl_code.label("medical_institution_mfl_code"),
+    #         MedicalInstitutionModel.name.label("medical_institution_name"),
+    #         ADRModel.patient_name.label("patient_name"),
+    #         func.count(SMSMessageModel.id).label("sms_count"),
+    #     )
+    #     .filter(SMSMessageModel.sms_type == SMSMessageTypeEnum.individual_alert)
+    #     .join(
+    #         ADRModel,
+    #         ADRModel.id == SMSMessageModel.adr_id,
+    #     )
+    #     .join(
+    #         MedicalInstitutionModel,
+    #         MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+    #     )
+    #     .group_by(
+    #         SMSMessageModel.adr_id,
+    #         SMSMessageModel.sms_type,
+    #         MedicalInstitutionModel.name,
+    #         MedicalInstitutionModel.mfl_code,
+    #         ADRModel.patient_name,
+    #     )
+    #     .order_by(desc(SMSMessageModel.created_at))
+    #     .offset(offset)
+    #     .limit(limit)
+    # )
+
+    # # Query to get the total count of records
+    # total_query = (
+    #     db.query(func.count().label("total"))
+    #     .select_from(SMSMessageModel)
+    #     .filter(SMSMessageModel.sms_type == SMSMessageTypeEnum.individual_alert)
+    #     .join(
+    #         ADRModel,
+    #         ADRModel.id == SMSMessageModel.adr_id,
+    #     )
+    #     .join(
+    #         MedicalInstitutionModel,
+    #         MedicalInstitutionModel.id == ADRModel.medical_institution_id,
+    #     )
+    # )
+
+    # total_result = total_query.scalar()
+
+    # # Calculate the total number of pages
+    # pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    # # Execute the query and get the results
+    # result = query.all()
+
+    # items = [
+    #     {
+    #         "adr_id": row.adr_id,
+    #         "sms_type": row.sms_type,
+    #         "medical_institution_mfl_code": row.medical_institution_mfl_code,
+    #         "medical_institution_name": row.medical_institution_name,
+    #         "patient_name": row.patient_name,
+    #         "sms_count": row.sms_count,
+    #     }
+    #     for row in result
+    # ]
+
+    result_sql = text("""
+    SELECT
+        adr.id AS adr_id,
+        adr.patient_name AS patient_name,
+        mi.name AS medical_institution_name,
+        mi.mfl_code AS medical_institution_mfl_code,
+        adr.created_at AS created_at,
+        GROUP_CONCAT(DISTINCT mit.telephone) AS telephones,
+        COUNT(DISTINCT sms.id) AS sms_count,
+        COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+        
+    FROM adr
+    JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+    JOIN medical_institution mi ON adr.medical_institution_id = mi.id
+    LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
+    LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+    LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+    WHERE cal.causality_assessment_level_value = 'certain'
+    GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
+    HAVING COUNT(DISTINCT sms.id) != 0
+        AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ORDER BY adr.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+
+    result_params = {"level_value": "certain", "limit": limit, "offset": offset}
+
+    result = db.execute(result_sql, result_params)
+
+    rows = result.fetchall()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "patient_name": row.patient_name,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "created_at": row.created_at,
+            "telephones": row.telephones.split(",") if row.telephones else [],
+            "sms_count": row.sms_count,
+        }
+        for row in rows
+    ]
+
+    total_sql = text("""
+    SELECT COUNT(*) FROM (
+        SELECT
+            adr.id,
+            COUNT(DISTINCT sms.id) AS sms_count
+        FROM adr
+        JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+        LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+        LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+        WHERE cal.causality_assessment_level_value = 'certain'
+        GROUP BY adr.id
+        HAVING COUNT(DISTINCT sms.id) != 0
+            AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+            COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ) AS sub
+    """)
+
+    total_result = db.execute(total_sql).scalar()
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.get("/api/v1/adrs_to_be_sent_individual_alerts", response_model=Page[dict])
+async def get_adrs_to_be_sent_for_individual_alerts(
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    result_sql = text("""
+    SELECT
+        adr.id AS adr_id,
+        adr.patient_name AS patient_name,
+        mi.name AS medical_institution_name,
+        mi.mfl_code AS medical_institution_mfl_code,
+        adr.created_at AS created_at,
+        GROUP_CONCAT(DISTINCT mit.telephone) AS telephones,
+        COUNT(DISTINCT sms.id) AS sms_count,
+        COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+    FROM adr
+    JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+    JOIN medical_institution mi ON adr.medical_institution_id = mi.id
+    LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
+    LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+    LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+    WHERE cal.causality_assessment_level_value = 'certain'
+    GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
+    HAVING COUNT(DISTINCT sms.id) = 0
+        AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ORDER BY adr.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+
+    result_params = {"level_value": "certain", "limit": limit, "offset": offset}
+
+    result = db.execute(result_sql, result_params)
+
+    rows = result.fetchall()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "patient_name": row.patient_name,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "created_at": row.created_at,
+            "telephones": row.telephones.split(",") if row.telephones else [],
+            "sms_count": row.sms_count,
+        }
+        for row in rows
+    ]
+
+    total_sql = text("""
+    SELECT COUNT(*) FROM (
+        SELECT
+            adr.id,
+            COUNT(DISTINCT sms.id) AS sms_count
+        FROM adr
+        JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+        LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+        LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+        WHERE cal.causality_assessment_level_value = 'certain'
+        GROUP BY adr.id
+        HAVING COUNT(DISTINCT sms.id) = 0
+            AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+            COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ) AS sub
+    """)
+
+    total_result = db.execute(total_sql).scalar()
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.post("/api/v1/send_individual_alert")
+def send_individual_alert(
+    data: IndividualAlertPostRequest, db: Session = Depends(get_db)
+):
+    try:
+        africastalking.initialize(
+            settings.africas_talking_username, settings.africas_talking_api_key
+        )
+    except Exception as e:
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to initialize Africa's Talking: " + str(e),
+        )
+
+    sms = africastalking.SMS
+
+    adr_model = db.query(ADRModel).filter(ADRModel.id == data.adr_id).first()
+
+    medical_institution_model = (
+        db.query(MedicalInstitutionModel)
+        .filter(MedicalInstitutionModel.id == adr_model.medical_institution_id)
+        .first()
+    )
+
+    telephone_number_model = (
+        db.query(MedicalInstitutionTelephoneModel)
+        .filter(
+            MedicalInstitutionTelephoneModel.medical_institution_id
+            == adr_model.medical_institution_id
+        )
+        .first()
+    )
+
+    # causality_assessment_model = (
+    #     db.query(CausalityAssessmentLevelModel)
+    #     .filter(CausalityAssessmentLevelModel.adr_id == data.adr_id)
+    #     .first()
+    # )
+
+    message_content = (
+        f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
+        f"has a causality assessment of CERTAIN. We are further investigating this as the Pharmacy and Poisons Board (PPB) for further guidance. Call +254795743049 for further information."
+    )
+
+    message_type = SMSMessageTypeEnum.individual_alert
+
+    recipients = [telephone_number_model.telephone]
+
+    response: Dict = sms.send(message_content, recipients)
+
+    sms_messages = []
+
+    for message in response.get("SMSMessageData").get("Recipients"):
+        sms_message = SMSMessageModel(
+            adr_id=adr_model.id,
+            content=message_content,
+            sms_type=message_type,
+            cost=message.get("cost", None),
+            message_id=message.get("messageId", None),
+            message_parts=message.get("messageParts", None),
+            number=message.get("number", None),
+            status=message.get("status"),
+            status_code=message.get("statusCode"),
+        )
+
+        sms_messages.append(sms_message)
+
+    db.add_all(sms_messages)
+    db.commit()
+
+    for sms_message in sms_messages:
+        db.refresh(sms_message)
+
+    content = jsonable_encoder(sms_messages)
+
+    return JSONResponse(content=content, status_code=status.HTTP_200_OK)
+
+
+@app.post("/api/v1/send_sms_message")
 def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
     # Check Whether data needs to be sent or not
     try:
@@ -1825,7 +2402,10 @@ def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
         causality_assessment_model.causality_assessment_level_value
         == CausalityAssessmentLevelEnum.certain.value
     ):
-        message_content = f"Individual Alert from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
+        message_content = (
+            f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
+            f"has a confirmed serious drug reaction. Please refer this case to the Pharmacy and Poisons Board (PPB) for further guidance."
+        )
         message_type = SMSMessageTypeEnum.individual_alert
 
     if (
@@ -1865,6 +2445,14 @@ def get_ml_model() -> BaseEstimator:
     return joblib.load(model_path)
 
 
+def get_scalers() -> BaseEstimator:
+    """Load the trained ML model."""
+    minmax_scaler_path = (
+        f"{settings.mlflow_model_artifacts_path}/scalers/minmax_scaler.pkl"
+    )
+    return joblib.load(minmax_scaler_path)
+
+
 def get_encoders() -> Tuple[OneHotEncoder, OrdinalEncoder]:
     """Load the one-hot and ordinal encoders."""
     encoders_path = f"{settings.mlflow_model_artifacts_path}/encoders"
@@ -1873,31 +2461,25 @@ def get_encoders() -> Tuple[OneHotEncoder, OrdinalEncoder]:
     return one_hot_encoder, ordinal_encoder
 
 
-def get_categorical_columns() -> List[str]:
+def get_column_metadata() -> dict:
     """Return list of categorical fields used for encoding."""
-    return [
-        "gender",
-        "pregnancy_status",
-        "known_allergy",
-        "rechallenge",
-        "dechallenge",
-        "severity",
-        "is_serious",
-        "criteria_for_seriousness",
-        "action_taken",
-        "outcome",
-    ]
+    """Load the one-hot and ordinal encoders."""
+    column_metadata_path = (
+        f"{settings.mlflow_model_artifacts_path}/metadata/model_columns.json"
+    )
+    with open(column_metadata_path, "r") as f:
+        column_metadata = json.load(f)
 
+    categorical_columns = column_metadata["categorical_columns"]
+    numerical_columns = column_metadata["numerical_columns"]
+    date_columns = column_metadata["date_columns"]
+    boolean_columns = column_metadata["boolean_columns"]
+    prediction_columns = column_metadata["prediction_columns"]
 
-def get_prediction_columns() -> List[str]:
-    """Return list of columns used as prediction features after encoding."""
-    return [
-        "rechallenge_yes",
-        "rechallenge_no",
-        "rechallenge_unknown",
-        "rechallenge_na",
-        "dechallenge_yes",
-        "dechallenge_no",
-        "dechallenge_unknown",
-        "dechallenge_na",
-    ]
+    return {
+        "categorical_columns": categorical_columns,
+        "numerical_columns": numerical_columns,
+        "date_columns": date_columns,
+        "boolean_columns": boolean_columns,
+        "prediction_columns": prediction_columns,
+    }

@@ -21,7 +21,7 @@
 @app.post("/api/v1/adr", status_code=status.HTTP_201_CREATED)
 async def post_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    adr: ADRBaseModelCreate,
+    adr: ADRPostRequest,
     db: Session = Depends(get_db),
 ):
     # Get ML Model
@@ -93,7 +93,7 @@ async def post_adr(
 
     # Add prediction to ADRModel instance
     # adr.causality_assessment_level = CausalityAssessmentLevelEnum(decoded_prediction)
-    # Create an ADRBaseModel object using ADRBaseModelCreate fields
+    # Create an ADRBaseModel object using ADRPostRequest fields
     # adr_full = ADRBaseModel(
     #     **adr.model_dump(),
     #     causality_assessment_level=CausalityAssessmentLevelEnum(decoded_prediction),
@@ -139,7 +139,7 @@ async def post_adr(
 @app.put("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
 async def update_adr(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    updated_adr: ADRBaseModelCreate,
+    updated_adr: ADRPostRequest,
     adr_id: str = Path(..., description="ID of the ADR record to update"),
     db: Session = Depends(get_db),
 ):

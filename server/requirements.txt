@@ -11,3 +11,9 @@ mlflow
 fastapi-pagination
 shap
 Faker
+scispacy
+openpyxl
+seaborn
+matplotlib
+numpy
+imbalanced-learn

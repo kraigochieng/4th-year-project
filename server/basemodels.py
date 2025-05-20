@@ -95,7 +95,7 @@ class ReviewEnum(str, enum.Enum):
 
 class SMSMessageTypeEnum(str, enum.Enum):
     individual_alert = "individual alert"
-    bulk_alert = "bulk alert"
+    # bulk_alert = "bulk alert"
     additional_info = "additional info"
 
 
@@ -200,9 +200,10 @@ class CausalityAssessmentLevelGetResponse(BaseModel):
 
 
 # ADR
-class ADRBaseModelCreate(BaseModel):
+class ADRPostRequest(BaseModel):
     # Institution Details
     medical_institution_id: str | None = None
+
     # Personal Details
     patient_name: str
     inpatient_or_outpatient_number: str | None = None
@@ -215,18 +216,63 @@ class ADRBaseModelCreate(BaseModel):
     gender: GenderEnum
     pregnancy_status: PregnancyStatusEnum
     known_allergy: KnownAllergyEnum
+
     # Suspected Adverse Reaction
     date_of_onset_of_reaction: date | None = None
     description_of_reaction: str | None = None
+
+    # Medicine fields - Rifampicin
+    rifampicin_suspected: bool | None = None
+    rifampicin_start_date: date | None = None
+    rifampicin_stop_date: date | None = None
+    rifampicin_dose_amount: int | None = None
+    rifampicin_frequency_number: int | None = None
+    rifampicin_route: str | None = None
+    rifampicin_batch_no: str | None = None
+    rifampicin_manufacturer: str | None = None
+
+    # Isoniazid
+    isoniazid_suspected: bool | None = None
+    isoniazid_start_date: date | None = None
+    isoniazid_stop_date: date | None = None
+    isoniazid_dose_amount: int | None = None
+    isoniazid_frequency_number: int | None = None
+    isoniazid_route: str | None = None
+    isoniazid_batch_no: str | None = None
+    isoniazid_manufacturer: str | None = None
+
+    # Pyrazinamide
+    pyrazinamide_suspected: bool | None = None
+    pyrazinamide_start_date: date | None = None
+    pyrazinamide_stop_date: date | None = None
+    pyrazinamide_dose_amount: int | None = None
+    pyrazinamide_frequency_number: int | None = None
+    pyrazinamide_route: str | None = None
+    pyrazinamide_batch_no: str | None = None
+    pyrazinamide_manufacturer: str | None = None
+
+    # Ethambutol
+    ethambutol_suspected: bool | None = None
+    ethambutol_start_date: date | None = None
+    ethambutol_stop_date: date | None = None
+    ethambutol_dose_amount: int | None = None
+    ethambutol_frequency_number: int | None = None
+    ethambutol_route: str | None = None
+    ethambutol_batch_no: str | None = None
+    ethambutol_manufacturer: str | None = None
+
     # Rechallenge/Dechallenge
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
+    rechallenge: RechallengeEnum = RechallengeEnum.unknown
+    dechallenge: DechallengeEnum = DechallengeEnum.unknown
+
     # Grading of Reaction/Event
-    severity: SeverityEnum
+    severity: SeverityEnum = SeverityEnum.unknown
     is_serious: IsSeriousEnum
     criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
+    action_taken: ActionTakenEnum = ActionTakenEnum.unknown
+    outcome: OutcomeEnum = OutcomeEnum.unknown
+
+    # Additional
     comments: str | None = None
 
 
@@ -293,7 +339,7 @@ class ADRGetResponse(BaseModel):
     # causality_assessment_levels: List[CausalityAssessmentLevelGetResponse] = []
 
 
-class ADRBaseModel(ADRBaseModelCreate):
+class ADRBaseModel(ADRPostRequest):
     id: str | None = None
     causality_assessment_level: CausalityAssessmentLevelEnum | None = None
     # prediction_reason: str | None = None
@@ -378,3 +424,7 @@ class SMSMessageGetResponse(BaseModel):
     status: str
     status_code: int
     created_at: datetime
+
+
+class IndividualAlertPostRequest(BaseModel):
+    adr_id: str
