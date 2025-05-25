@@ -18,6 +18,7 @@ export interface CausalityAssessmentLevelGetResponseInterface {
 	shap_values_sum_per_class?: number[];
 	shap_values_and_base_values_sum_per_class?: number[];
 	feature_names?: string[];
+	feature_values?: string[];
 	created_at: string;
 	updated_at: string;
 }

@@ -17,6 +17,8 @@ export type SeverityEnum = "mild" | "moderate" | "severe" | "fatal" | "unknown";
 
 export type IsSeriousEnum = "yes" | "no";
 
+export type RouteEnum = "oral" | "IV";
+
 export type CriteriaForSeriousnessEnum =
 	| "hospitalisation"
 	| "disability"
@@ -75,13 +77,54 @@ export interface ADRGetResponseInterface {
 	patient_age?: number;
 	patient_weight_kg?: number;
 	patient_height_cm?: number;
+	patient_address?: string;
 	ward_or_clinic?: string;
-	gender: GenderEnum;
+	patient_gender: GenderEnum;
 	pregnancy_status: PregnancyStatusEnum;
 	known_allergy: KnownAllergyEnum;
 	// Suspected Adverse Reaction
 	date_of_onset_of_reaction?: string;
 	description_of_reaction?: string;
+	// Medicine fields - Rifampicin
+	rifampicin_suspected?: boolean;
+	rifampicin_start_date?: string;
+	rifampicin_stop_date?: string;
+	rifampicin_dose_amount?: number;
+	rifampicin_frequency_number?: number;
+	rifampicin_route?: RouteEnum;
+	rifampicin_batch_no?: string;
+	rifampicin_manufacturer?: string;
+
+	// Isoniazid
+	isoniazid_suspected?: boolean;
+	isoniazid_start_date?: string;
+	isoniazid_stop_date?: string;
+	isoniazid_dose_amount?: number;
+	isoniazid_frequency_number?: number;
+	isoniazid_route?: RouteEnum;
+	isoniazid_batch_no?: string;
+	isoniazid_manufacturer?: string;
+
+	// Pyrazinamide
+	pyrazinamide_suspected?: boolean;
+	pyrazinamide_start_date?: string;
+	pyrazinamide_stop_date?: string;
+	pyrazinamide_dose_amount?: number;
+	pyrazinamide_frequency_number?: number;
+	pyrazinamide_route?: RouteEnum;
+	pyrazinamide_batch_no?: string;
+	pyrazinamide_manufacturer?: string;
+
+	// Ethambutol
+	ethambutol_suspected?: boolean;
+	ethambutol_start_date?: string;
+	ethambutol_stop_date?: string;
+	ethambutol_dose_amount?: number;
+	ethambutol_frequency_number?: number;
+	ethambutol_route?: RouteEnum;
+	ethambutol_batch_no?: string;
+	ethambutol_manufacturer?: string;
+
 	// Rechallenge/Dechallenge
 	rechallenge: RechallengeEnum;
 	dechallenge: DechallengeEnum;
@@ -170,4 +213,13 @@ interface ADRFull {
 	created_at: string; // ISO 8601 timestamp
 	updated_at: string; // ISO 8601 timestamp
 	reviews: Review[]; // Array of reviews
+}
+
+export interface ADRWithCausalityLevelAndReviewCountInterface {
+	adr_id: string;
+	patient_name: string;
+	created_by: string;
+	causality_assessment_level_value: string;
+	approved_reviews: number;
+	unapproved_reviews: number;
 }
