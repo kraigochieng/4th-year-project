@@ -1,5 +1,5 @@
 export const adrFormCategoricalValues = {
-	gender: [
+	patientGender: [
 		{ value: "male", label: "Male" },
 		{ value: "female", label: "Female" },
 	],
@@ -13,6 +13,10 @@ export const adrFormCategoricalValues = {
 	knownAllergy: [
 		{ value: "yes", label: "Yes" },
 		{ value: "no", label: "No" },
+	],
+	route: [
+		{ value: "oral", label: "Oral" },
+		{ value: "IV", label: "IV" },
 	],
 	rechallenge: [
 		{ value: "yes", label: "Yes" },

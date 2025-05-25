@@ -11,9 +11,9 @@ export const adrFormValidationSchema = z.object({
 	patientWeightKg: z.number().default(60),
 	patientHeightCm: z.number().default(178),
 	wardOrClinic: z.string().default("Main Clinic"),
-	gender: z
+	patientGender: z
 		.enum(
-			adrFormCategoricalValues["gender"].map((x) => x.value) as [
+			adrFormCategoricalValues["patientGender"].map((x) => x.value) as [
 				string,
 				...string[]
 			]
@@ -38,6 +38,70 @@ export const adrFormValidationSchema = z.object({
 	// SuspeCted Adverse Reaction
 	dateOfOnsetOfReaction: z.string(),
 	descriptionOfReaction: z.string().default("Very disturbing. Vomiting"),
+	// Medicines
+	rifampicinSuspected: z.boolean().optional(),
+	rifampicinBatchNo: z.string().optional(),
+	rifampicinManufacturer: z.string().optional(),
+	rifampicinDoseAmount: z.number().optional(),
+	rifampicinRoute: z
+		.enum(
+			adrFormCategoricalValues["route"].map((x) => x.value) as [
+				string,
+				...string[]
+			]
+		)
+		.default("oral"),
+	rifampicinFrequencyNumber: z.number().optional(),
+	rifampicinStartDate: z.string().optional(),
+	rifampicinStopDate: z.string().optional(),
+
+	isoniazidSuspected: z.boolean().optional(),
+	isoniazidBatchNo: z.string().optional(),
+	isoniazidManufacturer: z.string().optional(),
+	isoniazidDoseAmount: z.number().optional(),
+	isoniazidRoute: z
+		.enum(
+			adrFormCategoricalValues["route"].map((x) => x.value) as [
+				string,
+				...string[]
+			]
+		)
+		.default("oral"),
+	isoniazidFrequencyNumber: z.number().optional(),
+	isoniazidStartDate: z.string().optional(),
+	isoniazidStopDate: z.string().optional(),
+
+	pyrazinamideSuspected: z.boolean().optional(),
+	pyrazinamideBatchNo: z.string().optional(),
+	pyrazinamideManufacturer: z.string().optional(),
+	pyrazinamideDoseAmount: z.number().optional(),
+	pyrazinamideRoute: z
+		.enum(
+			adrFormCategoricalValues["route"].map((x) => x.value) as [
+				string,
+				...string[]
+			]
+		)
+		.default("oral"),
+	pyrazinamideFrequencyNumber: z.number().optional(),
+	pyrazinamideStartDate: z.string().optional(),
+	pyrazinamideStopDate: z.string().optional(),
+
+	ethambutolSuspected: z.boolean().optional(),
+	ethambutolBatchNo: z.string().optional(),
+	ethambutolManufacturer: z.string().optional(),
+	ethambutolDoseAmount: z.number().optional(),
+	ethambutolRoute: z
+		.enum(
+			adrFormCategoricalValues["route"].map((x) => x.value) as [
+				string,
+				...string[]
+			]
+		)
+		.default("oral"),
+	ethambutolFrequencyNumber: z.number().optional(),
+	ethambutolStartDate: z.string().optional(),
+	ethambutolStopDate: z.string().optional(),
 	// Rechallenge/Dechallenge
 	rechallenge: z
 		.enum(
