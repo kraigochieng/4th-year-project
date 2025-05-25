@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import math
 import os
 import random
 import shutil
@@ -25,9 +26,7 @@ from auth import (
 )
 from basemodels import (
     ActionTakenEnum,
-    ADRBaseModel,
-    ADRCreateRequest,
-    ADRCreateResponse,
+    AdditionalInfoPostRequest,
     ADRGetResponse,
     ADRPostRequest,
     ADRReviewCreateRequest,
@@ -53,6 +52,7 @@ from basemodels import (
     SMSMessageGetResponse,
     SMSMessageTypeEnum,
     Token,
+    UnclassifiablePostRequest,
     UserDetailsBaseModel,
     UserGetResponse,
     UserSignupBaseModel,
@@ -78,7 +78,7 @@ from models import (
     SMSMessageModel,
     UserModel,
 )
-from shap import Explanation, KernelExplainer
+from shap import Explainer, Explanation, KernelExplainer
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sqlalchemy import case, desc, func, text
@@ -95,6 +95,7 @@ MEDICAL_INSTITUTION_CSV_PATH = "medical_institutions.csv"
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("shap").setLevel(logging.WARNING)
+
 explainer: KernelExplainer = None
 
 
@@ -102,7 +103,7 @@ def safe_date_parse(value):
     try:
         if pd.isna(value):
             return None
-        if isinstance(value, datetime):
+        if isinstance(value, datetime.datetime):
             return value.date()
         return pd.to_datetime(value).date()
     except Exception:
@@ -178,101 +179,17 @@ async def lifespan(app: FastAPI):
 
     ml_model = get_ml_model()
 
-    one_hot_encoder, _ = get_encoders()
-
-    column_metadata = get_column_metadata()
-
-    minmax_scaler = get_scalers()
-
-    categorical_columns = column_metadata["categorical_columns"]
-    numerical_columns = column_metadata["numerical_columns"]
-    date_columns = column_metadata["date_columns"]
-    boolean_columns = column_metadata["boolean_columns"]
-    prediction_columns = column_metadata["prediction_columns"]
-
     # Load and preprocess new data
     new_data_df = pd.read_csv("data.csv")
-    # Feature engineered categorical columns
-    new_data_df["num_suspected_drugs"] = new_data_df[boolean_columns].sum(axis=1)
 
-    for column in categorical_columns:
-        new_data_df[column] = new_data_df[column].astype("category")
+    final_input_df = input_to_prediction_format(new_data_df)
 
-    new_data_df["patient_bmi"] = new_data_df["patient_weight_kg"] / (
-        new_data_df["patient_height_cm"] * new_data_df["patient_height_cm"]
-    )
-
-    for column in date_columns:
-        new_data_df[column] = pd.to_datetime(new_data_df[column], errors="coerce")
-    # Feature engineered columns
-
-    # Current date for age calculation
-    today = pd.to_datetime("today")
-
-    # Calculate age only where it's missing and dob is available
-    missing_age_mask = (
-        new_data_df["patient_age"].isnull()
-        & new_data_df["patient_date_of_birth"].notnull()
-    )
-
-    new_data_df.loc[missing_age_mask, "patient_age"] = (
-        today - new_data_df.loc[missing_age_mask, "patient_date_of_birth"]
-    ).dt.days // 365
-
-    # Now fill any remaining missing ages (where dob was also missing) with median
-    new_data_df["patient_age"] = new_data_df["patient_age"].fillna(
-        new_data_df["patient_age"].median()
-    )
-
-    drug_names = ["rifampicin", "isoniazid", "pyrazinamide", "ethambutol"]
-    for drug in drug_names:
-        start_col = f"{drug}_start_to_onset_days"
-        stop_col = f"{drug}_stop_to_onset_days"
-        start_stop_col = f"{drug}_start_stop_difference"
-
-        new_data_df[start_col] = (
-            new_data_df["date_of_onset_of_reaction"] - new_data_df[f"{drug}_start_date"]
-        ).dt.days
-        new_data_df[stop_col] = (
-            new_data_df["date_of_onset_of_reaction"] - new_data_df[f"{drug}_stop_date"]
-        ).dt.days
-        new_data_df[start_stop_col] = (
-            new_data_df[f"{drug}_stop_date"] - new_data_df[f"{drug}_start_date"]
-        ).dt.days
-
-    new_data_df[numerical_columns] = new_data_df[numerical_columns].fillna(-1)
-    # One-hot encode categoricals
-    cat_encoded = one_hot_encoder.transform(new_data_df[categorical_columns])
-    cat_encoded_df = pd.DataFrame(
-        cat_encoded, columns=one_hot_encoder.get_feature_names_out(categorical_columns)
-    )
-
-    # Scale numericals
-    scaled_numericals = minmax_scaler.transform(new_data_df[numerical_columns])
-    scaled_numericals_df = pd.DataFrame(scaled_numericals, columns=numerical_columns)
-
-    # Merge all features
-    final_input_df = pd.concat(
-        [
-            cat_encoded_df,
-            new_data_df[boolean_columns].reset_index(drop=True),
-            scaled_numericals_df,
-        ],
-        axis=1,
-    )
-
-    # Reorder to match training time
-    final_input_df = final_input_df[prediction_columns]
-
-    print(final_input_df.info())
     global explainer
-    # explainer = shap.KernelExplainer(
-    #     ml_model.predict_proba,
-    #     shap.kmeans(background_data_for_prediction[:number_of_rows], 10),
-    # )
+
     explainer = shap.KernelExplainer(
         ml_model.predict_proba, shap.kmeans(final_input_df, 10)
     )
+
     logging.info("SHAP Explainer Setup Finished...")
 
     # Create tables once before the app starts
@@ -365,7 +282,6 @@ async def lifespan(app: FastAPI):
 
         facility_ids = session.query(MedicalInstitutionModel.id).limit(20).all()
         facility_ids = [id_tuple[0] for id_tuple in facility_ids]
-        from datetime import datetime
 
         for record in adr_df.to_dict(orient="records"):
             adr_entry = ADRModel(
@@ -460,51 +376,13 @@ async def lifespan(app: FastAPI):
         ):
             ml_model = get_ml_model()
 
-            one_hot_encoder, ordinal_encoder = get_encoders()
-
-            column_metadata = get_column_metadata()
-
-            minmax_scaler = get_scalers()
-
-            categorical_columns = column_metadata["categorical_columns"]
-            numerical_columns = column_metadata["numerical_columns"]
-            date_columns = column_metadata["date_columns"]
-            boolean_columns = column_metadata["boolean_columns"]
-            prediction_columns = column_metadata["prediction_columns"]
-
-            adr_basemodel = ADRPostRequest.model_construct(**adr_entry.__dict__)
+            _, ordinal_encoder = get_encoders()
 
             # Load and preprocess new data
-            # adr_data_df = pd.DataFrame([adr_basemodel.model_dump()])
             adr_data_df = pd.DataFrame([record])
 
-            # One-hot encode categoricals
-            cat_encoded = one_hot_encoder.transform(adr_data_df[categorical_columns])
-            cat_encoded_df = pd.DataFrame(
-                cat_encoded,
-                columns=one_hot_encoder.get_feature_names_out(categorical_columns),
-            )
+            final_input_df = input_to_prediction_format(adr_data_df)
 
-            # Scale numericals
-            scaled_numericals = minmax_scaler.transform(adr_data_df[numerical_columns])
-            scaled_numericals_df = pd.DataFrame(
-                scaled_numericals, columns=numerical_columns
-            )
-
-            # Merge all features
-            final_input_df = pd.concat(
-                [
-                    cat_encoded_df,
-                    adr_data_df[boolean_columns].reset_index(drop=True),
-                    scaled_numericals_df,
-                ],
-                axis=1,
-            )
-
-            # Reorder to match training time
-            final_input_df = final_input_df[prediction_columns]
-
-            print(final_input_df.info())
             # Predict using the ML model
             prediction = ml_model.predict(final_input_df)
 
@@ -515,12 +393,17 @@ async def lifespan(app: FastAPI):
             logging.info("Generation SHAP value...")
             shap_values = explainer(final_input_df)
 
-            base_values = list(shap_values.base_values[0])
-            shap_values_matrix = shap_values.values[0].tolist()
-            shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
-            shap_values_and_base_values_sum_per_class = list(
-                np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
-            )
+            broken_down_shap_values = get_shap_values(shap_values)
+
+            base_values = broken_down_shap_values["base_values"]
+            shap_values_matrix = broken_down_shap_values["shap_values_matrix"]
+            shap_values_sum_per_class = broken_down_shap_values[
+                "shap_values_sum_per_class"
+            ]
+            shap_values_and_base_values_sum_per_class = broken_down_shap_values[
+                "shap_values_and_base_values_sum_per_class"
+            ]
+
             feature_names = final_input_df.columns.tolist()
             feature_values = final_input_df.iloc[0].tolist()
 
@@ -889,6 +772,74 @@ def get_adrs(
     return paginate(content)
 
 
+@app.get(
+    "/api/v1/adrs_with_causality_and_review_count",
+    response_model=Page[dict],
+    status_code=status.HTTP_200_OK,
+)
+def get_adrs_with_causality_and_review_count(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    query: str = Query("", description="Search query (optional)"),
+    db: Session = Depends(get_db),
+):
+    offset = (page - 1) * size
+    search_term = f"%{query}%" if query else None
+
+    # Total count query
+    total_sql = text("""
+        SELECT COUNT(*) FROM adr
+        WHERE (:query IS NULL OR LOWER(patient_name) LIKE LOWER(:query));
+    """)
+    total_result = db.execute(total_sql, {"query": search_term})
+    total = total_result.scalar_one()
+    pages = math.ceil(total / size) if total > 0 else 1
+
+    # Main query using ROW_NUMBER and CTE for SQLite compatibility
+    main_sql = text("""
+        WITH ranked_causality AS (
+            SELECT *,
+                   ROW_NUMBER() OVER (PARTITION BY adr_id ORDER BY created_at ASC) AS rn
+            FROM causality_assessment_level
+        )
+        SELECT
+            a.id AS adr_id,
+            a.patient_name,
+            u.first_name || ' ' || u.last_name AS created_by,
+            cal.causality_assessment_level_value,
+            COUNT(CASE WHEN r.approved = 1 THEN 1 END) AS approved_reviews,
+            COUNT(CASE WHEN r.approved = 0 THEN 1 END) AS unapproved_reviews
+        FROM adr a
+        JOIN "user" u ON a.user_id = u.id
+        LEFT JOIN ranked_causality cal ON cal.adr_id = a.id AND cal.rn = 1
+        LEFT JOIN review r ON r.causality_assessment_level_id = cal.id
+        WHERE (:query IS NULL OR LOWER(a.patient_name) LIKE LOWER(:query))
+        GROUP BY a.id, a.patient_name, u.first_name, u.last_name, cal.causality_assessment_level_value
+        ORDER BY a.created_at DESC
+        LIMIT :limit OFFSET :offset;
+    """)
+
+    result = db.execute(
+        main_sql,
+        {
+            "query": search_term,
+            "limit": size,
+            "offset": offset,
+        },
+    )
+
+    items = [dict(row._mapping) for row in result.fetchall()]
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
 @app.get("/api/v1/adr/{adr_id}", status_code=status.HTTP_200_OK)
 def get_adr_by_id(
     adr_id: str = Path(..., description="ID of ADR to read"),
@@ -909,48 +860,6 @@ async def post_adr(
     adr: ADRPostRequest,
     db: Session = Depends(get_db),
 ):
-    # Get ML Model
-    ml_model = get_ml_model()
-
-    # Get encoders
-    one_hot_encoder, ordinal_encoder = get_encoders()
-
-    # Save data as temp df
-    temp_df = pd.DataFrame([adr.model_dump()])
-
-    categorical_columns = get_categorical_columns()
-
-    # Encode df
-    cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
-    cat_encoded = pd.DataFrame(
-        cat_encoded,
-        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
-    )
-
-    # Define columns for prediction
-    prediction_columns = get_prediction_columns()
-
-    # Extract prediction input
-    prediction_input = cat_encoded[prediction_columns]
-
-    # Predict using the ML model
-    prediction = ml_model.predict(prediction_input)
-
-    # Get Background Data
-    background_data_csv = "data.csv"
-    background_data_df = pd.read_csv(background_data_csv)
-    background_data_df = background_data_df[categorical_columns]
-
-    cat_encoded_background = one_hot_encoder.transform(background_data_df)
-    cat_encoded_background = pd.DataFrame(
-        cat_encoded_background,
-        columns=one_hot_encoder.get_feature_names_out(categorical_columns),
-    )
-
-    decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
-        0
-    ][0]
-
     # Get user id
     db_user = (
         db.query(UserModel).filter(UserModel.username == current_user.username).first()
@@ -965,20 +874,72 @@ async def post_adr(
     db.commit()
     db.refresh(adr_model)
 
-    # SHAP
-    # background_data_for_prediction = cat_encoded_background[prediction_columns]
-    # background_data_for_prediction = background_data_for_prediction.sample(frac=1)
+    # Check if ADR has the appropriate fields present.
+    # If not, set the causality level to unclassified and just return immediately
+    if (
+        adr.rifampicin_suspected is None
+        and adr.isoniazid_suspected is None
+        and adr.pyrazinamide_suspected is None
+        and adr.ethambutol_suspected is None
+    ) or (
+        adr.rechallenge is RechallengeEnum.unknown
+        and adr.dechallenge is DechallengeEnum.unknown
+    ):
+        casuality_assessment_level_model = CausalityAssessmentLevelModel(
+            adr_id=adr_model.id,
+            causality_assessment_level_value=CausalityAssessmentLevelEnum.unclassified,
+            base_values=None,
+            shap_values_matrix=None,
+            shap_values_sum_per_class=None,
+            shap_values_and_base_values_sum_per_class=None,
+            feature_names=None,
+            feature_values=None,
+        )
+
+        db.add(casuality_assessment_level_model)
+        db.commit()
+        db.refresh(casuality_assessment_level_model)
+
+        # To load the causality assessment levels
+        content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
+
+        return JSONResponse(
+            content=jsonable_encoder(content),
+            status_code=status.HTTP_201_CREATED,
+        )
+
+    # Get ML Model
+    ml_model = get_ml_model()
+
+    # Get encoders
+    _, ordinal_encoder = get_encoders()
+
+    # Save data as temp df
+    temp_df = pd.DataFrame([adr.model_dump()])
+
+    # Extract prediction input
+    prediction_input = input_to_prediction_format(temp_df)
+
+    # Predict using the ML model
+    prediction = ml_model.predict(prediction_input)
+
+    decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
+        0
+    ][0]
 
     global explainer
 
     shap_values = explainer(prediction_input)
 
-    base_values = list(shap_values.base_values[0])
-    shap_values_matrix = shap_values.values[0].tolist()
-    shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
-    shap_values_and_base_values_sum_per_class = list(
-        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
-    )
+    broken_down_shap_values = get_shap_values(shap_values)
+
+    base_values = broken_down_shap_values["base_values"]
+    shap_values_matrix = broken_down_shap_values["shap_values_matrix"]
+    shap_values_sum_per_class = broken_down_shap_values["shap_values_sum_per_class"]
+    shap_values_and_base_values_sum_per_class = broken_down_shap_values[
+        "shap_values_and_base_values_sum_per_class"
+    ]
+
     feature_names = prediction_input.columns.tolist()
     feature_values = prediction_input.iloc[0].tolist()
 
@@ -999,88 +960,6 @@ async def post_adr(
     db.add(casuality_assessment_level_model)
     db.commit()
     db.refresh(casuality_assessment_level_model)
-    # Send individual alert when certain
-    if CausalityAssessmentLevelEnum(decoded_prediction).value in [
-        # CausalityAssessmentLevelEnum.certain.value,
-        CausalityAssessmentLevelEnum.unclassified.value,
-    ]:
-        # Check Whether data needs to be sent or not
-        try:
-            africastalking.initialize(
-                settings.africas_talking_username, settings.africas_talking_api_key
-            )
-        except Exception as e:
-            print("Error initialising AT: ", e)
-
-        sms = africastalking.SMS
-
-        medical_institution_model = (
-            db.query(MedicalInstitutionModel)
-            .filter(MedicalInstitutionModel.id == adr_model.medical_institution_id)
-            .first()
-        )
-
-        telephone_number_model = (
-            db.query(MedicalInstitutionTelephoneModel)
-            .filter(
-                MedicalInstitutionTelephoneModel.medical_institution_id
-                == adr_model.medical_institution_id
-            )
-            .first()
-        )
-
-        if medical_institution_model and telephone_number_model:
-            message_content = None
-            message_type = None
-            # Compose message here
-            # if (
-            #     CausalityAssessmentLevelEnum(decoded_prediction).value
-            #     == CausalityAssessmentLevelEnum.certain.value
-            # ):
-            #     message_content = (
-            #         f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
-            #         f"has a confirmed serious drug reaction. Please refer this case to the Pharmacy and Poisons Board (PPB) for further guidance."
-            #     )
-            #     message_type = SMSMessageTypeEnum.individual_alert
-
-            if (
-                CausalityAssessmentLevelEnum(decoded_prediction).value
-                == CausalityAssessmentLevelEnum.unclassifiable.value
-            ):
-                message_content = (
-                    f"ADR FOLLOW-UP: An ADR case involving {adr_model.patient_name} from {medical_institution_model.name} requires additional clinical details. "
-                    f"Kindly review and submit supporting information to the Pharmacy and Poisons Board (PPB)."
-                )
-
-                message_type = SMSMessageTypeEnum.additional_info
-
-            if message_content and message_type:
-                recipients = [telephone_number_model.telephone]
-
-                response: Dict = sms.send(message_content, recipients)
-
-                for message in response.get("SMSMessageData").get("Recipients"):
-                    sms_message = SMSMessageModel(
-                        adr_id=adr_model.id,
-                        content=message_content,
-                        sms_type=message_type,
-                        cost=message.get("cost", None),
-                        message_id=message.get("messageId", None),
-                        message_parts=message.get("messageParts", None),
-                        number=message.get("number", None),
-                        status=message.get("status"),
-                        status_code=message.get("statusCode"),
-                    )
-
-                    db.add(sms_message)
-                    db.commit()
-                    db.refresh(sms_message)
-
-        else:
-            raise HTTPException(
-                status_code=404,
-                detail="Medical institution or telephone number not found for this ADR entry.",
-            )
 
     # To load the causality assessment levels
     content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
@@ -1098,66 +977,87 @@ async def update_adr(
     adr_id: str = Path(..., description="ID of the ADR record to update"),
     db: Session = Depends(get_db),
 ):
-    # Step 1: Get existing ADR record
+    # Get existing ADR record
     adr_model = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
     if not adr_model:
         raise HTTPException(status_code=404, detail="ADR record not found")
 
-    # Step 2: Update ADR fields
+    # Update ADR fields
     for key, value in updated_adr.model_dump().items():
         setattr(adr_model, key, value)
 
     db.commit()
     db.refresh(adr_model)
 
+    if (
+        adr_model.rifampicin_suspected is None
+        and adr_model.isoniazid_suspected is None
+        and adr_model.pyrazinamide_suspected is None
+        and adr_model.ethambutol_suspected is None
+    ) or (
+        adr_model.rechallenge is RechallengeEnum.unknown
+        and adr_model.dechallenge is DechallengeEnum.unknown
+    ):
+        casuality_assessment_level_model = CausalityAssessmentLevelModel(
+            adr_id=adr_model.id,
+            causality_assessment_level_value=CausalityAssessmentLevelEnum.unclassified,
+            base_values=None,
+            shap_values_matrix=None,
+            shap_values_sum_per_class=None,
+            shap_values_and_base_values_sum_per_class=None,
+            feature_names=None,
+            feature_values=None,
+        )
+
+        db.add(casuality_assessment_level_model)
+        db.commit()
+        db.refresh(casuality_assessment_level_model)
+
+        # To load the causality assessment levels
+        content = db.query(ADRModel).filter(ADRModel.id == adr_model.id).first()
+
+        return JSONResponse(
+            content=jsonable_encoder(content),
+            status_code=status.HTTP_201_CREATED,
+        )
+
     # Step 3: Load ML model and encoders
     ml_model = get_ml_model()
 
-    one_hot_encoder, ordinal_encoder = get_encoders()
-
-    # Step 4: Create dataframe from updated data
-    categorical_columns = get_categorical_columns()
+    _, ordinal_encoder = get_encoders()
 
     temp_df = pd.DataFrame([updated_adr.model_dump()])
 
-    # Step 5: Encode data
-    cat_encoded = one_hot_encoder.transform(temp_df[categorical_columns])
-    cat_encoded = pd.DataFrame(
-        cat_encoded, columns=one_hot_encoder.get_feature_names_out(categorical_columns)
-    )
+    prediction_input = input_to_prediction_format(temp_df)
 
-    prediction_columns = get_prediction_columns()
-    prediction_input = cat_encoded[prediction_columns]
-
-    # Step 6: Predict and decode
+    # Predict and decode
     prediction = ml_model.predict(prediction_input)
     decoded_prediction = ordinal_encoder.inverse_transform(prediction.reshape(-1, 1))[
         0
     ][0]
 
-    # Step 7: Update causality assessment model
+    global explainer
+
+    shap_values = explainer(prediction_input)
+
+    broken_down_shap_values = get_shap_values(shap_values)
+
+    base_values = broken_down_shap_values["base_values"]
+    shap_values_matrix = broken_down_shap_values["shap_values_matrix"]
+    shap_values_sum_per_class = broken_down_shap_values["shap_values_sum_per_class"]
+    shap_values_and_base_values_sum_per_class = broken_down_shap_values[
+        "shap_values_and_base_values_sum_per_class"
+    ]
+
+    feature_names = prediction_input.columns.tolist()
+    feature_values = prediction_input.iloc[0].tolist()
+
+    # Update causality assessment model
     causality_record = (
         db.query(CausalityAssessmentLevelModel)
         .filter(CausalityAssessmentLevelModel.adr_id == adr_model.id)
         .first()
     )
-
-    # SHAP
-    # background_data_for_prediction = cat_encoded_background[prediction_columns]
-    # background_data_for_prediction = background_data_for_prediction.sample(frac=1)
-
-    global explainer
-
-    shap_values = explainer(prediction_input)
-
-    base_values = list(shap_values.base_values[0])
-    shap_values_matrix = shap_values.values[0].tolist()
-    shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
-    shap_values_and_base_values_sum_per_class = list(
-        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
-    )
-    feature_names = prediction_input.columns.tolist()
-    feature_values = prediction_input.iloc[0].tolist()
 
     if causality_record:
         causality_record.causality_assessment_level_value = (
@@ -1257,6 +1157,44 @@ async def get_causality_assessment_level_by_id(
 
 
 @app.get(
+    "/api/v1/specific_adr/{adr_id}/causality_assessment_level",
+    status_code=status.HTTP_200_OK,
+)
+async def get_causality_assessment_level_by_adr_id(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    adr_id: str = Path(
+        ..., description="ID of Causality Assessment to read"
+    ),
+    db: Session = Depends(get_db),
+):
+    causality_assessment_level = (
+        db.query(CausalityAssessmentLevelModel)
+        .filter(CausalityAssessmentLevelModel.adr_id == adr_id)
+        .first()
+    )
+
+    if not causality_assessment_level:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Causality Assessment Level record not found",
+        )
+
+    approved_count = sum(1 for r in causality_assessment_level.reviews if r.approved)
+    not_approved_count = sum(
+        1 for r in causality_assessment_level.reviews if not r.approved
+    )
+
+    content = {
+        **jsonable_encoder(causality_assessment_level),
+        "approved_count": approved_count,
+        "not_approved_count": not_approved_count,
+    }
+    return JSONResponse(
+        content=content,
+        status_code=status.HTTP_200_OK,
+    )
+
+@app.get(
     "/api/v1/adr/{adr_id}/causality_assessment_level",
     response_model=Page[CausalityAssessmentLevelGetResponse],
     status_code=status.HTTP_200_OK,
@@ -1279,6 +1217,35 @@ def get_causality_assessment_levels_for_adr(
     )
 
     return paginate(content)
+
+
+@app.put(
+    "/api/v1/causality_assessment_level/{causality_assessment_level_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def update_causality_assessment_level_by_id(
+    causality_assessment_level_id: str = Path(..., description="ID of CAL to update"),
+    db: Session = Depends(get_db),
+):
+    cal_model = (
+        db.query(ADRModel)
+        .filter(CausalityAssessmentLevelModel.id == causality_assessment_level_id)
+        .first()
+    )
+
+    if not cal_model:
+        raise HTTPException(status_code=404, detail="CAL record not found")
+
+    # Update ADR fields
+    for key, value in cal_model.model_dump().items():
+        setattr(cal_model, key, value)
+
+    db.commit()
+    db.refresh()
+
+    content = jsonable_encoder(cal_model)
+
+    return JSONResponse(content=content, status_code=status.HTTP_200_OK)
 
 
 @app.delete(
@@ -2050,79 +2017,17 @@ async def get_sms_message_with_adr_and_counts(
 
 @app.get("/api/v1/adrs_with_individual_alerts", response_model=Page[dict])
 async def get_adrs_with_individual_alerts(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=100),
+    query: str = Query("", description="Search query (optional)"),
     db: Session = Depends(get_db),
 ):
     # Calculate offset and limit based on page and size
     offset = (page - 1) * size
     limit = size
 
-    # # Query to count rows grouped by adr_id, sms_type, and include medical institution name
-    # query = (
-    #     db.query(
-    #         SMSMessageModel.adr_id,
-    #         SMSMessageModel.sms_type,
-    #         MedicalInstitutionModel.mfl_code.label("medical_institution_mfl_code"),
-    #         MedicalInstitutionModel.name.label("medical_institution_name"),
-    #         ADRModel.patient_name.label("patient_name"),
-    #         func.count(SMSMessageModel.id).label("sms_count"),
-    #     )
-    #     .filter(SMSMessageModel.sms_type == SMSMessageTypeEnum.individual_alert)
-    #     .join(
-    #         ADRModel,
-    #         ADRModel.id == SMSMessageModel.adr_id,
-    #     )
-    #     .join(
-    #         MedicalInstitutionModel,
-    #         MedicalInstitutionModel.id == ADRModel.medical_institution_id,
-    #     )
-    #     .group_by(
-    #         SMSMessageModel.adr_id,
-    #         SMSMessageModel.sms_type,
-    #         MedicalInstitutionModel.name,
-    #         MedicalInstitutionModel.mfl_code,
-    #         ADRModel.patient_name,
-    #     )
-    #     .order_by(desc(SMSMessageModel.created_at))
-    #     .offset(offset)
-    #     .limit(limit)
-    # )
-
-    # # Query to get the total count of records
-    # total_query = (
-    #     db.query(func.count().label("total"))
-    #     .select_from(SMSMessageModel)
-    #     .filter(SMSMessageModel.sms_type == SMSMessageTypeEnum.individual_alert)
-    #     .join(
-    #         ADRModel,
-    #         ADRModel.id == SMSMessageModel.adr_id,
-    #     )
-    #     .join(
-    #         MedicalInstitutionModel,
-    #         MedicalInstitutionModel.id == ADRModel.medical_institution_id,
-    #     )
-    # )
-
-    # total_result = total_query.scalar()
-
-    # # Calculate the total number of pages
-    # pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
-
-    # # Execute the query and get the results
-    # result = query.all()
-
-    # items = [
-    #     {
-    #         "adr_id": row.adr_id,
-    #         "sms_type": row.sms_type,
-    #         "medical_institution_mfl_code": row.medical_institution_mfl_code,
-    #         "medical_institution_name": row.medical_institution_name,
-    #         "patient_name": row.patient_name,
-    #         "sms_count": row.sms_count,
-    #     }
-    #     for row in result
-    # ]
+    search_term = f"%{query}%" if query else None
 
     result_sql = text("""
     SELECT
@@ -2142,7 +2047,8 @@ async def get_adrs_with_individual_alerts(
     LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
     LEFT JOIN review ON cal.id = review.causality_assessment_level_id
     LEFT JOIN sms_message sms ON adr.id = sms.adr_id
-    WHERE cal.causality_assessment_level_value = 'certain'
+    WHERE cal.causality_assessment_level_value = :level_value
+        AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
     GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
     HAVING COUNT(DISTINCT sms.id) != 0
         AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
@@ -2151,7 +2057,12 @@ async def get_adrs_with_individual_alerts(
     LIMIT :limit OFFSET :offset
     """)
 
-    result_params = {"level_value": "certain", "limit": limit, "offset": offset}
+    result_params = {
+        "level_value": "certain",
+        "limit": limit,
+        "offset": offset,
+        "query": search_term,
+    }
 
     result = db.execute(result_sql, result_params)
 
@@ -2179,7 +2090,8 @@ async def get_adrs_with_individual_alerts(
         JOIN causality_assessment_level cal ON adr.id = cal.adr_id
         LEFT JOIN review ON cal.id = review.causality_assessment_level_id
         LEFT JOIN sms_message sms ON adr.id = sms.adr_id
-        WHERE cal.causality_assessment_level_value = 'certain'
+        WHERE cal.causality_assessment_level_value = :level_value
+            AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
         GROUP BY adr.id
         HAVING COUNT(DISTINCT sms.id) != 0
             AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
@@ -2187,7 +2099,8 @@ async def get_adrs_with_individual_alerts(
     ) AS sub
     """)
 
-    total_result = db.execute(total_sql).scalar()
+    total_result_params = {"level_value": "certain", "query": search_term}
+    total_result = db.execute(total_sql, total_result_params).scalar()
     # Calculate the total number of pages
     pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
 
@@ -2202,6 +2115,326 @@ async def get_adrs_with_individual_alerts(
 
 @app.get("/api/v1/adrs_to_be_sent_individual_alerts", response_model=Page[dict])
 async def get_adrs_to_be_sent_for_individual_alerts(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    query: str = Query("", description="Search query (optional)"),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    search_term = f"%{query}%" if query else None
+
+    result_sql = text("""
+    SELECT
+        adr.id AS adr_id,
+        adr.patient_name AS patient_name,
+        mi.name AS medical_institution_name,
+        mi.mfl_code AS medical_institution_mfl_code,
+        adr.created_at AS created_at,
+        GROUP_CONCAT(DISTINCT mit.telephone) AS telephones,
+        COUNT(DISTINCT sms.id) AS sms_count,
+        COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+    FROM adr
+    JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+    JOIN medical_institution mi ON adr.medical_institution_id = mi.id
+    LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
+    LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+    LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+    WHERE cal.causality_assessment_level_value = :level_value
+        AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+    GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
+    HAVING COUNT(DISTINCT sms.id) = 0
+        AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ORDER BY adr.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+
+    result_params = {
+        "level_value": "certain",
+        "limit": limit,
+        "offset": offset,
+        "query": search_term,
+    }
+
+    result = db.execute(result_sql, result_params)
+
+    rows = result.fetchall()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "patient_name": row.patient_name,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "created_at": row.created_at,
+            "telephones": row.telephones.split(",") if row.telephones else [],
+            "sms_count": row.sms_count,
+        }
+        for row in rows
+    ]
+
+    total_sql = text("""
+    SELECT COUNT(*) FROM (
+        SELECT
+            adr.id,
+            COUNT(DISTINCT sms.id) AS sms_count
+        FROM adr
+        JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+        LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+        LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+        WHERE cal.causality_assessment_level_value = :level_value
+            AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+        GROUP BY adr.id
+        HAVING COUNT(DISTINCT sms.id) = 0
+            AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+            COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ) AS sub
+    """)
+
+    total_result_params = {"level_value": "certain", "query": search_term}
+
+    total_result = db.execute(total_sql, total_result_params).scalar()
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.get("/api/v1/adrs_with_additional_info_requests", response_model=Page[dict])
+async def get_adrs_with_additional_info_requests(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    query: str = Query("", description="Search query (optional)"),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    search_term = f"%{query}%" if query else None
+
+    result_sql = text("""
+    SELECT
+        adr.id AS adr_id,
+        adr.patient_name AS patient_name,
+        mi.name AS medical_institution_name,
+        mi.mfl_code AS medical_institution_mfl_code,
+        adr.created_at AS created_at,
+        GROUP_CONCAT(DISTINCT mit.telephone) AS telephones,
+        COUNT(DISTINCT sms.id) AS sms_count,
+        COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+        
+    FROM adr
+    JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+    JOIN medical_institution mi ON adr.medical_institution_id = mi.id
+    LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
+    LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+    LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+    WHERE cal.causality_assessment_level_value = :level_value
+        AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+    GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
+    HAVING COUNT(DISTINCT sms.id) != 0
+        AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ORDER BY adr.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+
+    result_params = {
+        "level_value": "unclassified",
+        "limit": limit,
+        "offset": offset,
+        "query": search_term,
+    }
+
+    result = db.execute(result_sql, result_params)
+
+    rows = result.fetchall()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "patient_name": row.patient_name,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "created_at": row.created_at,
+            "telephones": row.telephones.split(",") if row.telephones else [],
+            "sms_count": row.sms_count,
+        }
+        for row in rows
+    ]
+
+    total_sql = text("""
+    SELECT COUNT(*) FROM (
+        SELECT
+            adr.id,
+            COUNT(DISTINCT sms.id) AS sms_count
+        FROM adr
+        JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+        LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+        LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+        WHERE cal.causality_assessment_level_value = :level_value
+            AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+        GROUP BY adr.id
+        HAVING COUNT(DISTINCT sms.id) != 0
+            AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+            COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ) AS sub
+    """)
+
+    total_result_params = {"level_value": "unclassifiable", "query": search_term}
+
+    total_result = db.execute(total_sql, total_result_params).scalar()
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.get("/api/v1/adrs_to_be_sent_additional_info_requests", response_model=Page[dict])
+async def get_adrs_to_be_sent_for_additional_info_requests(
+    current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    query: str = Query("", description="Search query (optional)"),
+    db: Session = Depends(get_db),
+):
+    # Calculate offset and limit based on page and size
+    offset = (page - 1) * size
+    limit = size
+
+    search_term = f"%{query}%" if query else None
+
+    result_sql = text("""
+    SELECT
+        adr.id AS adr_id,
+        adr.patient_name AS patient_name,
+        mi.name AS medical_institution_name,
+        mi.mfl_code AS medical_institution_mfl_code,
+        adr.created_at AS created_at,
+        GROUP_CONCAT(DISTINCT mit.telephone) AS telephones,
+        COUNT(DISTINCT sms.id) AS sms_count,
+        COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+    FROM adr
+    JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+    JOIN medical_institution mi ON adr.medical_institution_id = mi.id
+    LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
+    LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+    LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+    WHERE cal.causality_assessment_level_value = :level_value
+        AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+    GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
+    HAVING COUNT(DISTINCT sms.id) = 0
+        AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+        COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ORDER BY adr.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+
+    result_params = {
+        "level_value": "unclassified",
+        "limit": limit,
+        "offset": offset,
+        "query": search_term,
+    }
+
+    result = db.execute(result_sql, result_params)
+
+    rows = result.fetchall()
+
+    items = [
+        {
+            "adr_id": row.adr_id,
+            "patient_name": row.patient_name,
+            "medical_institution_mfl_code": row.medical_institution_mfl_code,
+            "medical_institution_name": row.medical_institution_name,
+            "created_at": row.created_at,
+            "telephones": row.telephones.split(",") if row.telephones else [],
+            "sms_count": row.sms_count,
+        }
+        for row in rows
+    ]
+
+    total_sql = text("""
+    SELECT COUNT(*) FROM (
+        SELECT
+            adr.id,
+            COUNT(DISTINCT sms.id) AS sms_count
+        FROM adr
+        JOIN causality_assessment_level cal ON adr.id = cal.adr_id
+        LEFT JOIN review ON cal.id = review.causality_assessment_level_id
+        LEFT JOIN sms_message sms ON adr.id = sms.adr_id
+        WHERE cal.causality_assessment_level_value = :level_value
+            AND (:query IS NULL OR LOWER(adr.patient_name) LIKE LOWER(:query))
+        GROUP BY adr.id
+        HAVING COUNT(DISTINCT sms.id) = 0
+            AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
+            COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
+    ) AS sub
+    """)
+
+    total_result_params = {"level_value": "unclassified", "query": search_term}
+
+    total_result = db.execute(total_sql, total_result_params).scalar()
+    # Calculate the total number of pages
+    pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
+
+    return {
+        "items": items,
+        "total": total_result,
+        "page": page,
+        "size": size,
+        "pages": pages,
+    }
+
+
+@app.put("api/v1/update_causalities_to_unclassifiable")
+def update_causalities_to_unclassifiable(
+    data: UnclassifiablePostRequest,
+    db: Session = Depends(get_db),
+):
+    for adr_id in data.adr_ids:
+        cals = (
+            db.query(CausalityAssessmentLevelModel)
+            .filter(CausalityAssessmentLevelModel.adr_id == adr_id)
+            .all()
+        )
+
+        for cal in cals:
+            cal.causality_assessment_level_value = (
+                CausalityAssessmentLevelEnum.unclassifiable
+            )
+
+    db.commit()
+    db.refresh()
+
+    return JSONResponse(
+        content="ADR models with unclassifiable set", status_code=status.HTTP_200_OK
+    )
+
+
+@app.get("/api/v1/adrs_with_unclassifiable_causality", response_model=Page[dict])
+async def get_adrs_with_unclassifiable_causality(
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -2221,22 +2454,23 @@ async def get_adrs_to_be_sent_for_individual_alerts(
         COUNT(DISTINCT sms.id) AS sms_count,
         COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) AS approved_reviews,
         COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END) AS unapproved_reviews
+        
     FROM adr
     JOIN causality_assessment_level cal ON adr.id = cal.adr_id
     JOIN medical_institution mi ON adr.medical_institution_id = mi.id
     LEFT JOIN medical_institution_telephone mit ON mi.id = mit.medical_institution_id
     LEFT JOIN review ON cal.id = review.causality_assessment_level_id
     LEFT JOIN sms_message sms ON adr.id = sms.adr_id
-    WHERE cal.causality_assessment_level_value = 'certain'
+    WHERE cal.causality_assessment_level_value = :level_value
     GROUP BY adr.id, adr.patient_name, mi.name, mi.mfl_code, adr.created_at
-    HAVING COUNT(DISTINCT sms.id) = 0
+    HAVING COUNT(DISTINCT sms.id) != 0
         AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
         COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
     ORDER BY adr.created_at DESC
     LIMIT :limit OFFSET :offset
     """)
 
-    result_params = {"level_value": "certain", "limit": limit, "offset": offset}
+    result_params = {"level_value": "unclassifiable", "limit": limit, "offset": offset}
 
     result = db.execute(result_sql, result_params)
 
@@ -2264,15 +2498,19 @@ async def get_adrs_to_be_sent_for_individual_alerts(
         JOIN causality_assessment_level cal ON adr.id = cal.adr_id
         LEFT JOIN review ON cal.id = review.causality_assessment_level_id
         LEFT JOIN sms_message sms ON adr.id = sms.adr_id
-        WHERE cal.causality_assessment_level_value = 'certain'
+        WHERE cal.causality_assessment_level_value = :level_value
         GROUP BY adr.id
-        HAVING COUNT(DISTINCT sms.id) = 0
+        HAVING COUNT(DISTINCT sms.id) != 0
             AND COUNT(DISTINCT CASE WHEN review.approved = 1 THEN review.id END) >
             COUNT(DISTINCT CASE WHEN review.approved = 0 THEN review.id END)
     ) AS sub
     """)
 
-    total_result = db.execute(total_sql).scalar()
+    total_result_params = {
+        "level_value": "unclassifiable",
+    }
+
+    total_result = db.execute(total_sql, total_result_params).scalar()
     # Calculate the total number of pages
     pages = (total_result + size - 1) // size  # Equivalent to math.ceil(total / size)
 
@@ -2318,12 +2556,6 @@ def send_individual_alert(
         .first()
     )
 
-    # causality_assessment_model = (
-    #     db.query(CausalityAssessmentLevelModel)
-    #     .filter(CausalityAssessmentLevelModel.adr_id == data.adr_id)
-    #     .first()
-    # )
-
     message_content = (
         f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
         f"has a causality assessment of CERTAIN. We are further investigating this as the Pharmacy and Poisons Board (PPB) for further guidance. Call +254795743049 for further information."
@@ -2363,19 +2595,23 @@ def send_individual_alert(
     return JSONResponse(content=content, status_code=status.HTTP_200_OK)
 
 
-@app.post("/api/v1/send_sms_message")
-def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
-    # Check Whether data needs to be sent or not
+@app.post("/api/v1/send_additional_info_request")
+def send_additional_info_request(
+    data: AdditionalInfoPostRequest, db: Session = Depends(get_db)
+):
     try:
         africastalking.initialize(
             settings.africas_talking_username, settings.africas_talking_api_key
         )
     except Exception as e:
-        print("Error initialising AT: ", e)
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to initialize Africa's Talking: " + str(e),
+        )
 
     sms = africastalking.SMS
 
-    adr_model = db.query(ADRModel).filter(ADRModel.id == adr_id).first()
+    adr_model = db.query(ADRModel).filter(ADRModel.id == data.adr_id).first()
 
     medical_institution_model = (
         db.query(MedicalInstitutionModel)
@@ -2392,32 +2628,18 @@ def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
         .first()
     )
 
-    causality_assessment_model = (
-        db.query(CausalityAssessmentLevelModel)
-        .filter(CausalityAssessmentLevelModel.adr_id == adr_id)
-        .first()
+    message_content = (
+        f"ADR FOLLOW-UP: An ADR case involving {adr_model.patient_name} from {medical_institution_model.name} requires additional clinical details. "
+        f"Kindly review and submit supporting information to the Pharmacy and Poisons Board (PPB)."
     )
 
-    if (
-        causality_assessment_model.causality_assessment_level_value
-        == CausalityAssessmentLevelEnum.certain.value
-    ):
-        message_content = (
-            f"URGENT ADR ALERT: {adr_model.patient_name} at {medical_institution_model.name} "
-            f"has a confirmed serious drug reaction. Please refer this case to the Pharmacy and Poisons Board (PPB) for further guidance."
-        )
-        message_type = SMSMessageTypeEnum.individual_alert
-
-    if (
-        causality_assessment_model.causality_assessment_level_value
-        == CausalityAssessmentLevelEnum.unclassifiable.value
-    ):
-        message_content = f"Additional Info from Hospital {medical_institution_model.name} to {adr_model.patient_name}"
-        message_type = SMSMessageTypeEnum.additional_info
+    message_type = SMSMessageTypeEnum.additional_info
 
     recipients = [telephone_number_model.telephone]
 
     response: Dict = sms.send(message_content, recipients)
+
+    sms_messages = []
 
     for message in response.get("SMSMessageData").get("Recipients"):
         sms_message = SMSMessageModel(
@@ -2432,13 +2654,20 @@ def send_sms_message(adr_id: str = Query(...), db: Session = Depends(get_db)):
             status_code=message.get("statusCode"),
         )
 
-        db.add(sms_message)
-        db.commit()
+        sms_messages.append(sms_message)
+
+    db.add_all(sms_messages)
+    db.commit()
+
+    for sms_message in sms_messages:
         db.refresh(sms_message)
 
-    return JSONResponse(content="Messages sent", status_code=status.HTTP_200_OK)
+    content = jsonable_encoder(sms_messages)
+
+    return JSONResponse(content=content, status_code=status.HTTP_200_OK)
 
 
+# Utility functions
 def get_ml_model() -> BaseEstimator:
     """Load the trained ML model."""
     model_path = f"{settings.mlflow_model_artifacts_path}/model/model.pkl"
@@ -2475,6 +2704,7 @@ def get_column_metadata() -> dict:
     date_columns = column_metadata["date_columns"]
     boolean_columns = column_metadata["boolean_columns"]
     prediction_columns = column_metadata["prediction_columns"]
+    columns_to_drop = column_metadata["columns_to_drop"]
 
     return {
         "categorical_columns": categorical_columns,
@@ -2482,4 +2712,124 @@ def get_column_metadata() -> dict:
         "date_columns": date_columns,
         "boolean_columns": boolean_columns,
         "prediction_columns": prediction_columns,
+        "columns_to_drop": columns_to_drop,
+    }
+
+
+def input_to_prediction_format(input_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function returns for a proper dataframe for the ML model and SHAP model
+    """
+
+    column_metadata = get_column_metadata()
+
+    categorical_columns = column_metadata["categorical_columns"]
+    numerical_columns = column_metadata["numerical_columns"]
+    date_columns = column_metadata["date_columns"]
+    boolean_columns = column_metadata["boolean_columns"]
+    prediction_columns = column_metadata["prediction_columns"]
+    columns_to_drop = column_metadata["columns_to_drop"]
+
+    # Create all the columns not originally in dataset
+    ## Num suspected drugs
+    input_df["num_suspected_drugs"] = input_df[boolean_columns].sum(axis=1)
+
+    for column in categorical_columns:
+        input_df[column] = input_df[column].astype("category")
+
+    ## Patient Age and Patient Date of Birth
+    date_columns_without_created_at = date_columns
+    date_columns_without_created_at.remove("created_at")
+
+    for column in date_columns:
+        input_df[column] = pd.to_datetime(input_df[column], errors="coerce")
+
+    today = pd.to_datetime("today")
+
+    missing_age_mask = (
+        input_df["patient_age"].isnull() & input_df["patient_date_of_birth"].notnull()
+    )
+
+    input_df.loc[missing_age_mask, "patient_age"] = (
+        today - input_df.loc[missing_age_mask, "patient_date_of_birth"]
+    ).dt.days // 365
+
+    input_df["patient_age"] = input_df["patient_age"].fillna(
+        input_df["patient_age"].median()
+    )
+
+    ## Patient BMI
+    input_df["patient_bmi"] = input_df["patient_weight_kg"] / (
+        input_df["patient_height_cm"] * input_df["patient_height_cm"]
+    )
+
+    ## Drug columns
+    drug_names = ["rifampicin", "isoniazid", "pyrazinamide", "ethambutol"]
+
+    for drug in drug_names:
+        start_col = f"{drug}_start_to_onset_days"
+        stop_col = f"{drug}_stop_to_onset_days"
+        start_stop_col = f"{drug}_start_stop_difference"
+
+        input_df[start_col] = (
+            input_df["date_of_onset_of_reaction"] - input_df[f"{drug}_start_date"]
+        ).dt.days
+        input_df[stop_col] = (
+            input_df["date_of_onset_of_reaction"] - input_df[f"{drug}_stop_date"]
+        ).dt.days
+        input_df[start_stop_col] = (
+            input_df[f"{drug}_stop_date"] - input_df[f"{drug}_start_date"]
+        ).dt.days
+
+    # Drop date columns
+    input_df = input_df.drop(columns=date_columns)
+
+    input_df = input_df.drop(columns=columns_to_drop)
+
+    # Fill null valuea
+    input_df[numerical_columns] = input_df[numerical_columns].fillna(-1)
+
+    # Scale numerical columns
+    minmax_scaler = get_scalers()
+    scaled_numericals = minmax_scaler.transform(input_df[numerical_columns])
+    scaled_numericals_df = pd.DataFrame(scaled_numericals, columns=numerical_columns)
+
+    # Encode categorical columns
+
+    one_hot_encoder, _ = get_encoders()
+
+    cat_encoded = one_hot_encoder.transform(input_df[categorical_columns])
+    cat_encoded_df = pd.DataFrame(
+        cat_encoded, columns=one_hot_encoder.get_feature_names_out(categorical_columns)
+    )
+
+    # Merge all features
+    final_input_df = pd.concat(
+        [
+            cat_encoded_df,
+            input_df[boolean_columns].reset_index(drop=True),
+            scaled_numericals_df,
+        ],
+        axis=1,
+    )
+
+    # Reorder to match training time
+    final_input_df = final_input_df[prediction_columns]
+
+    return final_input_df
+
+
+def get_shap_values(shap_values: Explainer):
+    base_values = list(shap_values.base_values[0])
+    shap_values_matrix = shap_values.values[0].tolist()
+    shap_values_sum_per_class = np.sum(shap_values.values[0], axis=0).tolist()
+    shap_values_and_base_values_sum_per_class = list(
+        np.sum(shap_values.values[0], axis=0) + shap_values.base_values[0]
+    )
+
+    return {
+        "base_values": base_values,
+        "shap_values_matrix": shap_values_matrix,
+        "shap_values_sum_per_class": shap_values_sum_per_class,
+        "shap_values_and_base_values_sum_per_class": shap_values_and_base_values_sum_per_class,
     }

@@ -213,7 +213,7 @@ class ADRPostRequest(BaseModel):
     patient_weight_kg: float | None = None
     patient_height_cm: float | None = None
     ward_or_clinic: str | None = None
-    gender: GenderEnum
+    patient_gender: GenderEnum
     pregnancy_status: PregnancyStatusEnum
     known_allergy: KnownAllergyEnum
 
@@ -276,34 +276,6 @@ class ADRPostRequest(BaseModel):
     comments: str | None = None
 
 
-class ADRCreateResponse(BaseModel):
-    user_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-
-
-class ADRCreateRequest(BaseModel):
-    user_id: str
-    gender: GenderEnum
-    pregnancy_status: PregnancyStatusEnum
-    known_allergy: KnownAllergyEnum
-    rechallenge: RechallengeEnum
-    dechallenge: DechallengeEnum
-    severity: SeverityEnum
-    is_serious: IsSeriousEnum
-    criteria_for_seriousness: CriteriaForSeriousnessEnum
-    action_taken: ActionTakenEnum
-    outcome: OutcomeEnum
-
-
 class ADRGetResponse(BaseModel):
     id: str
     # User
@@ -319,7 +291,7 @@ class ADRGetResponse(BaseModel):
     patient_weight_kg: float | None = None
     patient_height_cm: float | None = None
     ward_or_clinic: str | None = None
-    gender: GenderEnum
+    patient_gender: GenderEnum
     pregnancy_status: PregnancyStatusEnum
     known_allergy: KnownAllergyEnum
     # Suspected Adverse Reaction
@@ -337,12 +309,6 @@ class ADRGetResponse(BaseModel):
     comments: str | None = None
 
     # causality_assessment_levels: List[CausalityAssessmentLevelGetResponse] = []
-
-
-class ADRBaseModel(ADRPostRequest):
-    id: str | None = None
-    causality_assessment_level: CausalityAssessmentLevelEnum | None = None
-    # prediction_reason: str | None = None
 
 
 class ADRReviewCreateRequest(BaseModel):
@@ -364,7 +330,7 @@ class ADRReviewGetResponse(BaseModel):
     adr_id: str
     patient_id: str
     user_id: str
-    gender: str
+    patient_gender: str
     pregnancy_status: str
     known_allergy: str
     rechallenge: str
@@ -428,3 +394,11 @@ class SMSMessageGetResponse(BaseModel):
 
 class IndividualAlertPostRequest(BaseModel):
     adr_id: str
+
+
+class AdditionalInfoPostRequest(BaseModel):
+    adr_id: str
+
+
+class UnclassifiablePostRequest(BaseModel):
+    adr_ids: List[str]
