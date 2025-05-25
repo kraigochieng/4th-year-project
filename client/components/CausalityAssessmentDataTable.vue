@@ -110,46 +110,15 @@
 
 <script setup lang="ts">
 // Imports
-import { ref, computed, type PropType } from "vue";
-import { useAuthStore } from "@/stores/auth";
-import { useToast } from "@/components/ui/toast";
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-	Eye,
-	Plus,
-	Download,
-	MoreHorizontal,
-	RefreshCcw,
-} from "lucide-vue-next";
-import {
+	FlexRender,
 	getCoreRowModel,
 	useVueTable,
-	FlexRender,
 	type ColumnDef,
 } from "@tanstack/vue-table";
-import {
-	TableActionsAdr,
-	TableActionsCausalityAssessmentLevel,
-} from "#components";
+import { computed, ref } from "vue";
 
+import TableActionsCausalityAssessmentLevel from "@/components/table/actions/CausalityAssessmentLevel.vue";
 
 import Checkbox from "./ui/checkbox/Checkbox.vue";
 

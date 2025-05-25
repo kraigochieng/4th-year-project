@@ -1,7 +1,7 @@
 <template>
 	<FormField v-slot="{ componentField }" :name="name" v-bind="fieldAttrs">
 		<FormItem>
-			<FormLabel>{{ label }}</FormLabel>
+			<FormLabel v-if="label">{{ label }}</FormLabel>
 			<Select v-bind="componentField">
 				<FormControl>
 					<SelectTrigger>
@@ -26,8 +26,8 @@
 
 <script setup lang="ts">
 defineProps<{
-	label: string;
 	name: string;
+	label?: string;
 	fieldAttrs?: any; // Attributes passed from defineField()
 	placeholder: string;
 	options: { value: string; label: string }[];

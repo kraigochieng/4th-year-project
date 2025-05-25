@@ -9,22 +9,18 @@
 				<TabsTrigger value="review">Review</TabsTrigger>
 			</TabsList>
 			<TabsContent value="cal">
-				<Card class="my-4">
-					<CardHeader>
-						<CardTitle>ML Model ID</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p>
-							{{ causalityAssessmentLevelData?.ml_model_id }}
-						</p>
-					</CardContent>
-				</Card>
 				<CausalityAssessmentLevelComparison
 					:value="
 						causalityAssessmentLevelData?.causality_assessment_level_value
 					"
 				/>
 				<ClassRankings
+					v-if="
+						!['unclassified', 'unclassifiable'].includes(
+							causalityAssessmentLevelData?.causality_assessment_level_value ??
+								''
+						)
+					"
 					:base-values="causalityAssessmentLevelData?.base_values"
 					:shap-values="
 						causalityAssessmentLevelData?.shap_values_sum_per_class
@@ -34,6 +30,12 @@
 					"
 				/>
 				<FeatureRankings
+					v-if="
+						!['unclassified', 'unclassifiable'].includes(
+							causalityAssessmentLevelData?.causality_assessment_level_value ??
+								''
+						)
+					"
 					:base-values="causalityAssessmentLevelData?.base_values"
 					:shap-values="
 						causalityAssessmentLevelData?.shap_values_sum_per_class

@@ -2,7 +2,9 @@
 	<div class="page-wrapper">
 		<Tabs v-model="activeTab">
 			<div class="flex space-x-4">
-				<h1 class="text-4xl font-bold">Individual Alerts</h1>
+				<h1 class="text-4xl font-bold">
+					Additional Information Requests
+				</h1>
 				<TabsList value="to-be-sent">
 					<TabsTrigger value="to-be-sent"> To Be Sent </TabsTrigger>
 					<TabsTrigger value="already-sent">
@@ -34,8 +36,6 @@
 							type="text"
 							placeholder="Filter..."
 							class="w-max"
-							ref="toBeSentFilterInputRef"
-							v-model="toBeSentTableFilter"
 						/>
 						<Button
 							v-if="allSelected || someSelected"
@@ -76,8 +76,6 @@
 							type="text"
 							placeholder="Filter..."
 							class="w-max"
-							ref="alreadySentFilterInputRef"
-							v-model="alreadySentTableFilter"
 						/>
 						<Button
 							v-if="allSelected || someSelected"
@@ -100,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import TableActionsIndividualAlerts from "@/components/table/actions/IndividualAlerts.vue";
+import TableActionsAdditionalInformationRequests from "@/components/table/actions/AdditionalInformationRequests.vue";
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import { useToast } from "@/components/ui/toast";
 import ToastAction from "@/components/ui/toast/ToastAction.vue";
@@ -137,13 +135,6 @@ const toBeSentTotalCount = computed(
 	() => alreadySentTableData.value?.total || 0
 );
 
-const alreadySentFilterInputRef = ref<HTMLInputElement | null>(null);
-const toBeSentFilterInputRef = ref<HTMLInputElement | null>(null);
-
-const alreadySentTableFilter = ref<string>("");
-
-const toBeSentTableFilter = ref<string>("");
-
 const authStore = useAuthStore();
 
 const route = useRoute();
@@ -165,7 +156,9 @@ async function handleBulkSend(rows: Row<SMSMessageCountGetResponse>[]) {
 		// });
 
 		const response = await $fetch<SMSMessageGetResponse[]>(
-			`${useRuntimeConfig().public.serverApi}/send_individual_alert`,
+			`${
+				useRuntimeConfig().public.serverApi
+			}/send_additional_info_request`,
 			{
 				method: "POST",
 				headers: {
@@ -219,7 +212,7 @@ const fetchAlreadySentTableData = async () => {
 		>(
 			`${
 				useRuntimeConfig().public.serverApi
-			}/adrs_with_individual_alerts`,
+			}/adrs_with_additional_info_requests`,
 			{
 				method: "GET",
 				headers: {
@@ -228,7 +221,6 @@ const fetchAlreadySentTableData = async () => {
 				params: {
 					page: alreadySentCurrentPage.value,
 					size: alreadySentPageSize.value,
-					query: alreadySentTableFilter.value,
 				},
 			}
 		);
@@ -252,7 +244,7 @@ const fetchToBeSentTableData = async () => {
 		>(
 			`${
 				useRuntimeConfig().public.serverApi
-			}/adrs_to_be_sent_individual_alerts`,
+			}/adrs_to_be_sent_additional_info_requests`,
 			{
 				method: "GET",
 				headers: {
@@ -261,7 +253,6 @@ const fetchToBeSentTableData = async () => {
 				params: {
 					page: toBeSentCurrentPage.value,
 					size: toBeSentPageSize.value,
-					query: toBeSentTableFilter.value,
 				},
 			}
 		);
@@ -283,16 +274,6 @@ watch([alreadySentCurrentPage, alreadySentPageSize], () => {
 
 watch([toBeSentCurrentPage, toBeSentPageSize], () => {
 	fetchToBeSentTableData();
-});
-
-watch(alreadySentTableFilter, (newValue, oldValue) => {
-	fetchAlreadySentTableData();
-	alreadySentFilterInputRef.value?.focus();
-});
-
-watch(toBeSentTableFilter, (newValue, oldValue) => {
-	fetchToBeSentTableData();
-	toBeSentFilterInputRef.value?.focus();
 });
 
 function handleAlreadySentPageChange(page: number) {
@@ -426,7 +407,7 @@ const alreadySentColumns: ColumnDef<SMSMessageCountGetResponse>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			return h(TableActionsIndividualAlerts, {
+			return h(TableActionsAdditionalInformationRequests, {
 				row: row.original,
 				onExpand: row.toggleExpanded,
 			});
@@ -530,7 +511,7 @@ const toBeSentColumns: ColumnDef<SMSMessageCountGetResponse>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			return h(TableActionsIndividualAlerts, {
+			return h(TableActionsAdditionalInformationRequests, {
 				row: row.original,
 				onExpand: row.toggleExpanded,
 			});
@@ -543,5 +524,7 @@ watch(activeTab, (val) => {
 	router.replace({ query: { ...route.query, tab: val } });
 });
 
-useHead({ title: "Communication | Individual Alerts | MediLinda" });
+useHead({
+	title: "Communication | Additional Information Requests | MediLinda",
+});
 </script>

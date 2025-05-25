@@ -2,7 +2,9 @@
 	<FormField :name="props.name">
 		<div class="form-field-wrapper">
 			<FormItem>
-				<FormLabel> {{ props.label }}</FormLabel>
+				<FormLabel v-if="props.label">
+					{{ props.label }}
+				</FormLabel>
 				<FormControl>
 					<div class="flex space-x-2">
 						<Select v-model="selectedYear">
@@ -75,7 +77,7 @@ const value = defineModel<string>();
 const props = withDefaults(
 	defineProps<{
 		name: string;
-		label: string;
+		label?: string;
 		description?: string;
 		maxYear?: string;
 		defaultYear?: string;

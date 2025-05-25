@@ -1,6 +1,8 @@
 <template>
 	<div class="page-wrapper">
-		<Button><NuxtLink to="/adr/add">Add Adr</NuxtLink></Button>
+		<Button class="w-full my-4"
+			><NuxtLink to="/adr/add">Add Adr</NuxtLink></Button
+		>
 		<LoadingMedilinda label="Loading ADRs" v-if="status == 'pending'" />
 		<DataTable
 			v-if="status == 'success'"
@@ -12,7 +14,22 @@
 			:totalCount="totalCount"
 			@pageChange="handlePageChange"
 			@pageSizeChange="handlePageSizeChange"
-		/>
+		>
+			<template
+				#selectionActions="{ allSelected, someSelected, selectedRows }"
+			>
+				<Input
+					type="text"
+					placeholder="Filter..."
+					class="w-max"
+					ref="filterInputRef"
+					v-model="debouncedTableFilter"
+				/>
+				<Button v-if="allSelected || someSelected">
+					Delete All ({{ selectedRows.length }})
+				</Button>
+			</template>
+		</DataTable>
 
 		<div v-if="error" class="mt-4 p-4 rounded bg-red-100 text-red-800">
 			<p>{{ error }}</p>
@@ -21,11 +38,12 @@
 </template>
 
 <script setup lang="ts">
+import { capitalize } from "lodash";
 import TableActionsAdr from "@/components/table/actions/Adr.vue";
 import { useAuthStore } from "@/stores/auth";
 
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
-import type { ADRGetResponseInterface } from "@/types/adr";
+import type { ADRWithCausalityLevelAndReviewCountInterface } from "@/types/adr";
 import type { PaginatedResponseInterface } from "@/types/pagination";
 import { type ColumnDef } from "@tanstack/vue-table";
 
@@ -33,14 +51,19 @@ import { type ColumnDef } from "@tanstack/vue-table";
 const authStore = useAuthStore();
 
 // Create reactive variables for data, status, and error
-const data = ref<PaginatedResponseInterface<ADRGetResponseInterface> | null>(
-	null
-);
+const data =
+	ref<PaginatedResponseInterface<ADRWithCausalityLevelAndReviewCountInterface> | null>(
+		null
+	);
 const status = ref<"pending" | "success" | "error">("pending");
 const error = ref<string | null>(null);
 
+const filterInputRef = ref<HTMLInputElement | null>(null);
+
 const currentPage = ref(1);
 const pageSize = ref(20);
+const tableFilter = ref<string>("");
+const debouncedTableFilter = refDebounced(tableFilter, 1000);
 
 const totalCount = computed(() => data.value?.total || 0);
 
@@ -54,7 +77,9 @@ const fetchADRData = async () => {
 		status.value = "pending";
 		// Using $fetch for API call
 		data.value = await $fetch(
-			`${useRuntimeConfig().public.serverApi}/adr`,
+			`${
+				useRuntimeConfig().public.serverApi
+			}/adrs_with_causality_and_review_count`,
 			{
 				method: "GET",
 				headers: {
@@ -63,6 +88,7 @@ const fetchADRData = async () => {
 				params: {
 					page: currentPage.value,
 					size: pageSize.value,
+					query: debouncedTableFilter.value,
 				},
 			}
 		);
@@ -78,6 +104,11 @@ watch([currentPage, pageSize], () => {
 	fetchADRData();
 });
 
+watch(debouncedTableFilter, (newValue, oldValue) => {
+	fetchADRData();
+	filterInputRef.value?.focus();
+});
+
 function handlePageChange(page: number) {
 	currentPage.value = page;
 }
@@ -87,7 +118,7 @@ const handlePageSizeChange = (size: number) => {
 	currentPage.value = 1;
 };
 
-const columns: ColumnDef<ADRGetResponseInterface>[] = [
+const columns: ColumnDef<ADRWithCausalityLevelAndReviewCountInterface>[] = [
 	{
 		id: "select",
 		header: ({ table }) =>
@@ -116,24 +147,99 @@ const columns: ColumnDef<ADRGetResponseInterface>[] = [
 		enableSorting: false,
 	},
 	{
-		id: "gender",
-		accessorKey: "gender",
-		header: "Gender",
-		cell: ({ row }) => h("div", {}, row.getValue("gender")),
+		id: "created_by",
+		accessorKey: "created_by",
+		header: "Created By",
+		cell: ({ row }) => h("div", {}, row.getValue("created_by")),
+		enableSorting: false,
 	},
 	// {
-	// 	accessorKey:
-	// 		"causality_assessment_levels.causality_assessment_level_value",
-	// 	header: "Causality Assessment Level",
+	// 	id: "causality_assessment_level_value",
+	// 	accessorKey: "causality_assessment_level_value",
+	// 	header: "Causality Asssessment Level",
+	// 	cell: ({ row }) =>
+	// 		h("div", {}, row.getValue("causality_assessment_level_value")),
+	// 	enableSorting: false,
+	// },
+	{
+		id: "causality_assessment_level_value",
+		accessorKey: "causality_assessment_level_value",
+		header: "Causality Asssessment Level",
+		cell: ({ row }) => {
+			let color = "";
+			if (row.original.causality_assessment_level_value == "certain") {
+				color = "bg-red-500 text-white";
+			} else if (
+				row.original.causality_assessment_level_value == "likely"
+			) {
+				color = "bg-red-400";
+			} else if (
+				row.original.causality_assessment_level_value == "possible"
+			) {
+				color = "bg-yellow-500";
+			} else if (
+				row.original.causality_assessment_level_value == "unlikely"
+			) {
+				color = "bg-yellow-300";
+			} else if (
+				row.original.causality_assessment_level_value == "unclassified"
+			) {
+				color = "bg-slate-500 text-white";
+			} else if (
+				row.original.causality_assessment_level_value ==
+				"unclassifiable"
+			) {
+				color = "bg-slate-300";
+			}
+
+			return h(
+				"div",
+				{ class: `badge ${color}` },
+				capitalize(row.getValue("causality_assessment_level_value"))
+			);
+		},
+
+		enableSorting: false,
+	},
+	// {
+	// 	id: "review_count",
+	// 	accessorKey: "review_count",
+	// 	header: "Reviews (Approved | Not Approved)",
 	// 	cell: ({ row }) =>
 	// 		h(
 	// 			"div",
 	// 			{},
-	// 			row.getValue(
-	// 				"causality_assessment_levels"
-	// 			)
+	// 			`${row.original.approved_reviews} | ${row.original.unapproved_reviews}`
 	// 		),
 	// },
+	{
+		id: "review_count",
+		accessorKey: "review_count",
+		header: "Reviews (Approved | Not Approved)",
+		cell: ({ row }) => {
+			const approved = row.original.approved_reviews;
+			const unapproved = row.original.unapproved_reviews;
+
+			let iconName = "lucide:minus";
+			let iconColor = "text-yellow-600";
+
+			if (approved > unapproved) {
+				iconName = "lucide:check";
+				iconColor = "text-green-600";
+			} else if (approved < unapproved) {
+				iconName = "lucide:x";
+				iconColor = "text-red-600";
+			}
+
+			const Icon = resolveComponent("Icon");
+
+			return h("div", { class: "flex items-center gap-2" }, [
+				h(Icon, { name: iconName, class: `w-6 h-6 ${iconColor}` }),
+				h("span", {}, `${approved} | ${unapproved}`),
+			]);
+		},
+	},
+	
 	{
 		id: "actions",
 		enableHiding: false,

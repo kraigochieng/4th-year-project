@@ -8,7 +8,7 @@
 			>
 		</CardHeader>
 		<CardContent>
-			<div class="flex w-max mx-auto">
+			<div class="flex w-max mx-auto flex-col md:flex-row">
 				<div
 					v-for="(level, i) in levels"
 					:key="i"
@@ -97,7 +97,7 @@ const levels = [
 	{ label: "Unclassified", color: "bg-slate-500", textColor: "text-white" },
 	{ label: "Unlikely", color: "bg-yellow-300" },
 	{ label: "Possible", color: "bg-yellow-500" },
-	{ label: "Likely", color: "bg-red-300" },
+	{ label: "Likely", color: "bg-red-400" },
 	{
 		label: "Certain",
 		color: "bg-red-500",

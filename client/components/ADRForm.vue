@@ -294,9 +294,9 @@
 						description="The ward or clinic the patient was in"
 					/>
 					<FormRadio
-						name="gender"
+						name="patientGender"
 						label="Gender"
-						:options="adrFormCategoricalValues['gender']"
+						:options="adrFormCategoricalValues['patientGender']"
 						description="The gender of the patient"
 					/>
 					<FormRadio
@@ -338,8 +338,265 @@
 				</div>
 				<Separator class="my-4" />
 				<div class="form-section">
+					<p id="medicines" class="form-section-header">
+						4. Medicines
+					</p>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Suspected</TableHead>
+								<TableHead>INN/Generic Name</TableHead>
+								<TableHead>Batch Number</TableHead>
+								<TableHead>Manufacturer</TableHead>
+								<TableHead>Dose</TableHead>
+								<TableHead>Route</TableHead>
+								<TableHead>Frequency</TableHead>
+								<TableHead>Treatment Start Date</TableHead>
+								<TableHead>Treatment Stop Date</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							<TableRow>
+								<TableCell>
+									<FormCheckbox name="rifampicinSuspected" />
+								</TableCell>
+								<TableCell> Rifampicin </TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="rifampicinBatchNumber"
+										placeholder="e.g B123456"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="rifampicinManufacturer"
+										placeholder="e.g Pfizer"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="rifampicinDoseAmount"
+										placeholder="e.g 150"
+										:step="5"
+									/>
+									<p>mg</p>
+								</TableCell>
+								<TableCell>
+									<FormSelect
+										name="rifampicinRoute"
+										placeholder="Route"
+										:options="
+											adrFormCategoricalValues['route']
+										"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="rifampicinFrequencyNumber"
+										placeholder="e.g 1"
+									/>
+									<p>daily</p>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="rifampicinStartDate"
+										v-model="selectedRifampicinStartDate"
+										default-year="2025"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="rifampicinStopDate"
+										v-model="selectedRifampicinStopDate"
+										default-year="2025"
+									/>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<FormCheckbox name="isoniazidSuspected" />
+								</TableCell>
+								<TableCell> Isoniazid </TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="isoniazidBatchNo"
+										placeholder="e.g I123456"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="isoniazidManufacturer"
+										placeholder="e.g Cipla"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="isoniazidDoseAmount"
+										placeholder="e.g 300"
+										:step="5"
+									/>
+									<p>mg</p>
+								</TableCell>
+								<TableCell>
+									<FormSelect
+										name="isoniazidRoute"
+										placeholder="Route"
+										:options="
+											adrFormCategoricalValues['route']
+										"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="isoniazidFrequencyNumber"
+										placeholder="e.g 1"
+									/>
+									<p>daily</p>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="isoniazidStartDate"
+										v-model="selectedIsoniazidStartDate"
+										default-year="2025"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="isoniazidStopDate"
+										v-model="selectedIsoniazidStopDate"
+										default-year="2025"
+									/>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<FormCheckbox
+										name="pyrazinamideSuspected"
+									/>
+								</TableCell>
+								<TableCell> Pyrazinamide </TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="pyrazinamideBatchNo"
+										placeholder="e.g P123456"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="pyrazinamideManufacturer"
+										placeholder="e.g Novartis"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="pyrazinamideDoseAmount"
+										placeholder="e.g 500"
+										:step="5"
+									/>
+									<p>mg</p>
+								</TableCell>
+								<TableCell>
+									<FormSelect
+										name="pyrazinamideRoute"
+										placeholder="Route"
+										:options="
+											adrFormCategoricalValues['route']
+										"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="pyrazinamideFrequencyNumber"
+										placeholder="e.g 1"
+									/>
+									<p>daily</p>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="pyrazinamideStartDate"
+										v-model="selectedPyrazinamideStartDate"
+										default-year="2025"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="pyrazinamideStopDate"
+										v-model="selectedPyrazinamideStopDate"
+										default-year="2025"
+									/>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<FormCheckbox name="ethambutolSuspected" />
+								</TableCell>
+								<TableCell> Ethambutol </TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="ethambutolBatchNo"
+										placeholder="e.g E123456"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormInput
+										type="text"
+										name="ethambutolManufacturer"
+										placeholder="e.g Sanofi"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="ethambutolDoseAmount"
+										placeholder="e.g 800"
+										:step="5"
+									/>
+									<p>mg</p>
+								</TableCell>
+								<TableCell>
+									<FormSelect
+										name="ethambutolRoute"
+										placeholder="Route"
+										:options="
+											adrFormCategoricalValues['route']
+										"
+									/>
+								</TableCell>
+								<TableCell class="flex items-center space-x-2">
+									<FormNumberField
+										name="ethambutolFrequencyNumber"
+										placeholder="e.g 1"
+									/>
+									<p>daily</p>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="ethambutolStartDate"
+										v-model="selectedEthambutolStartDate"
+										default-year="2025"
+									/>
+								</TableCell>
+								<TableCell>
+									<FormSelectDatePicker
+										name="ethambutolStopDate"
+										v-model="selectedEthambutolStopDate"
+										default-year="2025"
+									/>
+								</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</div>
+				<Separator class="my-4" />
+				<div class="form-section">
 					<p id="rechallenge" class="form-section-header">
-						4. Rechallenge/Dechallenge
+						5. Rechallenge/Dechallenge
 					</p>
 					<FormRadio
 						name="rechallenge"
@@ -357,7 +614,7 @@
 				<Separator class="my-4" />
 				<div class="form-section">
 					<p id="grading" class="form-section-header">
-						5. Grading of the Event
+						6. Grading of the Event
 					</p>
 					<FormRadio
 						name="severity"
@@ -412,9 +669,11 @@ import humps from "humps";
 import type { CausalityAssessmentLevelGetResponseInterface } from "@/types/cal";
 import type { MedicalInstitutionGetResponseInterface } from "@/types/medical_institution";
 import type { PaginatedResponseInterface } from "@/types/pagination";
+import FormCheckbox from "./ui/custom/FormCheckbox.vue";
 import FormInput from "./ui/custom/FormInput.vue";
 import FormNumberField from "./ui/custom/FormNumberField.vue";
 import FormRadio from "./ui/custom/FormRadio.vue";
+import FormSelect from "./ui/custom/FormSelect.vue";
 import FormSelectDatePicker from "./ui/custom/FormSelectDatePicker.vue";
 import FormTextArea from "./ui/custom/FormTextArea.vue";
 
@@ -516,7 +775,10 @@ onMounted(async () => {
 		for (const key of Object.keys(camel) as Array<
 			keyof adrFormTypeValidationSchema
 		>) {
-			setFieldValue(key, camel[key]);
+			// The null check is to prevent errors
+			if (camel[key] != null) {
+				setFieldValue(key, camel[key]);
+			}
 		}
 	}
 });
@@ -543,7 +805,7 @@ const [patientAddress, patientAddressAttrs] = defineField("patientAddress");
 const [patientWeightKg, patientWeightKgAttrs] = defineField("patientWeightKg");
 const [patientHeightCm, patientHeightCmAttrs] = defineField("patientHeightCm");
 const [wardOrClinic, wardOrClinicAttrs] = defineField("wardOrClinic");
-const [gender, genderAttrs] = defineField("gender");
+const [patientGender, patientGenderAttrs] = defineField("patientGender");
 const [pregnancyStatus, pregnancyStatusAttrs] = defineField("pregnancyStatus");
 const [knownAllergy, knownAllergyAttrs] = defineField("knownAllergy");
 // SuspeCted Adverse Reaction
@@ -553,6 +815,94 @@ const [dateOfOnsetOfReaction, dateOfOnsetOfReactionAttrs] = defineField(
 const [descriptionOfReaction, descriptionOfReactionAttrs] = defineField(
 	"descriptionOfReaction"
 );
+// Rifampicin
+const [rifampicinSuspected, rifampicinSuspectedAttrs] = defineField(
+	"rifampicinSuspected"
+);
+const [rifampicinBatchNo, rifampicinBatchNoAttrs] =
+	defineField("rifampicinBatchNo");
+const [rifampicinManufacturer, rifampicinManufacturerAttrs] = defineField(
+	"rifampicinManufacturer"
+);
+const [rifampicinDoseAmount, rifampicinDoseAmountAttrs] = defineField(
+	"rifampicinDoseAmount"
+);
+const [rifampicinRoute, rifampicinRouteAttrs] = defineField("rifampicinRoute");
+const [rifampicinFrequencyNumber, rifampicinFrequencyNumberAttrs] = defineField(
+	"rifampicinFrequencyNumber"
+);
+const [rifampicinStartDate, rifampicinStartDateAttrs] = defineField(
+	"rifampicinStartDate"
+);
+const [rifampicinStopDate, rifampicinStopDateAttrs] =
+	defineField("rifampicinStopDate");
+
+// Isoniazid
+const [isoniazidSuspected, isoniazidSuspectedAttrs] =
+	defineField("isoniazidSuspected");
+const [isoniazidBatchNo, isoniazidBatchNoAttrs] =
+	defineField("isoniazidBatchNo");
+const [isoniazidManufacturer, isoniazidManufacturerAttrs] = defineField(
+	"isoniazidManufacturer"
+);
+const [isoniazidDoseAmount, isoniazidDoseAmountAttrs] = defineField(
+	"isoniazidDoseAmount"
+);
+const [isoniazidRoute, isoniazidRouteAttrs] = defineField("isoniazidRoute");
+const [isoniazidFrequencyNumber, isoniazidFrequencyNumberAttrs] = defineField(
+	"isoniazidFrequencyNumber"
+);
+const [isoniazidStartDate, isoniazidStartDateAttrs] =
+	defineField("isoniazidStartDate");
+const [isoniazidStopDate, isoniazidStopDateAttrs] =
+	defineField("isoniazidStopDate");
+
+// Pyrazinamide
+const [pyrazinamideSuspected, pyrazinamideSuspectedAttrs] = defineField(
+	"pyrazinamideSuspected"
+);
+const [pyrazinamideBatchNo, pyrazinamideBatchNoAttrs] = defineField(
+	"pyrazinamideBatchNo"
+);
+const [pyrazinamideManufacturer, pyrazinamideManufacturerAttrs] = defineField(
+	"pyrazinamideManufacturer"
+);
+const [pyrazinamideDoseAmount, pyrazinamideDoseAmountAttrs] = defineField(
+	"pyrazinamideDoseAmount"
+);
+const [pyrazinamideRoute, pyrazinamideRouteAttrs] =
+	defineField("pyrazinamideRoute");
+const [pyrazinamideFrequencyNumber, pyrazinamideFrequencyNumberAttrs] =
+	defineField("pyrazinamideFrequencyNumber");
+const [pyrazinamideStartDate, pyrazinamideStartDateAttrs] = defineField(
+	"pyrazinamideStartDate"
+);
+const [pyrazinamideStopDate, pyrazinamideStopDateAttrs] = defineField(
+	"pyrazinamideStopDate"
+);
+
+// Ethambutol
+const [ethambutolSuspected, ethambutolSuspectedAttrs] = defineField(
+	"ethambutolSuspected"
+);
+const [ethambutolBatchNo, ethambutolBatchNoAttrs] =
+	defineField("ethambutolBatchNo");
+const [ethambutolManufacturer, ethambutolManufacturerAttrs] = defineField(
+	"ethambutolManufacturer"
+);
+const [ethambutolDoseAmount, ethambutolDoseAmountAttrs] = defineField(
+	"ethambutolDoseAmount"
+);
+const [ethambutolRoute, ethambutolRouteAttrs] = defineField("ethambutolRoute");
+const [ethambutolFrequencyNumber, ethambutolFrequencyNumberAttrs] = defineField(
+	"ethambutolFrequencyNumber"
+);
+const [ethambutolStartDate, ethambutolStartDateAttrs] = defineField(
+	"ethambutolStartDate"
+);
+const [ethambutolStopDate, ethambutolStopDateAttrs] =
+	defineField("ethambutolStopDate");
+
 // Rechallenge/Dechallenge
 const [rechallenge, rechallengeAttrs] = defineField("rechallenge");
 const [dechallenge, dechallengeAttrs] = defineField("dechallenge");
@@ -568,6 +918,16 @@ const [comments, commentsAttrs] = defineField("comments");
 
 // V-model for columns
 const selectedDateOfOnsetOfReaction = ref<string>("");
+
+const selectedRifampicinStartDate = ref<string>("");
+const selectedRifampicinStopDate = ref<string>("");
+const selectedIsoniazidStartDate = ref<string>("");
+const selectedIsoniazidStopDate = ref<string>("");
+const selectedPyrazinamideStartDate = ref<string>("");
+const selectedPyrazinamideStopDate = ref<string>("");
+const selectedEthambutolStartDate = ref<string>("");
+const selectedEthambutolStopDate = ref<string>("");
+
 const selectedPatientDateOfBirth = ref<string>("");
 const selectedPatientAge = ref<number>(18);
 const selectedPatientWeightKg = ref<number>(60);
@@ -621,6 +981,60 @@ watchEffect(() => {
 		);
 	} else {
 		setFieldValue("dateOfOnsetOfReaction", undefined);
+	}
+
+	if (selectedRifampicinStartDate.value) {
+		setFieldValue("rifampicinStartDate", selectedRifampicinStartDate.value);
+	} else {
+		setFieldValue("rifampicinStartDate", undefined);
+	}
+
+	if (selectedRifampicinStopDate.value) {
+		setFieldValue("rifampicinStopDate", selectedRifampicinStopDate.value);
+	} else {
+		setFieldValue("rifampicinStopDate", undefined);
+	}
+
+	if (selectedIsoniazidStartDate.value) {
+		setFieldValue("isoniazidStartDate", selectedIsoniazidStartDate.value);
+	} else {
+		setFieldValue("isoniazidStartDate", undefined);
+	}
+
+	if (selectedIsoniazidStopDate.value) {
+		setFieldValue("isoniazidStopDate", selectedIsoniazidStopDate.value);
+	} else {
+		setFieldValue("isoniazidStopDate", undefined);
+	}
+
+	if (selectedPyrazinamideStartDate.value) {
+		setFieldValue(
+			"pyrazinamideStartDate",
+			selectedPyrazinamideStartDate.value
+		);
+	} else {
+		setFieldValue("pyrazinamideStartDate", undefined);
+	}
+
+	if (selectedPyrazinamideStopDate.value) {
+		setFieldValue(
+			"pyrazinamideStopDate",
+			selectedPyrazinamideStopDate.value
+		);
+	} else {
+		setFieldValue("pyrazinamideStopDate", undefined);
+	}
+
+	if (selectedEthambutolStartDate.value) {
+		setFieldValue("ethambutolStartDate", selectedEthambutolStartDate.value);
+	} else {
+		setFieldValue("ethambutolStartDate", undefined);
+	}
+
+	if (selectedEthambutolStopDate.value) {
+		setFieldValue("ethambutolStopDate", selectedEthambutolStopDate.value);
+	} else {
+		setFieldValue("ethambutolStopDate", undefined);
 	}
 });
 

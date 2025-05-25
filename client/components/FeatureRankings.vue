@@ -22,7 +22,8 @@
 				>
 					<Table>
 						<TableCaption>
-							{{ featureRankingPerClass.classLabel }}
+							Feature Rankings Per Class using SHAP for
+							{{ capitalize(featureRankingPerClass.classLabel) }}
 						</TableCaption>
 						<TableHeader>
 							<TableRow>

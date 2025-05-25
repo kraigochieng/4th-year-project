@@ -72,13 +72,13 @@
 									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 								>
 									<NuxtLink
-										to="/communication/additional-info"
+										to="/communication/additional-information-requests"
 									>
-										Additional Info
+										Additional Information Requests
 									</NuxtLink>
 								</NavigationMenuLink>
 							</li>
-							<li>
+							<!-- <li>
 								<NavigationMenuLink
 									as-child
 									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
@@ -87,7 +87,7 @@
 										Bulk Alerts
 									</NuxtLink>
 								</NavigationMenuLink>
-							</li>
+							</li> -->
 							<li>
 								<NavigationMenuLink
 									as-child

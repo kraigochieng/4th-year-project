@@ -11,18 +11,18 @@ import { MoreHorizontal } from "lucide-vue-next";
 
 const props = defineProps<{
 	row: {
-		id: string;
+		adr_id: string;
 	};
 }>();
 
 const router = useRouter();
 
 function handleView() {
-	router.push(`/adr/${props.row.id}`);
+	router.push(`/adr/${props.row.adr_id}`);
 }
 
 function handleEdit() {
-	router.push(`/adr/${props.row.id}/edit`);
+	router.push(`/adr/${props.row.adr_id}/edit`);
 }
 const isOpen = ref(false);
 </script>
@@ -37,8 +37,9 @@ const isOpen = ref(false);
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end">
 			<DropdownMenuLabel>Actions</DropdownMenuLabel>
-			<DropdownMenuItem @mouseup="handleView">View</DropdownMenuItem>
-			<DropdownMenuItem @mouseup="handleEdit">Edit</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleView">View ADR</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleEdit">Edit ADR</DropdownMenuItem>
+			<DropdownMenuItem @mouseup="handleEdit">Delete ADR</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>
 </template>

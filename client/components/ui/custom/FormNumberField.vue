@@ -2,11 +2,12 @@
 	<FormField v-slot="{ value }" :name="props.name">
 		<div class="form-field-wrapper">
 			<FormItem>
-				<FormLabel>{{ props.label }}</FormLabel>
+				<FormLabel v-if="props.label">{{ props.label }}</FormLabel>
 				<NumberField
 					class="gap-2"
 					:min="props.min"
 					:model-value="value"
+					:step="step"
 					v-bind="
 						props.formatOptions
 							? { formatOptions: props.formatOptions }
@@ -30,7 +31,7 @@
 						<NumberFieldIncrement />
 					</NumberFieldContent>
 				</NumberField>
-				<FormDescription>
+				<FormDescription v-if="props.description">
 					{{ props.description }}
 				</FormDescription>
 				<FormMessage />
@@ -45,14 +46,16 @@ const myValue = defineModel<number>();
 const props = withDefaults(
 	defineProps<{
 		name: string;
-		label: string;
+		label?: string;
 		description?: string;
 		min?: number;
 		max?: number;
+		step?: number;
 		formatOptions?: Intl.NumberFormatOptions;
 	}>(),
 	{
-		min: 1,
+		min: 0,
+		step: 1,
 	}
 );
 </script>

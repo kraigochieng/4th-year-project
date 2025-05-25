@@ -6,9 +6,7 @@
 		</CardHeader>
 		<CardContent>
 			<Table>
-				<TableCaption>
-					The order of classes and their probabilities of being
-				</TableCaption>
+				<TableCaption> Class Rankings Using SHAP </TableCaption>
 				<TableHeader>
 					<TableRow>
 						<TableHead>Rank</TableHead>

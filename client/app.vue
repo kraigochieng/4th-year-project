@@ -72,6 +72,13 @@ html {
 	@apply flex justify-between;
 }
 
+.view-details-header {
+
+}
+
+.view-details-content {
+	@apply bg-accent rounded-sm px-2
+}
 /* Transitions  */
 .v-enter-active,
 .v-leave-active {
@@ -84,10 +91,16 @@ html {
 }
 
 .badge {
-	@apply text-xs font-semibold py-1 px-2 text-white rounded-full;
+	@apply text-xs font-bold py-1 px-2 text-white rounded-md w-max;
 }
 
 .form-section-header-icon {
 	@apply w-6 h-6 text-gray-300;
 }
+
+.blank-badge {
+	@apply bg-zinc-100 text-gray-400 outline-dashed outline-2 outline-gray-400;
+}
+
+
 </style>

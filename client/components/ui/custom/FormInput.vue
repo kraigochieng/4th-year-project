@@ -12,7 +12,7 @@
 					/>
 				</div>
 			</FormControl>
-			<FormDescription>
+			<FormDescription v-if="description">
 				{{ description }}
 			</FormDescription>
 			<FormMessage />
@@ -26,7 +26,7 @@
 defineProps<{
 	type: string;
 	name: string;
-	label: string;
+	label?: string;
 	placeholder: string;
 	description?: string;
 }>();
