@@ -3,11 +3,17 @@
 		<p v-if="adrStatus == 'pending'">Loading ADR...</p>
 		<p v-else-if="adrStatus == 'error'">Error {{ adrError }}</p>
 		<div v-else-if="adrStatus == 'success'">
+			<CausalityAssessmentLevelComparison
+				v-if="causalityAssessmentLevelData"
+				:value="
+					causalityAssessmentLevelData.causality_assessment_level_value
+				"
+			/>
 			<Tabs default-value="adr">
 				<TabsList>
 					<TabsTrigger value="adr">ADR Details</TabsTrigger>
 					<TabsTrigger value="causality-assessment">
-						Causality Assessment Details
+						Prediction Explanations
 					</TabsTrigger>
 					<TabsTrigger value="review"> Review Details </TabsTrigger>
 				</TabsList>
@@ -15,12 +21,6 @@
 					<ADRDetails v-if="adrData" :data="adrData" />
 				</TabsContent>
 				<TabsContent value="causality-assessment">
-					<CausalityAssessmentLevelComparison
-						v-if="causalityAssessmentLevelData"
-						:value="
-							causalityAssessmentLevelData.causality_assessment_level_value
-						"
-					/>
 					<ClassRankings
 						v-if="
 							causalityAssessmentLevelData &&
@@ -267,26 +267,26 @@ function formatTime(isoString: string): string {
 }
 
 const reviewColumns: ColumnDef<ReviewWithUserGetResponse>[] = [
-	{
-		id: "select",
-		header: ({ table }) =>
-			h(Checkbox, {
-				modelValue:
-					table.getIsAllPageRowsSelected() ||
-					(table.getIsSomePageRowsSelected() && "indeterminate"),
-				"onUpdate:modelValue": (value) =>
-					table.toggleAllPageRowsSelected(!!value),
-				ariaLabel: "Select all",
-			}),
-		cell: ({ row }) =>
-			h(Checkbox, {
-				modelValue: row.getIsSelected(),
-				"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
-				ariaLabel: "Select row",
-			}),
-		enableSorting: false,
-		enableHiding: false,
-	},
+	// {
+	// 	id: "select",
+	// 	header: ({ table }) =>
+	// 		h(Checkbox, {
+	// 			modelValue:
+	// 				table.getIsAllPageRowsSelected() ||
+	// 				(table.getIsSomePageRowsSelected() && "indeterminate"),
+	// 			"onUpdate:modelValue": (value) =>
+	// 				table.toggleAllPageRowsSelected(!!value),
+	// 			ariaLabel: "Select all",
+	// 		}),
+	// 	cell: ({ row }) =>
+	// 		h(Checkbox, {
+	// 			modelValue: row.getIsSelected(),
+	// 			"onUpdate:modelValue": (value) => row.toggleSelected(!!value),
+	// 			ariaLabel: "Select row",
+	// 		}),
+	// 	enableSorting: false,
+	// 	enableHiding: false,
+	// },
 	{
 		id: "user.first_name",
 		accessorKey: "user.first_name",
@@ -375,31 +375,31 @@ const reviewColumns: ColumnDef<ReviewWithUserGetResponse>[] = [
 
 		enableSorting: false,
 	},
-	// {
-	// 	id: "created_at",
-	// 	accessorKey: "created_at",
-	// 	header: "Created At",
-	// 	cell: ({ row }) => {
-	// 		return h(
-	// 			"div",
-	// 			{},
-	// 			`${row.original.created_at.slice(0, 10) || ''} ${formatTime(
-	// 				row.original.created_at
-	// 			)}`
-	// 		);
-	// 	},
-	// 	enableSorting: true,
-	// },
 	{
-		id: "actions",
-		enableHiding: false,
+		id: "created_at",
+		accessorKey: "created_at",
+		header: "Created At",
 		cell: ({ row }) => {
-			return h(TableActionsReview, {
-				row: row.original,
-				onExpand: row.toggleExpanded,
-			});
+			return h(
+				"div",
+				{},
+				`${row.original.created_at.slice(0, 10) || ''} ${formatTime(
+					row.original.created_at
+				)}`
+			);
 		},
+		enableSorting: true,
 	},
+	// {
+	// 	id: "actions",
+	// 	enableHiding: false,
+	// 	cell: ({ row }) => {
+	// 		return h(TableActionsReview, {
+	// 			row: row.original,
+	// 			onExpand: row.toggleExpanded,
+	// 		});
+	// 	},
+	// },
 ];
 
 onMounted(async () => {

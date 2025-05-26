@@ -219,6 +219,7 @@ export interface ADRWithCausalityLevelAndReviewCountInterface {
 	adr_id: string;
 	patient_name: string;
 	created_by: string;
+	created_at: string;
 	causality_assessment_level_value: string;
 	approved_reviews: number;
 	unapproved_reviews: number;

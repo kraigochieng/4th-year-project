@@ -378,6 +378,8 @@ async def lifespan(app: FastAPI):
 
             _, ordinal_encoder = get_encoders()
 
+            minmax_scaler = get_scalers()
+
             # Load and preprocess new data
             adr_data_df = pd.DataFrame([record])
 
@@ -418,7 +420,7 @@ async def lifespan(app: FastAPI):
                 shap_values_sum_per_class=shap_values_sum_per_class,
                 shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
                 feature_names=feature_names,
-                feature_values=feature_values,
+                feature_values=format_feature_values(feature_values),
             )
 
             causality_entries.append(causality_entry)
@@ -807,6 +809,7 @@ def get_adrs_with_causality_and_review_count(
             a.id AS adr_id,
             a.patient_name,
             u.first_name || ' ' || u.last_name AS created_by,
+            a.created_at,
             cal.causality_assessment_level_value,
             COUNT(CASE WHEN r.approved = 1 THEN 1 END) AS approved_reviews,
             COUNT(CASE WHEN r.approved = 0 THEN 1 END) AS unapproved_reviews
@@ -954,7 +957,7 @@ async def post_adr(
         shap_values_sum_per_class=shap_values_sum_per_class,
         shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
         feature_names=feature_names,
-        feature_values=feature_values,
+        feature_values=format_feature_values(feature_values),
     )
 
     db.add(casuality_assessment_level_model)
@@ -1070,7 +1073,8 @@ async def update_adr(
             shap_values_and_base_values_sum_per_class
         )
         causality_record.feature_names = feature_names
-        causality_record.feature_values = feature_values
+        causality_record.feature_values = format_feature_values(feature_values)
+
         db.commit()
         db.refresh(causality_record)
     else:
@@ -1084,7 +1088,7 @@ async def update_adr(
             shap_values_sum_per_class=shap_values_sum_per_class,
             shap_values_and_base_values_sum_per_class=shap_values_and_base_values_sum_per_class,
             feature_names=feature_names,
-            feature_values=feature_values,
+            feature_values=format_feature_values(feature_values),
         )
         db.add(new_causality)
         db.commit()
@@ -1162,9 +1166,7 @@ async def get_causality_assessment_level_by_id(
 )
 async def get_causality_assessment_level_by_adr_id(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
-    adr_id: str = Path(
-        ..., description="ID of Causality Assessment to read"
-    ),
+    adr_id: str = Path(..., description="ID of Causality Assessment to read"),
     db: Session = Depends(get_db),
 ):
     causality_assessment_level = (
@@ -1193,6 +1195,7 @@ async def get_causality_assessment_level_by_adr_id(
         content=content,
         status_code=status.HTTP_200_OK,
     )
+
 
 @app.get(
     "/api/v1/adr/{adr_id}/causality_assessment_level",
@@ -1478,8 +1481,8 @@ def delete_review_by_id(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.get("/api/v1/monitoring", status_code=status.HTTP_200_OK)
-def get_monitoring(
+@app.get("/api/v1/adr_monitoring", status_code=status.HTTP_200_OK)
+def get_adr_monitoring(
     current_user: Annotated[UserDetailsBaseModel, Depends(get_current_user)],
     start: str = Query(...),
     end: str = Query(...),
@@ -1514,7 +1517,7 @@ def get_monitoring(
         }
 
     # Gender Proportion
-    gender_proportions_data = query_proportion_data(db, ADRModel.gender)
+    gender_proportions_data = query_proportion_data(db, ADRModel.patient_gender)
     gender_proportions_content = format_proportion_data(gender_proportions_data)
 
     # Pregnancy Status Proportion
@@ -2833,3 +2836,32 @@ def get_shap_values(shap_values: Explainer):
         "shap_values_sum_per_class": shap_values_sum_per_class,
         "shap_values_and_base_values_sum_per_class": shap_values_and_base_values_sum_per_class,
     }
+
+
+def format_feature_values(feature_values: List[any]) -> List[any]:
+    minmax_scaler = get_scalers()
+
+    reversed_values = []
+
+    for i, value in enumerate(feature_values):
+        # Handle logical encoding: 0 → False, 1 → True, -1 → None
+        if value == 0:
+            reversed_values.append(False)
+        elif value == 1:
+            reversed_values.append(True)
+
+        # Reverse min-max scaling for decimal floats
+        elif isinstance(value, float) and not value.is_integer():
+            min_val = minmax_scaler.data_min_[i]
+            max_val = minmax_scaler.data_max_[i]
+            original = round(value * (max_val - min_val) + min_val)
+            if original == -1:
+                reversed_values.append(None)
+            else:
+                reversed_values.append(original)
+
+        # Leave all other values as-is
+        else:
+            reversed_values.append(value)
+
+    return reversed_values

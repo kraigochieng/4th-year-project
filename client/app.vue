@@ -91,7 +91,7 @@ html {
 }
 
 .badge {
-	@apply text-xs font-bold py-1 px-2 text-white rounded-md w-max;
+	@apply text-xs font-bold py-1 px-2 rounded-md w-max;
 }
 
 .form-section-header-icon {

@@ -36,7 +36,7 @@
 			<div class="view-details-wrapper">
 				<p class="view-details-header">MFL Code</p>
 				<div
-					v-if="medicalInstitutionData?.mfl_code"
+					v-if="medicalInstitutionData?.mfl_code != '0'"
 					class="view-details-content"
 				>
 					{{ medicalInstitutionData?.mfl_code }}
@@ -47,7 +47,7 @@
 			<div class="view-details-wrapper">
 				<p class="view-details-header">DHIS Code</p>
 				<div
-					v-if="medicalInstitutionData?.dhis_code"
+					v-if="medicalInstitutionData?.dhis_code != '0'"
 					class="view-details-content"
 				>
 					{{ medicalInstitutionData?.dhis_code }}
@@ -150,7 +150,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.patient_gender,
@@ -174,7 +174,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value ===
@@ -200,7 +200,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.known_allergy,
@@ -298,7 +298,7 @@
 									:key="value.value"
 								>
 									<p
-										class="badge"
+										class="badge text-white"
 										:class="{
 											'bg-primary':
 												value.value ===
@@ -392,7 +392,7 @@
 									:key="value.value"
 								>
 									<p
-										class="badge"
+										class="badge text-white"
 										:class="{
 											'bg-primary':
 												value.value ===
@@ -490,7 +490,7 @@
 									:key="value.value"
 								>
 									<p
-										class="badge"
+										class="badge text-white"
 										:class="{
 											'bg-primary':
 												value.value ===
@@ -584,7 +584,7 @@
 									:key="value.value"
 								>
 									<p
-										class="badge"
+										class="badge text-white"
 										:class="{
 											'bg-primary':
 												value.value ===
@@ -652,7 +652,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.rechallenge,
@@ -674,7 +674,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.dechallenge,
@@ -702,7 +702,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.severity,
@@ -724,7 +724,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.is_serious,
@@ -748,7 +748,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value ===
@@ -772,7 +772,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.action_taken,
@@ -794,7 +794,7 @@
 						:key="value.value"
 					>
 						<p
-							class="badge"
+							class="badge text-white"
 							:class="{
 								'bg-primary':
 									value.value === props.data?.outcome,

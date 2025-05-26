@@ -12,8 +12,6 @@
     ],
     "numerical_columns": [
         "patient_age",
-        "patient_weight_kg",
-        "patient_height_cm",
         "patient_bmi",
         "rifampicin_start_to_onset_days",
         "rifampicin_stop_to_onset_days",
@@ -48,16 +46,17 @@
         "ethambutol_suspected"
     ],
     "prediction_columns": [
-        "dechallenge_no",
         "dechallenge_yes",
         "rechallenge_yes",
         "severity_fatal",
+        "action_taken_dose not changed",
         "num_suspected_drugs_1",
-        "patient_weight_kg",
-        "patient_height_cm",
+        "patient_bmi",
         "rifampicin_start_stop_difference",
         "isoniazid_start_stop_difference",
+        "pyrazinamide_start_to_onset_days",
         "pyrazinamide_start_stop_difference",
+        "ethambutol_start_to_onset_days",
         "ethambutol_start_stop_difference"
     ],
     "columns_to_drop": [

@@ -1,5 +1,17 @@
 <template>
 	<div class="page-wrapper">
+		<ul>
+			<li>
+				Add review form to the view adr page, or copy everything and
+				then create and adr review page
+			</li>
+			<li>add review adr to this page in table actions</li>
+			<li>
+				Use the query like in individual alerts on the view adr to allow
+				for directed page reloads
+			</li>
+			<li>dashboard</li>
+		</ul>
 		<Button class="w-full my-4"
 			><NuxtLink to="/adr/add">Add Adr</NuxtLink></Button
 		>
@@ -38,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { capitalize } from "lodash";
 import TableActionsAdr from "@/components/table/actions/Adr.vue";
 import { useAuthStore } from "@/stores/auth";
+import { capitalize } from "lodash";
 
+import Button from "@/components/ui/button/Button.vue";
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import type { ADRWithCausalityLevelAndReviewCountInterface } from "@/types/adr";
 import type { PaginatedResponseInterface } from "@/types/pagination";
@@ -100,6 +113,15 @@ const fetchADRData = async () => {
 	}
 };
 
+function formatTime(isoString: string): string {
+	const date = new Date(isoString);
+	return new Intl.DateTimeFormat("en-US", {
+		hour: "numeric",
+		minute: "numeric",
+		hour12: true,
+	}).format(date);
+}
+
 watch([currentPage, pageSize], () => {
 	fetchADRData();
 });
@@ -144,15 +166,8 @@ const columns: ColumnDef<ADRWithCausalityLevelAndReviewCountInterface>[] = [
 		accessorKey: "patient_name",
 		header: "Patient Name",
 		cell: ({ row }) => h("div", {}, row.getValue("patient_name")),
-		enableSorting: false,
 	},
-	{
-		id: "created_by",
-		accessorKey: "created_by",
-		header: "Created By",
-		cell: ({ row }) => h("div", {}, row.getValue("created_by")),
-		enableSorting: false,
-	},
+
 	// {
 	// 	id: "causality_assessment_level_value",
 	// 	accessorKey: "causality_assessment_level_value",
@@ -239,7 +254,27 @@ const columns: ColumnDef<ADRWithCausalityLevelAndReviewCountInterface>[] = [
 			]);
 		},
 	},
-	
+	{
+		id: "created_by",
+		accessorKey: "created_by",
+		header: "Created By",
+		cell: ({ row }) => h("div", {}, row.getValue("created_by")),
+		enableSorting: false,
+	},
+	{
+		id: "created_at",
+		accessorKey: "created_at",
+		header: "Created At",
+		cell: ({ row }) =>
+			h(
+				"div",
+				{},
+				`${row.original.created_at.slice(0, 10)} ${formatTime(
+					row.original.created_at
+				)}`
+			),
+		enableSorting: true,
+	},
 	{
 		id: "actions",
 		enableHiding: false,

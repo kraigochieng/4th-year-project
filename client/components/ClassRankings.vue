@@ -24,26 +24,19 @@
 							{{ `${item.baseValue.toFixed(4)} %` }}
 						</TableCell>
 						<TableCell>
-							<div class="flex items-center">
-								{{ `${item.shapValue.toFixed(4)} %` }}
-								<span
+							<div class="flex items-center gap-2">
+								<Icon
 									v-if="item.shapValue > 0"
-									class="text-green-600"
-								>
-									<Icon
-										name="lucide:arrow-up"
-										class="w-4 h-4"
-									/>
-								</span>
-								<span
-									v-else-if="item.shapValue < 0"
-									class="text-red-600"
-								>
-									<Icon
-										name="lucide:arrow-down"
-										class="w-4 h-4"
-									/>
-								</span>
+									name="lucide:arrow-up"
+									class="w-4 h-4 text-green-600"
+								/>
+
+								<Icon
+									v-if="item.shapValue < 0"
+									name="lucide:arrow-down"
+									class="w-4 h-4 text-red-600"
+								/>
+								<p>{{ `${item.shapValue.toFixed(4)} %` }}</p>
 							</div>
 						</TableCell>
 						<TableCell>

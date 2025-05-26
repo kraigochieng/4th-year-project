@@ -78,16 +78,6 @@
 									</NuxtLink>
 								</NavigationMenuLink>
 							</li>
-							<!-- <li>
-								<NavigationMenuLink
-									as-child
-									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-								>
-									<NuxtLink to="/communication/bulk-alerts">
-										Bulk Alerts
-									</NuxtLink>
-								</NavigationMenuLink>
-							</li> -->
 							<li>
 								<NavigationMenuLink
 									as-child
@@ -104,9 +94,46 @@
 					</NavigationMenuContent>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<NavigationMenuLink href="/monitoring">
-						Monitor
-					</NavigationMenuLink>
+					<NavigationMenuTrigger>Monitoring</NavigationMenuTrigger>
+					<NavigationMenuContent>
+						<ul
+							class="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]"
+						>
+							<li>
+								<NavigationMenuLink
+									as-child
+									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+								>
+									<NuxtLink to="/monitoring/adr">
+										ADR Monitoring
+									</NuxtLink>
+								</NavigationMenuLink>
+							</li>
+							<li>
+								<NavigationMenuLink
+									as-child
+									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+								>
+									<NuxtLink to="/monitoring/review">
+										Review Monitoring
+									</NuxtLink>
+								</NavigationMenuLink>
+							</li>
+							<li>
+								<NavigationMenuLink
+									as-child
+									class="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+								>
+									<NuxtLink to="/monitoring/sms">
+										SMS Monitoring
+									</NuxtLink>
+								</NavigationMenuLink>
+							</li>
+						</ul>
+					</NavigationMenuContent>
+				</NavigationMenuItem>
+				<NavigationMenuItem>
+					<NavigationMenuLink href="/about">About</NavigationMenuLink>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
 					<Button @mouseup="useAuthStore().logout()">Logout</Button>

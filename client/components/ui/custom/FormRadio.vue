@@ -14,10 +14,10 @@ const props = defineProps<{
 			<FormItem>
 				<FormLabel class="py-2"> {{ label }}</FormLabel>
 				<FormControl>
-					<RadioGroup v-bind="componentField" class="">
+					<RadioGroup v-bind="componentField" class="flex flex-col md:flex-row md:my-8 md:gap-x-4">
 						<FormItem
 							v-for="option in options"
-							class="flex items-center space-y-0 gap-x-3"
+							class="flex items-center space-y-0 gap-x-2"
 						>
 							<FormControl>
 								<RadioGroupItem :value="option.value" />

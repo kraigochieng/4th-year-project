@@ -1,5 +1,11 @@
 <template>
-	<h1 class="text-center text-3xl font-bold p-4">Summary Statistics</h1>
+	<h1 class="text-center text-3xl font-bold p-4">Review Statistics</h1>
+	<ul>
+		<li>number of ADRs that are approved unnaproved in total, we can use a card for this</li>
+		<li>drill down to the specific medicines</li>
+		<li>Review percentage</li>
+
+	</ul>
 	<div class="flex gap-4 items-center p-4">
 		<DateRangePicker label="Choose Date Range" v-model="dateRange" />
 		<Select v-model="timeFrame">

@@ -231,25 +231,52 @@
 						placeholder="Patient Name"
 						description="The name of the patient"
 					/>
-					<FormSelectDatePicker
-						name="patientDateOfBirth"
-						label="Patient Date of Birth"
-						description="The patient's birth date"
-						v-model="selectedPatientDateOfBirth"
-						default-year="2003"
-						default-month="9"
-						default-day="8"
-					/>
-					<FormNumberField
-						name="patientAge"
-						label="Patient Age"
-						description="Patient Age in Years"
-						:format-options="{
-							style: 'unit',
-							unit: 'year',
-						}"
-						v-model="selectedPatientAge"
-					/>
+					<div class="flex items-center space-x-4">
+						<div>
+							<Label>
+								Do you know the patient's date of birth?
+							</Label>
+							<RadioGroup default-value="dob-yes" v-model="isDob">
+								<div class="flex items-center space-x-2">
+									<RadioGroupItem
+										id="dob-yes"
+										value="dob-yes"
+									/>
+									<Label for="dob-yes">Yes</Label>
+								</div>
+								<div class="flex items-center space-x-2">
+									<RadioGroupItem
+										id="dob-no"
+										value="dob-no"
+									/>
+									<Label for="dob-no">No</Label>
+								</div>
+							</RadioGroup>
+						</div>
+						<VerticalSeparator/>
+						<FormSelectDatePicker
+							name="patientDateOfBirth"
+							label="Patient Date of Birth"
+							description="The patient's birth date"
+							v-model="selectedPatientDateOfBirth"
+							default-year="2003"
+							default-month="9"
+							default-day="8"
+							v-if="isDob == 'dob-yes'"
+						/>
+						<FormNumberField
+							name="patientAge"
+							label="Patient Age"
+							description="Patient Age in Years"
+							:format-options="{
+								style: 'unit',
+								unit: 'year',
+							}"
+							v-model="selectedPatientAge"
+							v-if="isDob == 'dob-no'"
+						/>
+					</div>
+
 					<FormNumberField
 						name="patientHeightCm"
 						label="Patient Height (in cm)"
@@ -686,6 +713,7 @@ const medicalInstitutionId = ref<string | undefined>();
 const medicalInstitutionSearchInput = ref<string>("");
 const isCreateMedicalInstitutionDialogOpen = ref(false);
 const authStore = useAuthStore();
+const isDob = ref<string>("dob-yes");
 
 watchEffect(async () => {
 	if (medicalInstitutionSearchInput.value.length >= 3) {

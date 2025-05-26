@@ -27,6 +27,7 @@
 						</TableCaption>
 						<TableHeader>
 							<TableRow>
+								<TableHead>Rank</TableHead>
 								<TableHead>Feature Name</TableHead>
 								<TableHead>Feature Value</TableHead>
 								<TableHead>SHAP Value</TableHead>
@@ -34,14 +35,34 @@
 						</TableHeader>
 						<TableBody>
 							<TableRow
-								v-for="feature in featureRankingPerClass.features"
+								v-for="(
+									feature, index
+								) in featureRankingPerClass.features"
 							>
+								<TableCell>{{ index + 1 }}</TableCell>
 								<TableCell>
-									{{ feature.name }}
+									{{ useFeatureNameFormatter(feature.name) }}
 								</TableCell>
-								<TableCell>
+								<TableCell
+									v-if="typeof feature.value == 'boolean'"
+								>
+									<Icon
+										v-if="feature.value"
+										name="lucide:check"
+										class="w-6 h-6 bg-green-500"
+									/>
+									<Icon
+										v-if="!feature.value"
+										name="lucide:x"
+										class="w-6 h-6 bg-red-500"
+									/>
+								</TableCell>
+								<TableCell
+									v-if="typeof feature.value != 'boolean'"
+								>
 									{{ feature.value }}
 								</TableCell>
+								
 								<TableCell>
 									<div class="flex items-center">
 										{{

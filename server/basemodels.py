@@ -155,6 +155,7 @@ class ReviewGetResponse(BaseModel):
     approved: bool
     proposed_causality_level: CausalityAssessmentLevelEnum | None = None
     reason: str | None
+    created_at: datetime
 
 
 # class ReviewGetResponse(BaseModel):
