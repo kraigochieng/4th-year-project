@@ -128,7 +128,6 @@ async function handleDelete() {
 	const runtimeConfig = useRuntimeConfig();
 	const serverApi = runtimeConfig.public.serverApi;
 
-	console.log("button being pressed");
 	const response = await $fetch(`${serverApi}/review/${props.data?.id}`, {
 		method: "DELETE",
 		headers: {
@@ -136,9 +135,10 @@ async function handleDelete() {
 		},
 	});
 
-	navigateTo(
-		`/causality-assessment-level/${props.causality_assessment_level_id}`
-	);
+	// navigateTo(
+	// 	`/causality-assessment-level/${props.causality_assessment_level_id}`
+	// );
+	navigateTo("/adr");
 }
 
 function formatTime(isoString: string): string {

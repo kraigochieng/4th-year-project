@@ -29,32 +29,7 @@
 					</Card>
 				</div>
 				<div class="chart-group-wrapper">
-					<ApexChart
-						v-if="causalityDistributionChart"
-						:options="causalityDistributionChart.options"
-						:series="causalityDistributionChart.series"
-					/>
-					<ApexChart
-						v-if="reviewedUnreviewedChart"
-						:options="reviewedUnreviewedChart.options"
-						:series="reviewedUnreviewedChart.series"
-					/>
-					<ApexChart
-						v-if="approvalStatusChart"
-						:options="approvalStatusChart.options"
-						:series="approvalStatusChart.series"
-					/>
-					<ApexChart
-						v-if="topInstitutionsChart"
-						:options="topInstitutionsChart.options"
-						:series="topInstitutionsChart.series"
-					/>
-					<!-- <ApexChart
-						v-if="adrWeeklyChart"
-						:options="adrWeeklyChart.options"
-						:series="adrWeeklyChart.series"
-					/> -->
-					<div class="flex">
+					<div>
 						<Select
 							v-model="selectedYear"
 							placeholder="Select year"
@@ -95,6 +70,31 @@
 							"
 						/>
 					</div>
+					<ApexChart
+						v-if="causalityDistributionChart"
+						:options="causalityDistributionChart.options"
+						:series="causalityDistributionChart.series"
+					/>
+					<ApexChart
+						v-if="reviewedUnreviewedChart"
+						:options="reviewedUnreviewedChart.options"
+						:series="reviewedUnreviewedChart.series"
+					/>
+					<ApexChart
+						v-if="approvalStatusChart"
+						:options="approvalStatusChart.options"
+						:series="approvalStatusChart.series"
+					/>
+					<ApexChart
+						v-if="topInstitutionsChart"
+						:options="topInstitutionsChart.options"
+						:series="topInstitutionsChart.series"
+					/>
+					<!-- <ApexChart
+						v-if="adrWeeklyChart"
+						:options="adrWeeklyChart.options"
+						:series="adrWeeklyChart.series"
+					/> -->
 				</div>
 			</TabsContent>
 			<TabsContent value="adr">
@@ -107,7 +107,127 @@
 					/>
 				</div>
 			</TabsContent>
-			<TabsContent value="sms"></TabsContent>
+			<!-- <TabsContent value="sms">
+				<div class="chart-group-wrapper space-y-6">
+					<div>
+						<h3 class="mb-2 font-semibold">
+							Individual Alert SMS (Monthly)
+						</h3>
+						<Select
+							v-model="selectedSmsYearIndividualAlert"
+							placeholder="Select year"
+							class="w-48 mb-4"
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Select year" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									v-for="year in availableSmsYearsIndividualAlert"
+									:key="year"
+									:value="year"
+								>
+									{{ year }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+
+						<ApexChart
+							v-if="
+								selectedSmsYearIndividualAlert &&
+								smsMonthlyIndividualAlertChart &&
+								smsMonthlyIndividualAlertChart[
+									selectedSmsYearIndividualAlert
+								]
+							"
+							:options="
+								useLineChart(
+									`Individual Alert SMS - ${selectedSmsYearIndividualAlert}`,
+									smsMonthlyIndividualAlertChart[
+										selectedSmsYearIndividualAlert
+									].data,
+									smsMonthlyIndividualAlertChart[
+										selectedSmsYearIndividualAlert
+									].series
+								).options
+							"
+							:series="
+								useLineChart(
+									`Individual Alert SMS - ${selectedSmsYearIndividualAlert}`,
+									smsMonthlyIndividualAlertChart[
+										selectedSmsYearIndividualAlert
+									].data,
+									smsMonthlyIndividualAlertChart[
+										selectedSmsYearIndividualAlert
+									].series
+								).series
+							"
+						/>
+					</div>
+
+					
+					<div>
+						<h3 class="mb-2 font-semibold">
+							Additional Info SMS (Monthly)
+						</h3>
+						<Select
+							v-model="selectedSmsYearAdditionalInfo"
+							placeholder="Select year"
+							class="w-48 mb-4"
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Select year" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									v-for="year in availableSmsYearsAdditionalInfo"
+									:key="year"
+									:value="year"
+								>
+									{{ year }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+
+						<ApexChart
+							v-if="
+								selectedSmsYearAdditionalInfo &&
+								smsMonthlyAdditionalInfoChart &&
+								smsMonthlyAdditionalInfoChart[
+									selectedSmsYearAdditionalInfo
+								]
+							"
+							:options="
+								useLineChart(
+									`Additional Info SMS - ${selectedSmsYearAdditionalInfo}`,
+									smsMonthlyAdditionalInfoChart[
+										selectedSmsYearAdditionalInfo
+									].data,
+									smsMonthlyAdditionalInfoChart[
+										selectedSmsYearAdditionalInfo
+									].series
+								).options
+							"
+							:series="
+								useLineChart(
+									`Additional Info SMS - ${selectedSmsYearAdditionalInfo}`,
+									smsMonthlyAdditionalInfoChart[
+										selectedSmsYearAdditionalInfo
+									].data,
+									smsMonthlyAdditionalInfoChart[
+										selectedSmsYearAdditionalInfo
+									].series
+								).series
+							"
+						/>
+					</div>
+					<ApexChart
+						v-if="smsStatusChart"
+						:options="smsStatusChart.options"
+						:series="smsStatusChart.series"
+					/>
+				</div>
+			</TabsContent> -->
 		</Tabs>
 	</div>
 </template>
@@ -124,9 +244,19 @@ const approvalStatusChart = ref(null);
 const topInstitutionsChart = ref(null);
 const adrWeeklyChart = ref(null);
 const adrMonthlyByYearChart = ref(null);
+const smsStatusChart = ref(null);
 
 const selectedYear = ref(null);
 const availableYears = ref([]);
+
+const smsMonthlyIndividualAlertChart = ref(null);
+const smsMonthlyAdditionalInfoChart = ref(null);
+
+const selectedSmsYearIndividualAlert = ref(null);
+const availableSmsYearsIndividualAlert = ref([]);
+
+const selectedSmsYearAdditionalInfo = ref(null);
+const availableSmsYearsAdditionalInfo = ref([]);
 
 // Fetch categorical field data and generate charts
 // For ADR categorical field charts
@@ -173,34 +303,88 @@ onMounted(async () => {
 	// ]);
 	const summary = await $fetch(`${serverApi}/dashboard/summary`, { headers });
 
-	const reviewedUnreviewed = await $fetch(
+	const { data: reviewedUnreviewed } = await useFetch(
 		`${serverApi}/dashboard/reviewed-unreviewed`,
-		{ headers }
+		{
+			headers,
+			cache: "no-store",
+		}
 	);
 
-	const causalityDistribution = await $fetch(
+	const { data: causalityDistribution } = await useFetch(
 		`${serverApi}/dashboard/causality-distribution`,
-		{ headers }
+		{
+			headers,
+			cache: "no-store",
+		}
 	);
 
-	const approvalStatus = await $fetch(
+	const { data: approvalStatus } = await useFetch(
 		`${serverApi}/dashboard/approval-status`,
-		{ headers }
+		{
+			headers,
+			cache: "no-store",
+		}
 	);
 
-	const topInstitutions = await $fetch(
+	const { data: topInstitutions } = await useFetch(
 		`${serverApi}/dashboard/top-institutions`,
-		{ headers }
+		{
+			headers,
+			cache: "no-store",
+		}
 	);
 
-	const adrWeekly = await $fetch(`${serverApi}/dashboard/adrs-weekly`, {
-		headers,
-	});
+	const { data: adrWeekly } = await useFetch(
+		`${serverApi}/dashboard/adrs-weekly`,
+		{
+			headers,
+			cache: "no-store",
+		}
+	);
 
-	const adrMonthlyByYear = await $fetch(
+	const { data: adrMonthlyByYear } = await useFetch(
 		`${serverApi}/dashboard/adrs-monthly`,
+		{
+			headers,
+			cache: "no-store",
+		}
+	);
+
+	const { data: smsStatus } = await useFetch(
+		`${serverApi}/dashboard/sms-status`,
+		{
+			headers,
+			cache: "no-store",
+		}
+	);
+
+	const { data: smsMonthlyIndividualAlert } = await useFetch(
+		`${serverApi}/dashboard/sms-monthly/individual-alert`,
 		{ headers }
 	);
+	if (smsMonthlyIndividualAlert.value) {
+		smsMonthlyIndividualAlertChart.value = smsMonthlyIndividualAlert.value;
+		availableSmsYearsIndividualAlert.value = Object.keys(
+			smsMonthlyIndividualAlert.value
+		);
+		selectedSmsYearIndividualAlert.value =
+			availableSmsYearsIndividualAlert.value[0];
+	}
+
+	// Additional info monthly data
+	const { data: smsMonthlyAdditionalInfo } = await useFetch(
+		`${serverApi}/dashboard/sms-monthly/additional-info`,
+		{ headers }
+	);
+	if (smsMonthlyAdditionalInfo.value) {
+		smsMonthlyAdditionalInfoChart.value = smsMonthlyAdditionalInfo.value;
+		availableSmsYearsAdditionalInfo.value = Object.keys(
+			smsMonthlyAdditionalInfo.value
+		);
+		selectedSmsYearAdditionalInfo.value =
+			availableSmsYearsAdditionalInfo.value[0];
+	}
 
 	if (adrMonthlyByYear.value) {
 		availableYears.value = Object.keys(adrMonthlyByYear.value);
@@ -210,12 +394,12 @@ onMounted(async () => {
 	summaryCards.value = [
 		{
 			label: "Total ADR Reports",
-			value: summary.value?.total_adrs,
+			value: summary?.total_adrs,
 			icon: "lucide:file-question",
 		},
 		{
-			label: "Total Medical Institutions",
-			value: summary.value?.total_institutions,
+			label: "Total Medical Institutions Reported From",
+			value: summary?.total_institutions,
 			icon: "lucide:hospital",
 		},
 	];
@@ -263,6 +447,14 @@ onMounted(async () => {
 		  )
 		: null;
 
+	smsStatusChart.value = smsStatus.value
+		? useBarChart(
+				"SMS Statuses",
+				smsStatus.value.data,
+				smsStatus.value.series
+		  )
+		: null;
+
 	adrMonthlyByYearChart.value = adrMonthlyByYear.value;
 
 	adrCategoricalCharts.value = [];
@@ -297,6 +489,6 @@ useHead({ title: "Dashboard | MediLinda" });
 }
 
 .chart-group-wrapper {
-	@apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+	@apply grid grid-cols-1 md:grid-cols-2 gap-6;
 }
 </style>

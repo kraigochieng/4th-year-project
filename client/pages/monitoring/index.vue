@@ -1,5 +1,9 @@
 <template>
-	<h1 class="text-center text-3xl font-bold p-4">Summary Statistics</h1>
+	<div class="flex gap-x-2">
+		<h1 class="text-center text-3xl font-bold p-4">Summary Statistics</h1>
+		<Button @mouseup="handlePrint">Print Page</Button>
+	</div>
+
 	<div class="flex gap-4 items-center p-4">
 		<DateRangePicker label="Choose Date Range" v-model="dateRange" />
 		<Select v-model="timeFrame">
@@ -266,6 +270,9 @@ watch(timeFrame, (newTimeFrame) => {
 	dateRange.value.end = end;
 });
 
+function handlePrint() {
+	window.print();
+}
 // Resend to API when
 watchEffect(async () => {
 	if (dateRange.value) {

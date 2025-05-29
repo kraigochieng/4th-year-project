@@ -49,14 +49,11 @@
         "dechallenge_yes",
         "rechallenge_yes",
         "severity_fatal",
-        "action_taken_dose not changed",
         "num_suspected_drugs_1",
         "patient_bmi",
         "rifampicin_start_stop_difference",
         "isoniazid_start_stop_difference",
-        "pyrazinamide_start_to_onset_days",
         "pyrazinamide_start_stop_difference",
-        "ethambutol_start_to_onset_days",
         "ethambutol_start_stop_difference"
     ],
     "columns_to_drop": [

@@ -6,9 +6,9 @@
 
 		<NavigationMenu>
 			<NavigationMenuList class="flex gap-x-4 flex-col md:flex-row">
-				<NavigationMenuItem>
+				<!-- <NavigationMenuItem>
 					<NavigationMenuLink href="/">Home</NavigationMenuLink>
-				</NavigationMenuItem>
+				</NavigationMenuItem> -->
 				<NavigationMenuItem>
 					<NavigationMenuTrigger>ADR</NavigationMenuTrigger>
 					<NavigationMenuContent>
@@ -109,9 +109,9 @@
 				<NavigationMenuItem>
 					<NavigationMenuLink href="/dashboard">Dashboard</NavigationMenuLink>
 				</NavigationMenuItem>
-				<NavigationMenuItem>
+				<!-- <NavigationMenuItem>
 					<NavigationMenuLink href="/about">About</NavigationMenuLink>
-				</NavigationMenuItem>
+				</NavigationMenuItem> -->
 				<NavigationMenuItem>
 					<Button @mouseup="useAuthStore().logout()">Logout</Button>
 				</NavigationMenuItem>

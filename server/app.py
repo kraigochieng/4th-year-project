@@ -454,11 +454,11 @@ async def lifespan(app: FastAPI):
 
             for user_id in selected_user_ids:
                 approved = random.choices(
-                    [
+                    population=[
                         True,
                         False,
                     ],
-                    [0.8, 0.2],
+                    weights=[0.65, 0.35],
                     k=1,
                 )[0]
                 proposed_level = (
@@ -1598,7 +1598,7 @@ def get_adr_monitoring(
     )
 
 
-# --- Summary Cards ---
+#  Summary Cards
 @app.get("/api/v1/dashboard/summary")
 def dashboard_summary(db: Session = Depends(get_db)):
     return {
@@ -1609,7 +1609,7 @@ def dashboard_summary(db: Session = Depends(get_db)):
     }
 
 
-# --- Reviewed vs Unreviewed ---
+#  Reviewed vs Unreviewed
 @app.get("/api/v1/dashboard/reviewed-unreviewed")
 def reviewed_vs_unreviewed(db: Session = Depends(get_db)):
     total = db.query(ADRModel.id).count()
@@ -1621,7 +1621,7 @@ def reviewed_vs_unreviewed(db: Session = Depends(get_db)):
     return {"series": [reviewed, total - reviewed], "data": ["Reviewed", "Unreviewed"]}
 
 
-# --- Causality Distribution ---
+#  Causality Distribution
 @app.get("/api/v1/dashboard/causality-distribution")
 def causality_distribution(db: Session = Depends(get_db)):
     rows = (
@@ -1645,7 +1645,7 @@ def causality_distribution(db: Session = Depends(get_db)):
     return {"series": series, "data": data}
 
 
-# --- Approval Status ---
+#  Approval Status
 @app.get("/api/v1/dashboard/approval-status")
 def approval_status(db: Session = Depends(get_db)):
     sql = text("""
@@ -1670,7 +1670,7 @@ def approval_status(db: Session = Depends(get_db)):
     return {"series": [r[1] for r in result], "data": [r[0] for r in result]}
 
 
-# --- Categorical Field Distribution ---
+#  Categorical Field Distribution
 @app.get("/api/v1/dashboard/categorical-field/{field_name}")
 def categorical_distribution(field_name: str, db: Session = Depends(get_db)):
     field = getattr(ADRModel, field_name, None)
@@ -1680,7 +1680,7 @@ def categorical_distribution(field_name: str, db: Session = Depends(get_db)):
     return {"series": [r[1] for r in rows], "data": [str(r[0]) for r in rows]}
 
 
-# --- Top Institutions ---
+#  Top Institutions
 @app.get("/api/v1/dashboard/top-institutions")
 def top_reporting_institutions(db: Session = Depends(get_db)):
     rows = (
@@ -1694,7 +1694,7 @@ def top_reporting_institutions(db: Session = Depends(get_db)):
     return {"series": [r[1] for r in rows], "data": [r[0] for r in rows]}
 
 
-# --- ADRs Weekly (Raw SQL with structured output) ---
+#  ADRs Weekly (Raw SQL with structured output)
 @app.get("/api/v1/dashboard/adrs-weekly")
 def adrs_weekly(db: Session = Depends(get_db)):
     sql = text("""
@@ -1707,7 +1707,7 @@ def adrs_weekly(db: Session = Depends(get_db)):
     return {"series": [r[1] for r in result], "data": [r[0] for r in result]}
 
 
-# --- ADRs Monthly (Raw SQL with structured output) ---
+#  ADRs Monthly (Raw SQL with structured output)
 @app.get("/api/v1/dashboard/adrs-monthly")
 def adrs_monthly(db: Session = Depends(get_db)):
     sql = text("""
@@ -1734,7 +1734,7 @@ def adrs_monthly(db: Session = Depends(get_db)):
     return data_by_year
 
 
-# --- SMS Summary ---
+#  SMS Summary
 @app.get("/api/v1/dashboard/sms-summary")
 def sms_summary(db: Session = Depends(get_db)):
     total_sms = db.query(func.count(SMSMessageModel.id)).scalar()
@@ -1752,7 +1752,7 @@ def sms_summary(db: Session = Depends(get_db)):
     }
 
 
-# --- SMS Status Distribution ---
+#  SMS Status Distribution
 @app.get("/api/v1/dashboard/sms-status")
 def sms_status_distribution(db: Session = Depends(get_db)):
     rows = (
@@ -1760,10 +1760,10 @@ def sms_status_distribution(db: Session = Depends(get_db)):
         .group_by(SMSMessageModel.status)
         .all()
     )
-    return [{"status": r[0], "count": r[1]} for r in rows]
+    return [{"series": r[0], "data": r[1]} for r in rows]
 
 
-# --- SMS Type Distribution ---
+#  SMS Type Distribution
 @app.get("/api/v1/dashboard/sms-type")
 def sms_type_distribution(db: Session = Depends(get_db)):
     rows = (
@@ -1774,7 +1774,7 @@ def sms_type_distribution(db: Session = Depends(get_db)):
     return [{"type": r[0], "count": r[1]} for r in rows]
 
 
-# --- SMS Count Over Time ---
+#  SMS Count Over Time
 @app.get("/api/v1/dashboard/sms-weekly")
 def sms_weekly(db: Session = Depends(get_db)):
     sql = text("""
@@ -1787,7 +1787,48 @@ def sms_weekly(db: Session = Depends(get_db)):
     return {"series": [r[1] for r in result], "data": [r[0] for r in result]}
 
 
-# --- SMS Monthly (Raw SQL with structured output) ---
+def get_sms_monthly_by_type(db: Session, sms_type: str):
+    sql = text("""
+        SELECT
+            strftime('%Y', created_at) AS year,
+            strftime('%m', created_at) AS month,
+            COUNT(*) AS count
+        FROM sms_message
+        WHERE sms_type = :sms_type
+        GROUP BY year, month
+        ORDER BY year, month
+    """)
+    result = db.execute(sql, {"sms_type": sms_type}).fetchall()
+
+    data_by_year = defaultdict(lambda: {"series": [], "data": []})
+
+    for row in result:
+        year, month, count = row
+        month_int = int(month)
+        month_label = calendar.month_abbr[month_int]
+        data_by_year[year]["data"].append(month_label)
+        data_by_year[year]["series"].append(count)
+
+    return data_by_year
+
+
+@app.get("/api/v1/dashboard/sms-monthly/individual-alert")
+def sms_monthly_individual_alert(db: Session = Depends(get_db)):
+    return get_sms_monthly_by_type(db, "individual alert")
+
+
+# Uncomment and add more routes if you add more message types in the future
+# @app.get("/api/v1/dashboard/sms-monthly/bulk-alert")
+# def sms_monthly_bulk_alert(db: Session = Depends(get_db)):
+#     return get_sms_monthly_by_type(db, "bulk alert")
+
+
+@app.get("/api/v1/dashboard/sms-monthly/additional-info")
+def sms_monthly_additional_info(db: Session = Depends(get_db)):
+    return get_sms_monthly_by_type(db, "additional info")
+
+
+#  SMS Monthly (Raw SQL with structured output)
 @app.get("/api/v1/dashboard/sms-monthly")
 def sms_monthly(db: Session = Depends(get_db)):
     sql = text("""
