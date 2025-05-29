@@ -1139,7 +1139,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 			if (calStatus.value == "success" && calData.value?.items) {
 				navigateTo(
-					`/causality-assessment-level/${calData.value.items[0].id}/review`
+					`/adr/${props.id}/review`
 				);
 			}
 		}

@@ -1,37 +1,11 @@
 <template>
-	<!-- <SidebarProvider>
-		<Sidebar>
-			<SidebarContent>
-				<SidebarGroup>Home</SidebarGroup>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							><NuxtLink to="/">Test</NuxtLink></SidebarMenuButton
-						>
-					</SidebarMenuItem>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							><NuxtLink to="/about"
-								>About</NuxtLink
-							></SidebarMenuButton
-						>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarContent>
-		</Sidebar>
-		<div>
-			<SidebarTrigger />
-			<slot></slot>
-		</div>
-	</SidebarProvider> -->
-
 	<div
 		class="flex items-center justify-between sticky top-0 z-50 bg-background page-responsive-width py-4"
 	>
 		<NuxtLink href="/"><Logo /></NuxtLink>
 
 		<NavigationMenu>
-			<NavigationMenuList class="flex gap-x-2">
+			<NavigationMenuList class="flex gap-x-4 flex-col md:flex-row">
 				<NavigationMenuItem>
 					<NavigationMenuLink href="/">Home</NavigationMenuLink>
 				</NavigationMenuItem>
@@ -93,7 +67,7 @@
 						</ul>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
-				<NavigationMenuItem>
+				<!-- <NavigationMenuItem>
 					<NavigationMenuTrigger>Monitoring</NavigationMenuTrigger>
 					<NavigationMenuContent>
 						<ul
@@ -131,6 +105,9 @@
 							</li>
 						</ul>
 					</NavigationMenuContent>
+				</NavigationMenuItem> -->
+				<NavigationMenuItem>
+					<NavigationMenuLink href="/dashboard">Dashboard</NavigationMenuLink>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
 					<NavigationMenuLink href="/about">About</NavigationMenuLink>
@@ -141,12 +118,53 @@
 			</NavigationMenuList>
 		</NavigationMenu>
 
-		<div>Avatar Here</div>
+		<div
+			class="flex gap-1 bg-accent rounded-full p-4"
+			:title="`${data?.first_name} ${data?.last_name}`"
+		>
+			<p>{{ capitalize(data?.first_name.charAt(0)) }}</p>
+			<p>{{ capitalize(data?.last_name.charAt(0)) }}</p>
+		</div>
 	</div>
 
 	<slot></slot>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { UserDetails } from "@/types/user";
+
+import { capitalize } from "lodash";
+
+const authStore = useAuthStore();
+
+const data = ref<UserDetails | null>(null);
+const status = ref<"pending" | "success" | "error">("pending");
+const error = ref<string | null>(null);
+
+onMounted(async () => {
+	await fetchUserData();
+});
+
+const fetchUserData = async () => {
+	try {
+		status.value = "pending";
+		// Using $fetch for API call
+		data.value = await $fetch(
+			`${useRuntimeConfig().public.serverApi}/users/me`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authStore.accessToken}`,
+				},
+			}
+		);
+
+		status.value = "success";
+	} catch (err: any) {
+		status.value = "error";
+		error.value = err.message || "Something went wrong";
+	}
+};
+</script>
 
 <style scoped>
 .glass-bg {

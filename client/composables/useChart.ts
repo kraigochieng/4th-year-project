@@ -7,14 +7,14 @@ export function usePieChart(title: string, labels: string[], data: number[]) {
 		options: {
 			chart: {
 				type: "pie",
-				fontFamily: "Lexend",
+				fontFamily: "Inter",
 				width: 200,
 				height: 200,
 			},
 			labels: formattedLabels,
 			title: {
 				text: title,
-				align: "center",
+				align: "left",
 			},
 			responsive: [
 				{
@@ -26,11 +26,52 @@ export function usePieChart(title: string, labels: string[], data: number[]) {
 				},
 			],
 		} as ApexOptions,
-		series: data as Array<number>,
+		series: data as ApexNonAxisChartSeries,
 	};
 }
 
 export function useBarChart(
+	title: string,
+	categories: string[],
+	data: number[],
+	barColors?: string[]
+) {
+	const formattedCategories = categories.map((c) => startCase(toLower(c)));
+	const fallbackColor = "#254e75";
+
+	return {
+		options: {
+			chart: {
+				type: "bar",
+				fontFamily: "Inter",
+				// width: 200,
+				// height: 200,
+			},
+			fill: {
+				colors: ["#254E75"],
+			},
+
+			// color: (opts: any) => {
+			// 	// opts.dataPointIndex gives the index of the current bar
+			// 	if (barColors && barColors[opts.dataPointIndex]) {
+			// 		return barColors[opts.dataPointIndex];
+			// 	}
+			// 	return fallbackColor;
+			// },
+			xaxis: { categories: formattedCategories },
+			title: {
+				text: title,
+				align: "left",
+			},
+			plotOptions: {
+				bar: { horizontal: true },
+			},
+		} as ApexOptions,
+		series: [{ name: title, data }] as ApexAxisChartSeries,
+	};
+}
+
+export function useLineChart(
 	title: string,
 	categories: string[],
 	data: number[]
@@ -40,20 +81,22 @@ export function useBarChart(
 	return {
 		options: {
 			chart: {
-				type: "bar",
-				fontFamily: "Lexend",
-				width: 200,
-				height: 200,
+				type: "line",
+				fontFamily: "Inter",
+				// width: 200,
+				// height: 200,
+				zoom: { enabled: false },
 			},
-			colors: [
-				getComputedStyle(document.documentElement).getPropertyValue(
-					"--primary"
-				),
-			],
+			fill: {
+				colors: ["#254E75"],
+			},
+			stroke: {
+				curve: "straight",
+			},
 			xaxis: { categories: formattedCategories },
 			title: {
 				text: title,
-				align: "center",
+				align: "left",
 			},
 			plotOptions: {
 				bar: { horizontal: true },

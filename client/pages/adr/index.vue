@@ -1,24 +1,13 @@
 <template>
 	<div class="page-wrapper">
-		<ul>
-			<li>
-				Add review form to the view adr page, or copy everything and
-				then create and adr review page
-			</li>
-			<li>add review adr to this page in table actions</li>
-			<li>
-				Use the query like in individual alerts on the view adr to allow
-				for directed page reloads
-			</li>
-			<li>dashboard</li>
-		</ul>
-		<Button class="w-full my-4"
-			><NuxtLink to="/adr/add">Add Adr</NuxtLink></Button
-		>
+		<p class="page-title">ADR Management</p>
+		<Button class="w-full my-4">
+			<NuxtLink to="/adr/add">Add Adr</NuxtLink>
+		</Button>
 		<LoadingMedilinda label="Loading ADRs" v-if="status == 'pending'" />
 		<DataTable
 			v-if="status == 'success'"
-			title="ADR Management"
+			title=""
 			:data="data?.items"
 			:columns="columns"
 			:currentPage="currentPage"
@@ -38,7 +27,7 @@
 					v-model="debouncedTableFilter"
 				/>
 				<Button v-if="allSelected || someSelected">
-					Delete All ({{ selectedRows.length }})
+					Delete ({{ selectedRows.length }})
 				</Button>
 			</template>
 		</DataTable>
